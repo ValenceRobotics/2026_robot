@@ -7,7 +7,11 @@
 
 package frc.robot;
 
+import edu.wpi.first.apriltag.AprilTagFieldLayout;
+import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.RobotBase;
+import java.io.IOException;
+import java.nio.file.Path;
 
 /**
  * This class defines the runtime mode used by AdvantageKit. The mode is always "real" when running
@@ -32,6 +36,22 @@ public final class Constants {
   public static final class FieldConstants {
     public static final double FIELD_LENGTH = 16.54; // meters
     public static final double FIELD_WIDTH = 8.20; // meters
+
+    // appril tag field layout
+    public static final AprilTagFieldLayout aprilTagLayout;
+
+    static {
+      try {
+        Path layoutPath =
+            Filesystem.getDeployDirectory().toPath().resolve("apriltags/2026-rebuilt-welded.json");
+
+        aprilTagLayout = new AprilTagFieldLayout(layoutPath.toString());
+        aprilTagLayout.setOrigin(AprilTagFieldLayout.OriginPosition.kBlueAllianceWallRightSide);
+
+      } catch (IOException e) {
+        throw new RuntimeException("Failed to load AprilTag field layout", e);
+      }
+    }
 
     private FieldConstants() {}
   }
