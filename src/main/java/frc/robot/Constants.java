@@ -28,4 +28,11 @@ public final class Constants {
     /** Replaying from a log file. */
     REPLAY
   }
+
+  public static final class FieldConstants {
+    public static final double FIELD_LENGTH = 16.54; // meters
+    public static final double FIELD_WIDTH = 8.20; // meters
+
+    private FieldConstants() {}
+  }
 }

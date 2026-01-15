@@ -8,14 +8,33 @@
 package frc.robot.subsystems.vision;
 
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
-import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
+import edu.wpi.first.wpilibj.Filesystem;
+import java.io.IOException;
+import java.nio.file.Path;
 
 public class VisionConstants {
   // AprilTag layout
-  public static AprilTagFieldLayout aprilTagLayout =
-      AprilTagFieldLayout.loadField(AprilTagFields.kDefaultField);
+  // public static AprilTagFieldLayout aprilTagLayout =
+  //   AprilTagFieldLayout.loadField(AprilTagFields.kDefaultField);
+
+  // scuffed way to get april tag layout from pre-existing JSON - note: change loadField method when
+  // wpilib is updated
+  public static final AprilTagFieldLayout aprilTagLayout;
+
+  static {
+    try {
+      Path layoutPath =
+          Filesystem.getDeployDirectory().toPath().resolve("apriltags/2026-rebuilt-welded.json");
+
+      aprilTagLayout = new AprilTagFieldLayout(layoutPath.toString());
+      aprilTagLayout.setOrigin(AprilTagFieldLayout.OriginPosition.kBlueAllianceWallRightSide);
+
+    } catch (IOException e) {
+      throw new RuntimeException("Failed to load AprilTag field layout", e);
+    }
+  }
 
   // Camera names, must match names configured on coprocessor
   public static String camera0Name = "camera_0";
