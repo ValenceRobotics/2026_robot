@@ -92,6 +92,10 @@ public class DriveConstants {
   public static final double turnPIDMinInput = 0; // Radians
   public static final double turnPIDMaxInput = 2 * Math.PI; // Radians
 
+  // PID thresholds
+  public static final double drivePositionToleranceMeters = 0.1;
+  public static final double driveRotationToleranceRad = Math.toRadians(5);
+
   // PathPlanner configuration
   public static final double robotMassKg = 74.088;
   public static final double robotMOI = 6.883;
