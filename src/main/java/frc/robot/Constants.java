@@ -7,22 +7,28 @@
 
 package frc.robot;
 
-import edu.wpi.first.apriltag.AprilTagFieldLayout;
-import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.RobotBase;
-import java.io.IOException;
-import java.nio.file.Path;
 
-/**
- * This class defines the runtime mode used by AdvantageKit. The mode is always "real" when running
- * on a roboRIO. Change the value of "simMode" to switch between "sim" (physics sim) and "replay"
- * (log replay from a file).
- */
 public final class Constants {
-  public static final Mode simMode = Mode.SIM;
-  public static final Mode currentMode = RobotBase.isReal() ? Mode.REAL : simMode;
+  public static final RobotType robot = RobotType.COMPBOT;
+  public static final boolean tuningMode = false;
 
-  public static enum Mode {
+  public static final double loopPeriodSecs = 0.02;
+  public static final double loopPeriodWatchdogSecs = 0.2;
+
+  public static Mode getMode() {
+    if (RobotBase.isReal()) {
+      return Mode.REAL;
+    }
+
+    if (RobotBase.isSimulation()) {
+      return Mode.SIM;
+    }
+
+    return Mode.REPLAY;
+  }
+
+  public enum Mode {
     /** Running on a real robot. */
     REAL,
 
@@ -33,26 +39,35 @@ public final class Constants {
     REPLAY
   }
 
-  public static final class FieldConstants {
-    public static final double FIELD_LENGTH = 16.54; // meters
-    public static final double FIELD_WIDTH = 8.20; // meters
+  public enum RobotType {
+    COMPBOT,
+    ALPHABOT,
+    SIMBOT
+  }
 
-    // appril tag field layout
-    public static final AprilTagFieldLayout aprilTagLayout;
+  public static boolean disableHAL = false;
 
-    static {
-      try {
-        Path layoutPath =
-            Filesystem.getDeployDirectory().toPath().resolve("apriltags/2026-rebuilt-welded.json");
+  public static void disableHAL() {
+    disableHAL = true;
+  }
 
-        aprilTagLayout = new AprilTagFieldLayout(layoutPath.toString());
-        aprilTagLayout.setOrigin(AprilTagFieldLayout.OriginPosition.kBlueAllianceWallRightSide);
-
-      } catch (IOException e) {
-        throw new RuntimeException("Failed to load AprilTag field layout", e);
+  /** Checks whether the correct robot is selected when deploying. */
+  public static class CheckDeploy {
+    public static void main(String... args) {
+      if (robot == RobotType.SIMBOT) {
+        System.err.println("Cannot deploy, invalid robot selected: " + robot);
+        System.exit(1);
       }
     }
+  }
 
-    private FieldConstants() {}
+  /** Checks that the default robot is selected and tuning mode is disabled. */
+  public static class CheckPullRequest {
+    public static void main(String... args) {
+      if (robot != RobotType.COMPBOT || tuningMode) {
+        System.err.println("Do not merge, non-default constants are configured.");
+        System.exit(1);
+      }
+    }
   }
 }

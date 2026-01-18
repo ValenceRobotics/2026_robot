@@ -22,7 +22,6 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandGenericHID;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
-import frc.robot.Constants.FieldConstants;
 import frc.robot.commands.DriveCommands;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.drive.GyroIO;
@@ -34,6 +33,7 @@ import frc.robot.subsystems.vision.Vision;
 import frc.robot.subsystems.vision.VisionIO;
 import frc.robot.subsystems.vision.VisionIOPhotonVision;
 import frc.robot.subsystems.vision.VisionIOPhotonVisionSim;
+import frc.robot.util.geometry.AllianceFlipUtil;
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 
 /**
@@ -57,7 +57,7 @@ public class RobotContainer {
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
-    switch (Constants.currentMode) {
+    switch (Constants.getMode()) {
       case REAL:
         // Real robot, instantiate hardware IO implementations
 
@@ -189,7 +189,9 @@ public class RobotContainer {
                 () -> -controller.getLeftX(),
                 () ->
                     drive.getAimbotHeading(
-                        FieldConstants.aprilTagLayout.getTagPose(10).orElseThrow().toPose2d())));
+                        AllianceFlipUtil.apply(FieldConstants.hubCenter)
+                        // FieldConstants.aprilTagLayout.getTagPose(10).orElseThrow().toPose2d().getTranslation()
+                        )));
   }
 
   /**

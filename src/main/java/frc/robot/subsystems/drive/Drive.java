@@ -43,8 +43,8 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.Constants;
-import frc.robot.Constants.FieldConstants;
 import frc.robot.Constants.Mode;
+import frc.robot.FieldConstants;
 import frc.robot.util.LocalADStarAK;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
@@ -179,7 +179,7 @@ public class Drive extends SubsystemBase {
     }
 
     // Update gyro alert
-    gyroDisconnectedAlert.set(!gyroInputs.connected && Constants.currentMode != Mode.SIM);
+    gyroDisconnectedAlert.set(!gyroInputs.connected && Constants.getMode() != Mode.SIM);
 
     // clamp pose to inside field
     if (RobotBase.isSimulation()) {
@@ -327,8 +327,8 @@ public class Drive extends SubsystemBase {
   }
 
   // calculate rotational heading for aimbot
-  public Rotation2d getAimbotHeading(Pose2d targetPose) {
-    Translation2d delta = targetPose.getTranslation().minus(getPose().getTranslation());
+  public Rotation2d getAimbotHeading(Translation2d targetTranslation2d) {
+    Translation2d delta = targetTranslation2d.minus(getPose().getTranslation());
 
     return new Rotation2d(delta.getX(), delta.getY());
   }
@@ -337,8 +337,8 @@ public class Drive extends SubsystemBase {
   private void clampPoseToField() {
     Pose2d pose = getPose();
 
-    double x = MathUtil.clamp(pose.getX(), 0.0, FieldConstants.FIELD_LENGTH);
-    double y = MathUtil.clamp(pose.getY(), 0.0, FieldConstants.FIELD_WIDTH);
+    double x = MathUtil.clamp(pose.getX(), 0.0, FieldConstants.fieldLength);
+    double y = MathUtil.clamp(pose.getY(), 0.0, FieldConstants.fieldWidth);
 
     setPose(new Pose2d(x, y, pose.getRotation()));
   }
