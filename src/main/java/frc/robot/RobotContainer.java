@@ -15,6 +15,7 @@ import static frc.robot.subsystems.vision.VisionConstants.robotToCamera1;
 import com.pathplanner.lib.auto.AutoBuilder;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -29,6 +30,9 @@ import frc.robot.subsystems.drive.GyroIOPigeon2;
 import frc.robot.subsystems.drive.ModuleIO;
 import frc.robot.subsystems.drive.ModuleIOSim;
 import frc.robot.subsystems.drive.ModuleIOSpark;
+import frc.robot.subsystems.hood.Hood;
+import frc.robot.subsystems.hood.HoodIO;
+import frc.robot.subsystems.hood.HoodIOSim;
 import frc.robot.subsystems.vision.Vision;
 import frc.robot.subsystems.vision.VisionIO;
 import frc.robot.subsystems.vision.VisionIOPhotonVision;
@@ -46,7 +50,7 @@ public class RobotContainer {
   // Subsystems
   private final Drive drive;
   private final Vision vision;
-
+  private final Hood hood;
   // Controller
   private final CommandXboxController controller = new CommandXboxController(1);
 
@@ -80,6 +84,8 @@ public class RobotContainer {
                 new VisionIOPhotonVision(camera0Name, robotToCamera0),
                 new VisionIOPhotonVision(camera1Name, robotToCamera1));
 
+        hood = new Hood(new HoodIOSim());
+
         break;
 
       case SIM:
@@ -98,6 +104,7 @@ public class RobotContainer {
                 new VisionIOPhotonVisionSim(camera0Name, robotToCamera0, drive::getPose),
                 new VisionIOPhotonVisionSim(camera1Name, robotToCamera1, drive::getPose));
 
+        hood = new Hood(new HoodIOSim());
         break;
 
       default:
@@ -113,6 +120,8 @@ public class RobotContainer {
                 new ModuleIO() {});
 
         vision = new Vision(drive::addVisionMeasurement, new VisionIO() {}, new VisionIO() {});
+
+        hood = new Hood(new HoodIO() {});
         break;
     }
 
@@ -154,22 +163,12 @@ public class RobotContainer {
             () -> -controller.getLeftX(),
             () -> -controller.getRightX()));
 
-    // Lock to 0° when A button is held
-    controller
-        .a()
-        .whileTrue(
-            DriveCommands.joystickDriveAtAngle(
-                drive,
-                () -> -controller.getLeftY(),
-                () -> -controller.getLeftX(),
-                () -> Rotation2d.kZero));
-
     // Switch to X pattern when X button is pressed
     controller.x().onTrue(Commands.runOnce(drive::stopWithX, drive));
 
-    // Reset gyro to 0° when B button is pressed
+    // Reset gyro to 0° when Start button is pressed
     controller
-        .b()
+        .start()
         .onTrue(
             Commands.runOnce(
                     () ->
@@ -192,6 +191,23 @@ public class RobotContainer {
                         AllianceFlipUtil.apply(FieldConstants.hubCenter)
                         // FieldConstants.aprilTagLayout.getTagPose(10).orElseThrow().toPose2d().getTranslation()
                         )));
+    
+
+    // dev 
+    controller
+        .b()
+        .whileTrue(
+            Commands.parallel(
+                DriveCommands.joystickDriveAtAngle(
+                    drive,
+                    () -> -controller.getLeftY(),
+                    () -> -controller.getLeftX(),
+                    () -> drive.getAimbotHeading(AllianceFlipUtil.apply(FieldConstants.hubCenter))),
+                Commands.run(() -> hood.setGoalParams(Units.degreesToRadians(30), 0.0), hood)));
+
+    controller
+        .povUp()
+        .onTrue(Commands.runOnce(() -> hood.setGoalParams(Units.degreesToRadians(45), 0.0), hood));
   }
 
   /**
