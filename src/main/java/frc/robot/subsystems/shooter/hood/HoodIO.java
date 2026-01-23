@@ -1,4 +1,4 @@
-package frc.robot.subsystems.hood;
+package frc.robot.subsystems.shooter.hood;
 
 import org.littletonrobotics.junction.AutoLog;
 
@@ -10,7 +10,7 @@ public interface HoodIO {
     public boolean motorConnected = false;
     public double positionRads = 0.0;
     // public double motorRotations = 0.0; from last yrs elevator code
-    // public double encoderRotations = 0.0; 
+    // public double encoderRotations = 0.0;
     public double velocityRadsPerSec = 0.0;
     public double appliedVolts = 0.0;
     public double supplyCurrentAmps = 0.0;

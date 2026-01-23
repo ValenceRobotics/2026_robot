@@ -15,7 +15,6 @@ import static frc.robot.subsystems.vision.VisionConstants.robotToCamera1;
 import com.pathplanner.lib.auto.AutoBuilder;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -23,6 +22,7 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandGenericHID;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
+import frc.robot.commands.AimbotTarget;
 import frc.robot.commands.DriveCommands;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.drive.GyroIO;
@@ -30,9 +30,9 @@ import frc.robot.subsystems.drive.GyroIOPigeon2;
 import frc.robot.subsystems.drive.ModuleIO;
 import frc.robot.subsystems.drive.ModuleIOSim;
 import frc.robot.subsystems.drive.ModuleIOSpark;
-import frc.robot.subsystems.hood.Hood;
-import frc.robot.subsystems.hood.HoodIO;
-import frc.robot.subsystems.hood.HoodIOSim;
+import frc.robot.subsystems.shooter.hood.Hood;
+import frc.robot.subsystems.shooter.hood.HoodIO;
+import frc.robot.subsystems.shooter.hood.HoodIOSim;
 import frc.robot.subsystems.vision.Vision;
 import frc.robot.subsystems.vision.VisionIO;
 import frc.robot.subsystems.vision.VisionIOPhotonVision;
@@ -163,6 +163,8 @@ public class RobotContainer {
             () -> -controller.getLeftX(),
             () -> -controller.getRightX()));
 
+    hood.setDefaultCommand(new AimbotTarget(hood, drive));
+
     // Switch to X pattern when X button is pressed
     controller.x().onTrue(Commands.runOnce(drive::stopWithX, drive));
 
@@ -178,7 +180,6 @@ public class RobotContainer {
                 .ignoringDisable(true));
 
     // Lock to point to april tag when A button is held
-    /* todo: maybe make this toggle (driver preference ig); add parallel command group to have hood be right angle at all times depending on distance from the hoop? */
     controller
         .y()
         .whileTrue(
@@ -187,27 +188,17 @@ public class RobotContainer {
                 () -> -controller.getLeftY(),
                 () -> -controller.getLeftX(),
                 () ->
-                    drive.getAimbotHeading(
-                        AllianceFlipUtil.apply(FieldConstants.hubCenter)
-                        // FieldConstants.aprilTagLayout.getTagPose(10).orElseThrow().toPose2d().getTranslation()
-                        )));
-    
+                    drive.getAimbotHeadingStill(AllianceFlipUtil.apply(FieldConstants.hubCenter))));
 
-    // dev 
+    // dev
     controller
-        .b()
+        .leftBumper()
         .whileTrue(
-            Commands.parallel(
-                DriveCommands.joystickDriveAtAngle(
-                    drive,
-                    () -> -controller.getLeftY(),
-                    () -> -controller.getLeftX(),
-                    () -> drive.getAimbotHeading(AllianceFlipUtil.apply(FieldConstants.hubCenter))),
-                Commands.run(() -> hood.setGoalParams(Units.degreesToRadians(30), 0.0), hood)));
-
-    controller
-        .povUp()
-        .onTrue(Commands.runOnce(() -> hood.setGoalParams(Units.degreesToRadians(45), 0.0), hood));
+            DriveCommands.joystickDriveAtAngle(
+                drive,
+                () -> -controller.getLeftY(),
+                () -> -controller.getLeftX(),
+                () -> drive.getAimbotHeading()));
   }
 
   /**

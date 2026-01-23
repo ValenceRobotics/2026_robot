@@ -46,6 +46,7 @@ import frc.robot.Constants;
 import frc.robot.Constants.Mode;
 import frc.robot.FieldConstants;
 import frc.robot.util.LocalADStarAK;
+import frc.robot.util.geometry.AllianceFlipUtil;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 import org.littletonrobotics.junction.AutoLogOutput;
@@ -71,6 +72,8 @@ public class Drive extends SubsystemBase {
       };
   private SwerveDrivePoseEstimator poseEstimator =
       new SwerveDrivePoseEstimator(kinematics, rawGyroRotation, lastModulePositions, Pose2d.kZero);
+
+  private Rotation2d aimHeading = null;
 
   public Drive(
       GyroIO gyroIO,
@@ -185,6 +188,10 @@ public class Drive extends SubsystemBase {
     if (RobotBase.isSimulation()) {
       clampPoseToField();
     }
+
+    Logger.recordOutput(
+        "Drive/DistanceFromHub",
+        getPose().getTranslation().getDistance(AllianceFlipUtil.apply(FieldConstants.hubCenter)));
   }
 
   /**
@@ -302,6 +309,12 @@ public class Drive extends SubsystemBase {
     return getPose().getRotation();
   }
 
+  /** Returns the current field-relative velocity. */
+  @AutoLogOutput(key = "RobotState/FieldVelocity")
+  public ChassisSpeeds getFieldVelocity() {
+    return ChassisSpeeds.fromRobotRelativeSpeeds(getChassisSpeeds(), getRotation());
+  }
+
   /** Resets the current odometry pose. */
   public void setPose(Pose2d pose) {
     poseEstimator.resetPosition(rawGyroRotation, getModulePositions(), pose);
@@ -326,8 +339,16 @@ public class Drive extends SubsystemBase {
     return maxSpeedMetersPerSec / driveBaseRadius;
   }
 
-  // calculate rotational heading for aimbot
-  public Rotation2d getAimbotHeading(Translation2d targetTranslation2d) {
+  public void setAimbotHeading(Rotation2d heading) {
+    aimHeading = heading;
+  }
+  // get aimbot heading for shoot on move calculator
+  public Rotation2d getAimbotHeading() {
+    return aimHeading;
+  }
+
+  // get aimbot heading for shoot while still
+  public Rotation2d getAimbotHeadingStill(Translation2d targetTranslation2d) {
     Translation2d delta = targetTranslation2d.minus(getPose().getTranslation());
 
     return new Rotation2d(delta.getX(), delta.getY());

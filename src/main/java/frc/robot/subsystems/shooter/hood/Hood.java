@@ -1,11 +1,13 @@
-package frc.robot.subsystems.hood;
+package frc.robot.subsystems.shooter.hood;
 
 import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.subsystems.hood.HoodIO.HoodIOOutputMode;
-import frc.robot.subsystems.hood.HoodIO.HoodIOOutputs;
+import frc.robot.subsystems.shooter.ShooterConstants;
+import frc.robot.subsystems.shooter.hood.HoodIO.HoodIOOutputMode;
+import frc.robot.subsystems.shooter.hood.HoodIO.HoodIOOutputs;
 import frc.robot.util.LoggedTunableNumber;
 import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
@@ -77,5 +79,10 @@ public class Hood extends SubsystemBase {
     return DriverStation.isEnabled()
         && Math.abs(getMeasuredAngleRad() - goalAngleRad)
             <= Units.degreesToRadians(toleranceDeg.get());
+  }
+
+  public void trackingMode(double distanceMeters) {
+    Rotation2d hoodAngle = ShooterConstants.hoodAngleMap.get(distanceMeters);
+    setGoalParams(hoodAngle.getRadians(), 0.0);
   }
 }
