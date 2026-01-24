@@ -4,15 +4,15 @@ import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.subsystems.shooter.ShooterConstants;
 import frc.robot.subsystems.shooter.hood.HoodIO.HoodIOOutputMode;
 import frc.robot.subsystems.shooter.hood.HoodIO.HoodIOOutputs;
+import frc.robot.util.FullSubsystem;
 import frc.robot.util.LoggedTunableNumber;
 import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
 
-public class Hood extends SubsystemBase {
+public class Hood extends FullSubsystem {
 
   private final HoodIO io;
   private final HoodIOInputsAutoLogged inputs = new HoodIOInputsAutoLogged();
@@ -36,7 +36,7 @@ public class Hood extends SubsystemBase {
     //  tunable numbers
     kP.initDefault(0.5);
     kD.initDefault(0);
-    toleranceDeg.initDefault(10.0); // not implemented in SIM
+    toleranceDeg.initDefault(10.0);
   }
 
   @Override
@@ -44,7 +44,11 @@ public class Hood extends SubsystemBase {
     // Update inputs
     io.updateInputs(inputs);
     Logger.processInputs("Hood", inputs);
+  }
 
+  @Override
+  public void periodicAfterScheduler() {
+    // set outputs
     outputs.mode = HoodIOOutputMode.CLOSED_LOOP;
     outputs.positionRad = MathUtil.clamp(goalAngleRad, minAngle, maxAngle);
     outputs.velocityRadsPerSec = goalVelocity;
