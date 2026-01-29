@@ -3,34 +3,50 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 6.974823486328124,
-        "y": 5.284
+        "x": 7.042638122558593,
+        "y": 5.439067443847657
       },
       "prevControl": null,
       "nextControl": {
-        "x": 5.90294078437423,
-        "y": 5.7210800937429065
+        "x": 6.173991254777481,
+        "y": 5.8586017010117235
       },
       "isLocked": false,
-      "linkedName": null
+      "linkedName": "nuetral_intake1"
     },
     {
       "anchor": {
-        "x": 2.391,
-        "y": 5.284
+        "x": 2.317287615740741,
+        "y": 5.567333984375
       },
       "prevControl": {
-        "x": 2.991794991376682,
-        "y": 5.364722804098995
+        "x": 3.9573989429417358,
+        "y": 5.4610446069176986
       },
       "nextControl": null,
       "isLocked": false,
       "linkedName": "shoot"
     }
   ],
-  "rotationTargets": [],
+  "rotationTargets": [
+    {
+      "waypointRelativePos": 0.06351768092105264,
+      "rotationDegrees": -45.0
+    }
+  ],
   "constraintZones": [],
-  "pointTowardsZones": [],
+  "pointTowardsZones": [
+    {
+      "fieldPosition": {
+        "x": 4.625,
+        "y": 4.03
+      },
+      "rotationOffset": 0.0,
+      "minWaypointRelativePos": 0.8329839939024389,
+      "maxWaypointRelativePos": 0.9365049119241194,
+      "name": "hub"
+    }
+  ],
   "eventMarkers": [],
   "globalConstraints": {
     "maxVelocity": 5.0,

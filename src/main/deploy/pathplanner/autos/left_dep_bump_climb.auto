@@ -7,7 +7,7 @@
         {
           "type": "path",
           "data": {
-            "pathName": "center_hub_to_depot"
+            "pathName": "left_dep"
           }
         },
         {
@@ -20,6 +20,18 @@
           "type": "path",
           "data": {
             "pathName": "shoot_left_bump_nuetral"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "nuetralintake_shoot"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "shoot_climb"
           }
         }
       ]

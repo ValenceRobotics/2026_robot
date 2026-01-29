@@ -68,7 +68,7 @@ public class Flywheel extends FullSubsystem {
   public double getMeasuredAngleRad() {
     return inputs.velocityRadsPerSec;
   }
-  
+
   @AutoLogOutput(key = "Flywheel/MeasuredVelocityRPM")
   public double getMeasuredVelocityRPM() {
     return inputs.velocityRadsPerSec * 60.0 / (2.0 * Math.PI);

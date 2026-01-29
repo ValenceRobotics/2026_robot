@@ -7,19 +7,25 @@
         {
           "type": "path",
           "data": {
-            "pathName": "center_hub_to_depot"
+            "pathName": "right_trench_hp"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "left_dep_shoot(hub)"
+            "pathName": "hp_shootr"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "shoot_left_bump_nuetral"
+            "pathName": "shootr_nuetral"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "nuetral_shootr"
           }
         }
       ]

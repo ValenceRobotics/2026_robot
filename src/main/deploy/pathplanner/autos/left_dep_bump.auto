@@ -7,13 +7,7 @@
         {
           "type": "path",
           "data": {
-            "pathName": "drive_to_shoot"
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "shoot_hub_to_depot_nothru"
+            "pathName": "left_dep"
           }
         },
         {

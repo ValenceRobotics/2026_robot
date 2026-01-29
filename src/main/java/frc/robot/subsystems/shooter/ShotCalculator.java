@@ -7,7 +7,7 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import frc.robot.FieldConstants;
 import frc.robot.util.geometry.AllianceFlipUtil;
 
-// to do: add hub offset zone for shots to aim at to make our heading pose less sensitive. 
+// to do: add hub offset zone for shots to aim at to make our heading pose less sensitive.
 public class ShotCalculator {
 
   public record ShotParams(
