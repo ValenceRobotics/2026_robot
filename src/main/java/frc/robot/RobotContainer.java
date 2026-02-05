@@ -12,7 +12,10 @@ import static frc.robot.subsystems.vision.VisionConstants.camera1Name;
 import static frc.robot.subsystems.vision.VisionConstants.robotToCamera0;
 import static frc.robot.subsystems.vision.VisionConstants.robotToCamera1;
 
+import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
+
 import com.pathplanner.lib.auto.AutoBuilder;
+
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.GenericHID;
@@ -30,6 +33,12 @@ import frc.robot.subsystems.drive.GyroIOPigeon2;
 import frc.robot.subsystems.drive.ModuleIO;
 import frc.robot.subsystems.drive.ModuleIOSim;
 import frc.robot.subsystems.drive.ModuleIOSpark;
+import frc.robot.subsystems.intake.pivot.IntakePivot;
+import frc.robot.subsystems.intake.pivot.IntakePivotIO;
+import frc.robot.subsystems.intake.pivot.IntakePivotIOSim;
+import frc.robot.subsystems.intake.rollers.IntakeRollers;
+import frc.robot.subsystems.intake.rollers.IntakeRollersIO;
+import frc.robot.subsystems.intake.rollers.IntakeRollersIOSim;
 import frc.robot.subsystems.shooter.hood.Hood;
 import frc.robot.subsystems.shooter.hood.HoodIO;
 import frc.robot.subsystems.shooter.hood.HoodIOSim;
@@ -38,7 +47,6 @@ import frc.robot.subsystems.vision.VisionIO;
 import frc.robot.subsystems.vision.VisionIOPhotonVision;
 import frc.robot.subsystems.vision.VisionIOPhotonVisionSim;
 import frc.robot.util.geometry.AllianceFlipUtil;
-import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 
 /**
  * This class is where the bulk of the robot should be declared. Since Command-based is a
@@ -51,6 +59,8 @@ public class RobotContainer {
   private final Drive drive;
   private final Vision vision;
   private final Hood hood;
+  private final IntakePivot intakePivot;
+  private final IntakeRollers intakeRollers;
   // Controller
   private final CommandXboxController controller = new CommandXboxController(1);
 
@@ -85,6 +95,8 @@ public class RobotContainer {
                 new VisionIOPhotonVision(camera1Name, robotToCamera1));
 
         hood = new Hood(new HoodIOSim());
+        intakePivot = new IntakePivot(new IntakePivotIOSim());
+        intakeRollers = new IntakeRollers(new IntakeRollersIOSim());
 
         break;
 
@@ -105,6 +117,9 @@ public class RobotContainer {
                 new VisionIOPhotonVisionSim(camera1Name, robotToCamera1, drive::getPose));
 
         hood = new Hood(new HoodIOSim());
+        intakePivot = new IntakePivot(new IntakePivotIOSim());
+        intakeRollers = new IntakeRollers(new IntakeRollersIOSim());
+
         break;
 
       default:
@@ -122,6 +137,8 @@ public class RobotContainer {
         vision = new Vision(drive::addVisionMeasurement, new VisionIO() {}, new VisionIO() {});
 
         hood = new Hood(new HoodIO() {});
+        intakePivot = new IntakePivot(new IntakePivotIO() {});
+        intakeRollers = new IntakeRollers(new IntakeRollersIO() {});
         break;
     }
 
