@@ -10,12 +10,8 @@ package frc.robot.subsystems.vision;
 import static frc.robot.subsystems.vision.VisionConstants.aprilTagLayout;
 
 import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Transform3d;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.function.Supplier;
-import org.littletonrobotics.junction.Logger;
 import org.photonvision.simulation.PhotonCameraSim;
 import org.photonvision.simulation.SimCameraProperties;
 import org.photonvision.simulation.VisionSystemSim;
@@ -26,7 +22,6 @@ public class VisionIOPhotonVisionSim extends VisionIOPhotonVision {
 
   private final Supplier<Pose2d> poseSupplier;
   private final PhotonCameraSim cameraSim;
-  private final String cameraName;
 
   /**
    * Creates a new VisionIOPhotonVisionSim.
@@ -37,7 +32,6 @@ public class VisionIOPhotonVisionSim extends VisionIOPhotonVision {
   public VisionIOPhotonVisionSim(
       String name, Transform3d robotToCamera, Supplier<Pose2d> poseSupplier) {
     super(name, robotToCamera);
-    this.cameraName = name;
     this.poseSupplier = poseSupplier;
 
     // Initialize vision sim
@@ -57,27 +51,5 @@ public class VisionIOPhotonVisionSim extends VisionIOPhotonVision {
     visionSim.update(poseSupplier.get());
 
     super.updateInputs(inputs);
-
-    logRays(poseSupplier.get(), inputs);
-  }
-
-  // method for logging the rays from camera to april tag
-  private void logRays(Pose2d robotPose2d, VisionIOInputs inputs) {
-    Pose3d fieldToCamera = new Pose3d(robotPose2d).transformBy(robotToCamera);
-
-    List<Pose3d> rayPoints = new ArrayList<>();
-
-    for (int tagId : inputs.tagIds) {
-      var tagPoseOpt = aprilTagLayout.getTagPose(tagId);
-      if (tagPoseOpt.isEmpty()) continue;
-
-      Pose3d fieldToTag = tagPoseOpt.get();
-
-      // each pair = one ray
-      rayPoints.add(fieldToCamera);
-      rayPoints.add(fieldToTag);
-    }
-
-    Logger.recordOutput("Vision/SimRays/" + cameraName, rayPoints.toArray(new Pose3d[0]));
   }
 }
