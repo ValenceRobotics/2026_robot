@@ -45,6 +45,7 @@ import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.Constants;
 import frc.robot.Constants.Mode;
 import frc.robot.FieldConstants;
+import frc.robot.subsystems.shooter.ShotCalculator;
 import frc.robot.util.LocalADStarAK;
 import frc.robot.util.geometry.AllianceFlipUtil;
 import java.util.concurrent.locks.Lock;
@@ -191,7 +192,10 @@ public class Drive extends SubsystemBase {
 
     Logger.recordOutput(
         "Drive/DistanceFromHub",
-        getPose().getTranslation().getDistance(AllianceFlipUtil.apply(FieldConstants.hubCenter)));
+        getPose()
+            .getTranslation()
+            .getDistance(
+                AllianceFlipUtil.apply(FieldConstants.Hub.topCenterPoint.toTranslation2d())));
   }
 
   /**
@@ -348,10 +352,14 @@ public class Drive extends SubsystemBase {
   }
 
   // get aimbot heading for shoot while still
-  public Rotation2d getAimbotHeadingStill(Translation2d targetTranslation2d) {
-    Translation2d delta = targetTranslation2d.minus(getPose().getTranslation());
+  public Rotation2d getAimbotHeading(Translation2d targetTranslation2d) {
 
-    return new Rotation2d(delta.getX(), delta.getY());
+    var targetRotation =
+        ShotCalculator.calculate(getPose(), getFieldVelocity(), targetTranslation2d).robotHeading();
+
+    Rotation2d delta = targetRotation.minus(getPose().getRotation());
+
+    return delta;
   }
 
   // clamp robot position to field in simulation

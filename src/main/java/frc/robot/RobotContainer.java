@@ -12,10 +12,7 @@ import static frc.robot.subsystems.vision.VisionConstants.camera1Name;
 import static frc.robot.subsystems.vision.VisionConstants.robotToCamera0;
 import static frc.robot.subsystems.vision.VisionConstants.robotToCamera1;
 
-import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
-
 import com.pathplanner.lib.auto.AutoBuilder;
-
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.GenericHID;
@@ -39,6 +36,8 @@ import frc.robot.subsystems.intake.pivot.IntakePivotIOSim;
 import frc.robot.subsystems.intake.rollers.IntakeRollers;
 import frc.robot.subsystems.intake.rollers.IntakeRollersIO;
 import frc.robot.subsystems.intake.rollers.IntakeRollersIOSim;
+import frc.robot.subsystems.shooter.flywheel.Flywheel;
+import frc.robot.subsystems.shooter.flywheel.FlywheelIO;
 import frc.robot.subsystems.shooter.hood.Hood;
 import frc.robot.subsystems.shooter.hood.HoodIO;
 import frc.robot.subsystems.shooter.hood.HoodIOSim;
@@ -47,6 +46,7 @@ import frc.robot.subsystems.vision.VisionIO;
 import frc.robot.subsystems.vision.VisionIOPhotonVision;
 import frc.robot.subsystems.vision.VisionIOPhotonVisionSim;
 import frc.robot.util.geometry.AllianceFlipUtil;
+import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 
 /**
  * This class is where the bulk of the robot should be declared. Since Command-based is a
@@ -56,11 +56,16 @@ import frc.robot.util.geometry.AllianceFlipUtil;
  */
 public class RobotContainer {
   // Subsystems
-  private final Drive drive;
-  private final Vision vision;
-  private final Hood hood;
-  private final IntakePivot intakePivot;
-  private final IntakeRollers intakeRollers;
+  final Drive drive;
+  final Vision vision;
+  final Hood hood;
+  final IntakePivot intakePivot;
+  final IntakeRollers intakeRollers;
+  final Flywheel flywheel;
+
+  // Robot state
+  final RobotState robotState;
+
   // Controller
   private final CommandXboxController controller = new CommandXboxController(1);
 
@@ -94,9 +99,10 @@ public class RobotContainer {
                 new VisionIOPhotonVision(camera0Name, robotToCamera0),
                 new VisionIOPhotonVision(camera1Name, robotToCamera1));
 
-        hood = new Hood(new HoodIOSim());
+        hood = new Hood(new HoodIOSim(), drive::getPose, drive::getFieldVelocity);
         intakePivot = new IntakePivot(new IntakePivotIOSim());
         intakeRollers = new IntakeRollers(new IntakeRollersIOSim());
+        flywheel = new Flywheel(new FlywheelIO() {}, drive::getPose, drive::getFieldVelocity);
 
         break;
 
@@ -116,9 +122,10 @@ public class RobotContainer {
                 new VisionIOPhotonVisionSim(camera0Name, robotToCamera0, drive::getPose),
                 new VisionIOPhotonVisionSim(camera1Name, robotToCamera1, drive::getPose));
 
-        hood = new Hood(new HoodIOSim());
+        hood = new Hood(new HoodIOSim(), drive::getPose, drive::getFieldVelocity);
         intakePivot = new IntakePivot(new IntakePivotIOSim());
         intakeRollers = new IntakeRollers(new IntakeRollersIOSim());
+        flywheel = new Flywheel(new FlywheelIO() {}, drive::getPose, drive::getFieldVelocity);
 
         break;
 
@@ -136,11 +143,15 @@ public class RobotContainer {
 
         vision = new Vision(drive::addVisionMeasurement, new VisionIO() {}, new VisionIO() {});
 
-        hood = new Hood(new HoodIO() {});
+        hood = new Hood(new HoodIO() {}, drive::getPose, drive::getFieldVelocity);
         intakePivot = new IntakePivot(new IntakePivotIO() {});
         intakeRollers = new IntakeRollers(new IntakeRollersIO() {});
+        flywheel = new Flywheel(new FlywheelIO() {}, drive::getPose, drive::getFieldVelocity);
         break;
     }
+
+    // Initialize robot state
+    robotState = new RobotState(this);
 
     // Set up auto routines
     autoChooser = new LoggedDashboardChooser<>("Auto Choices", AutoBuilder.buildAutoChooser());
@@ -205,7 +216,9 @@ public class RobotContainer {
                 () -> -controller.getLeftY(),
                 () -> -controller.getLeftX(),
                 () ->
-                    drive.getAimbotHeadingStill(AllianceFlipUtil.apply(FieldConstants.hubCenter))));
+                    drive.getAimbotHeading(
+                        AllianceFlipUtil.apply(
+                            FieldConstants.Hub.topCenterPoint.toTranslation2d()))));
 
     // dev
     controller

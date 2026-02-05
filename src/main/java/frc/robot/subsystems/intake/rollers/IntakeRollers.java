@@ -3,7 +3,10 @@ package frc.robot.subsystems.intake.rollers;
 import static frc.robot.subsystems.intake.IntakeConstants.*;
 
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.RobotState.IntakeRollerState;
 import frc.robot.subsystems.intake.rollers.IntakeRollersIO.IntakeRollersIOInputs;
 
 public class IntakeRollers extends SubsystemBase {
@@ -70,5 +73,16 @@ public class IntakeRollers extends SubsystemBase {
 
   public boolean isRunning() {
     return Math.abs(inputs.velocityRPM) > 50;
+  }
+
+  public boolean isStopped() {
+    return Math.abs(inputs.velocityRPM) < 50;
+  }
+
+  public Command seekCommand(IntakeRollerState state) {
+    return this.runOnce(() -> setSpeed(state.speed))
+        .andThen(
+            Commands.waitUntil(
+                () -> state == IntakeRollerState.STOPPED ? isStopped() : isRunning()));
   }
 }

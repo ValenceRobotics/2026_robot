@@ -2,7 +2,10 @@ package frc.robot.subsystems.intake.pivot;
 
 import static frc.robot.subsystems.intake.IntakeConstants.*;
 
+import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.RobotState.IntakePivotState;
 import org.littletonrobotics.junction.Logger;
 
 public class IntakePivot extends SubsystemBase {
@@ -74,5 +77,10 @@ public class IntakePivot extends SubsystemBase {
 
   public void setEncoderPosition(double positionRot) {
     io.setCurrentPosition(positionRot);
+  }
+
+  public Command seekCommand(IntakePivotState state) {
+    return this.runOnce(() -> setPosition(state.positionRot))
+        .andThen(Commands.waitUntil(() -> atPosition(state.positionRot)));
   }
 }

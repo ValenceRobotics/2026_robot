@@ -22,8 +22,12 @@ public class ShotCalculator {
   private static final double LOOP_PERIOD = 0.02;
 
   public static ShotParams calculate(Pose2d pose, ChassisSpeeds fieldVelocity) {
+    return calculate(pose, fieldVelocity, FieldConstants.Hub.topCenterPoint.toTranslation2d());
+  }
 
-    Translation2d target = AllianceFlipUtil.apply(FieldConstants.hubCenter);
+  public static ShotParams calculate(
+      Pose2d pose, ChassisSpeeds fieldVelocity, Translation2d target) {
+    target = AllianceFlipUtil.apply(target);
     Translation2d robotPos = pose.getTranslation();
 
     double distance = robotPos.getDistance(target);

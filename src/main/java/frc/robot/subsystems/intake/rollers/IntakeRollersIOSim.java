@@ -13,8 +13,7 @@ public class IntakeRollersIOSim implements IntakeRollersIO {
     sim =
         new FlywheelSim(
             LinearSystemId.createFlywheelSystem(DCMotor.getFalcon500(1), .004, 1.0),
-            DCMotor.getFalcon500(1),
-            null);
+            DCMotor.getFalcon500(1));
   }
 
   @Override
