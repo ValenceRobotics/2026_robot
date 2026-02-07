@@ -186,10 +186,7 @@ public class RobotContainer {
     // Default command, normal field-relative drive
     drive.setDefaultCommand(
         DriveCommands.joystickDrive(
-            drive,
-            () -> -controller.getLeftY(),
-            () -> -controller.getLeftX(),
-            () -> -controller.getRightX()));
+            drive, () -> getDriveForward(), () -> getDriveLeft(), () -> getDriveRotation()));
 
     hood.setDefaultCommand(new AimbotTarget(hood, drive));
 
@@ -229,6 +226,28 @@ public class RobotContainer {
                 () -> -controller.getLeftY(),
                 () -> -controller.getLeftX(),
                 () -> drive.getAimbotHeading()));
+  }
+
+  private double getDriveForward() {
+    // If controller is plugged in, use it. Otherwise, use keyboard.
+    if (controller.getHID().isConnected()) {
+      return -controller.getLeftY();
+    }
+    return keyboard.getRawAxis(1); // Usually 'W' and 'S' in Sim
+  }
+
+  private double getDriveLeft() {
+    if (controller.getHID().isConnected()) {
+      return -controller.getLeftX();
+    }
+    return keyboard.getRawAxis(0); // Usually 'A' and 'D' in Sim
+  }
+
+  private double getDriveRotation() {
+    if (controller.getHID().isConnected()) {
+      return -controller.getRightX();
+    }
+    return keyboard.getRawAxis(4); // Usually 'J' and 'L' or Arrow Keys
   }
 
   /**
