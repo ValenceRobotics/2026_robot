@@ -41,6 +41,8 @@ import frc.robot.subsystems.shooter.flywheel.FlywheelIO;
 import frc.robot.subsystems.shooter.hood.Hood;
 import frc.robot.subsystems.shooter.hood.HoodIO;
 import frc.robot.subsystems.shooter.hood.HoodIOSim;
+import frc.robot.subsystems.spindexer.Spindexer;
+import frc.robot.subsystems.spindexer.SpindexerIOSim;
 import frc.robot.subsystems.vision.Vision;
 import frc.robot.subsystems.vision.VisionIO;
 import frc.robot.subsystems.vision.VisionIOPhotonVision;
@@ -62,6 +64,7 @@ public class RobotContainer {
   final IntakePivot intakePivot;
   final IntakeRollers intakeRollers;
   final Flywheel flywheel;
+  final Spindexer spindexer;
 
   // Robot state
   final RobotState robotState;
@@ -103,6 +106,7 @@ public class RobotContainer {
         intakePivot = new IntakePivot(new IntakePivotIOSim());
         intakeRollers = new IntakeRollers(new IntakeRollersIOSim());
         flywheel = new Flywheel(new FlywheelIO() {}, drive::getPose, drive::getFieldVelocity);
+        spindexer = new Spindexer(new SpindexerIOSim() {});
 
         break;
 
@@ -126,6 +130,7 @@ public class RobotContainer {
         intakePivot = new IntakePivot(new IntakePivotIOSim());
         intakeRollers = new IntakeRollers(new IntakeRollersIOSim());
         flywheel = new Flywheel(new FlywheelIO() {}, drive::getPose, drive::getFieldVelocity);
+        spindexer = new Spindexer(new SpindexerIOSim() {});
 
         break;
 
@@ -147,6 +152,7 @@ public class RobotContainer {
         intakePivot = new IntakePivot(new IntakePivotIO() {});
         intakeRollers = new IntakeRollers(new IntakeRollersIO() {});
         flywheel = new Flywheel(new FlywheelIO() {}, drive::getPose, drive::getFieldVelocity);
+        spindexer = new Spindexer(new SpindexerIOSim() {});
         break;
     }
 
