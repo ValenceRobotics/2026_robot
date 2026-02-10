@@ -8,20 +8,20 @@
       },
       "prevControl": null,
       "nextControl": {
-        "x": 3.80012297929152,
-        "y": 5.766815937187535
+        "x": 3.8096550124524624,
+        "y": 5.550706258266248
       },
       "isLocked": false,
       "linkedName": "shoot"
     },
     {
       "anchor": {
-        "x": 7.042638122558593,
-        "y": 5.439067443847657
+        "x": 7.043288719631662,
+        "y": 6.714606129996082
       },
       "prevControl": {
-        "x": 4.5051222552481605,
-        "y": 5.518959479910904
+        "x": 5.771571273645879,
+        "y": 5.189157488336794
       },
       "nextControl": null,
       "isLocked": false,
@@ -47,7 +47,7 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": 180.0
+    "rotation": 125.00000000000001
   },
   "reversed": false,
   "folder": null,
