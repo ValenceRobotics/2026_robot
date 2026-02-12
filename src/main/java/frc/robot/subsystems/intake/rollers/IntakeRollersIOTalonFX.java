@@ -1,7 +1,6 @@
 package frc.robot.subsystems.intake.rollers;
 
-import static frc.robot.subsystems.intake.IntakeConstants.CURRENT_LIMIT;
-import static frc.robot.subsystems.intake.IntakeConstants.MOTOR_ID;
+import static frc.robot.subsystems.intake.IntakeConstants.*;
 
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.DutyCycleOut;

@@ -5,13 +5,15 @@ import com.revrobotics.ResetMode;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.config.SparkMaxConfig;
+import static frc.robot.subsystems.spindexer.SpindexerConstants.*;
 
 public class SpindexerIOSpark implements SpindexerIO {
   private final SparkMax motor;
   private final SparkMaxConfig config;
 
-  public SpindexerIOSpark(int canID) {
-    motor = new SparkMax(canID, MotorType.kBrushless);
+  public SpindexerIOSpark() {
+    
+    motor = new SparkMax(MOTOR_ID, MotorType.kBrushless);
     config = new SparkMaxConfig();
 
     config.smartCurrentLimit(30);
