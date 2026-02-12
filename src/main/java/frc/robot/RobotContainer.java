@@ -12,11 +12,7 @@ import static frc.robot.subsystems.vision.VisionConstants.camera1Name;
 import static frc.robot.subsystems.vision.VisionConstants.robotToCamera0;
 import static frc.robot.subsystems.vision.VisionConstants.robotToCamera1;
 
-import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
-
 import com.pathplanner.lib.auto.AutoBuilder;
-import com.pathplanner.lib.auto.NamedCommands;
-
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.GenericHID;
@@ -26,7 +22,7 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandGenericHID;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
-import frc.robot.commands.AimbotTarget;
+import frc.robot.RobotState.IntakePivotState;
 import frc.robot.commands.DriveCommands;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.drive.GyroIO;
@@ -49,12 +45,12 @@ import frc.robot.subsystems.shooter.hood.HoodIO;
 import frc.robot.subsystems.shooter.hood.HoodIOSim;
 import frc.robot.subsystems.spindexer.Spindexer;
 import frc.robot.subsystems.spindexer.SpindexerIOSim;
-import frc.robot.subsystems.spindexer.SpindexerIOSpark;
 import frc.robot.subsystems.vision.Vision;
 import frc.robot.subsystems.vision.VisionIO;
 import frc.robot.subsystems.vision.VisionIOPhotonVision;
 import frc.robot.subsystems.vision.VisionIOPhotonVisionSim;
 import frc.robot.util.geometry.AllianceFlipUtil;
+import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 
 /**
  * This class is where the bulk of the robot should be declared. Since Command-based is a
@@ -108,12 +104,17 @@ public class RobotContainer {
                 new VisionIOPhotonVision(camera0Name, robotToCamera0),
                 new VisionIOPhotonVision(camera1Name, robotToCamera1));
 
-        this.hood = new Hood(new HoodIOSim(), drive::getPose, drive::getFieldVelocity); //these have to be ioreal atsp i think
-        this.intakePivot = new IntakePivot(new IntakePivotIOTalonFX()); //if this breaks change it back to iosim here for now
+        this.hood =
+            new Hood(
+                new HoodIOSim(),
+                drive::getPose,
+                drive::getFieldVelocity); // these have to be ioreal atsp i think
+        this.intakePivot =
+            new IntakePivot(
+                new IntakePivotIOTalonFX()); // if this breaks change it back to iosim here for now
         this.intakeRollers = new IntakeRollers(new IntakeRollersIOTalonFX());
         this.flywheel = new Flywheel(new FlywheelIO() {}, drive::getPose, drive::getFieldVelocity);
-        this.spindexer = new Spindexer(new SpindexerIOSpark() {});
-
+        this.spindexer = new Spindexer(new SpindexerIOSim());
         break;
 
       case SIM:
@@ -200,7 +201,9 @@ public class RobotContainer {
         DriveCommands.joystickDrive(
             drive, () -> getDriveForward(), () -> getDriveLeft(), () -> getDriveRotation()));
 
-    hood.setDefaultCommand(new AimbotTarget(hood, drive));
+    // hood.setDefaultCommand(new AimbotTarget(hood, drive));
+
+    intakePivot.setDefaultCommand(robotState.seek(IntakePivotState.UP));
 
     // Switch to X pattern when X button is pressed
     controller.x().onTrue(Commands.runOnce(drive::stopWithX, drive));
@@ -216,9 +219,18 @@ public class RobotContainer {
                     drive)
                 .ignoringDisable(true));
 
-    // Lock to point to april tag when A button is held
+    // set intake pivot down when left bumper held
+    controller
+        .leftBumper()
+        .whileTrue(Commands.run(() -> intakePivot.setState(IntakePivotState.DOWN), intakePivot));
+
     controller
         .y()
+        .whileTrue(Commands.run(() -> intakePivot.setGoalPositionRad(0.523599), intakePivot));
+
+    // devx
+    controller
+        .rightTrigger()
         .whileTrue(
             DriveCommands.joystickDriveAtAngle(
                 drive,
@@ -228,16 +240,6 @@ public class RobotContainer {
                     drive.getAimbotHeading(
                         AllianceFlipUtil.apply(
                             FieldConstants.Hub.topCenterPoint.toTranslation2d()))));
-
-    // dev
-    controller
-        .leftBumper()
-        .whileTrue(
-            DriveCommands.joystickDriveAtAngle(
-                drive,
-                () -> -controller.getLeftY(),
-                () -> -controller.getLeftX(),
-                () -> drive.getAimbotHeading()));
   }
 
   private double getDriveForward() {

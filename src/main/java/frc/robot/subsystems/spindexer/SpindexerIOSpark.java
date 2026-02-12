@@ -1,18 +1,19 @@
 package frc.robot.subsystems.spindexer;
 
+import static frc.robot.subsystems.spindexer.SpindexerConstants.*;
+
 import com.revrobotics.PersistMode;
 import com.revrobotics.ResetMode;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.config.SparkMaxConfig;
-import static frc.robot.subsystems.spindexer.SpindexerConstants.*;
 
 public class SpindexerIOSpark implements SpindexerIO {
   private final SparkMax motor;
   private final SparkMaxConfig config;
 
   public SpindexerIOSpark() {
-    
+
     motor = new SparkMax(MOTOR_ID, MotorType.kBrushless);
     config = new SparkMaxConfig();
 

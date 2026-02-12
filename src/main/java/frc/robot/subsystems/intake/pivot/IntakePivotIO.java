@@ -5,25 +5,43 @@ import org.littletonrobotics.junction.AutoLog;
 public interface IntakePivotIO {
   @AutoLog
   public static class IntakePivotIOInputs {
-    public double positionRot = 0.0;
-    public double velocityRotPerSec = 0.0;
+    public double positionRad = 0.0;
+    public double velocityRadsPerSec = 0.0;
     public double appliedVolts = 0.0;
     public double currentAmps = 0.0;
     public double tempCelsius = 0.0;
 
+    // limit switch inputs; not done yet
     public boolean forwardLimitSwitch = false;
     public boolean reverseLimitSwitch = false;
   }
 
+  public static enum IntakePivotIOOutputMode {
+    BRAKE,
+    COAST,
+    CLOSED_LOOP
+  }
+
+  public static class IntakePivotIOOutputs {
+    public IntakePivotIOOutputMode mode = IntakePivotIOOutputMode.BRAKE;
+    // Closed loop control
+    public double positionRad = 0.0;
+    public double velocityRadsPerSec = 0.0;
+    public double kP = 0.0;
+    public double kD = 0.0;
+  }
+
   public default void updateInputs(IntakePivotIOInputs inputs) {}
 
-  public default void setPosition(double positionRot) {}
+  public default void applyOutputs(IntakePivotIOOutputs outputs) {}
 
-  public default void setVoltage(double volts) {}
+  // public default void setPosition(double positionRot) {}
+
+  // public default void setVoltage(double volts) {}
 
   public default void stop() {}
 
   public default void zeroToCurrentPos() {}
 
-  public default void setCurrentPosition(double positionRot) {}
+  public default void setCurrentPosition(double positionRad) {}
 }

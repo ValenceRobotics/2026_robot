@@ -36,17 +36,17 @@
       "rotations": [
         {
           "axis": "y",
-          "degrees": -30
+          "degrees": -20
         },
         {
           "axis": "z",
-          "degrees": 180
+          "degrees": -100
         }
       ],
       "position": [
-        -0.342,
-        0.154,
-        0.212
+        0.000000,
+        -0.342900,
+        0.196850
       ],
       "name": "cam2",
       "fov": 70,

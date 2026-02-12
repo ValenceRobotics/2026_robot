@@ -1,10 +1,10 @@
 package frc.robot.subsystems.spindexer;
 
+import static frc.robot.subsystems.spindexer.SpindexerConstants.*;
+
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.RobotState.SpindexerState;
-import static frc.robot.subsystems.spindexer.SpindexerConstants.*;
 import org.littletonrobotics.junction.Logger;
 
 public class Spindexer extends SubsystemBase {

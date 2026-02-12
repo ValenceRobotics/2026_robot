@@ -347,7 +347,7 @@ public class Drive extends SubsystemBase {
     aimHeading = heading;
   }
   // get aimbot heading for shoot on move calculator
-  public Rotation2d getAimbotHeading() {
+  public Rotation2d getDynamicAimbotHeading() {
     return aimHeading;
   }
 

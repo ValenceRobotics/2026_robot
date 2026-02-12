@@ -1,12 +1,17 @@
 package frc.robot.subsystems.intake;
 
+import edu.wpi.first.math.util.Units;
+
 public final class IntakeConstants {
   public static final int MOTOR_ID = 0;
 
   // Positions
-  public static final double STOWED_POS = 0.0;
-  public static final double DEPLOY_POS = 0.0;
-  public static final double GROUND_POS = 0.0;
+  public static final double STOWED_POS = Units.degreesToRadians(85);
+  public static final double GROUND_POS = Units.degreesToRadians(0);
+
+  // Extremes
+  public static final double MIN_ANGLE = Units.degreesToRadians(0);
+  public static final double MAX_ANGLE = Units.degreesToRadians(90);
 
   // Motion Magic
   public static final double kP = 0.1;

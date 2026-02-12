@@ -1,86 +1,112 @@
 package frc.robot.subsystems.intake.pivot;
 
-import static frc.robot.subsystems.intake.IntakeConstants.*;
-
+import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
-import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.RobotState.IntakePivotState;
+import frc.robot.subsystems.intake.IntakeConstants;
+import frc.robot.subsystems.intake.pivot.IntakePivotIO.IntakePivotIOOutputMode;
+import frc.robot.subsystems.intake.pivot.IntakePivotIO.IntakePivotIOOutputs;
+import frc.robot.util.FullSubsystem;
+import frc.robot.util.LoggedTunableNumber;
+import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
 
-public class IntakePivot extends SubsystemBase {
+public class IntakePivot extends FullSubsystem {
   private final IntakePivotIO io;
   private final IntakePivotIOInputsAutoLogged inputs = new IntakePivotIOInputsAutoLogged();
 
+  private final IntakePivotIOOutputs outputs = new IntakePivotIOOutputs();
+  private static final double minAngle = IntakeConstants.MIN_ANGLE;
+  private static final double maxAngle = IntakeConstants.MAX_ANGLE;
+
+  private static final LoggedTunableNumber kP = new LoggedTunableNumber("IntakePivot/kP");
+  private static final LoggedTunableNumber kD = new LoggedTunableNumber("IntakePivot/kD");
+  private static final LoggedTunableNumber toleranceDeg =
+      new LoggedTunableNumber("IntakePivot/ToleranceDeg");
+
+  private double goalPositionRad = IntakeConstants.STOWED_POS;
+
+  @AutoLogOutput private IntakePivotState state = IntakePivotState.UP;
+
   public IntakePivot(IntakePivotIO io) {
     this.io = io;
+
+    toleranceDeg.initDefault(10.0);
+    kP.initDefault(0.5);
+    kD.initDefault(0);
   }
 
   @Override
   public void periodic() {
     io.updateInputs(inputs);
     Logger.processInputs("IntakePivot", inputs);
+
+    switch (state) {
+      case UP -> {
+        goalPositionRad = IntakeConstants.STOWED_POS;
+      }
+      case DOWN -> {
+        goalPositionRad = IntakeConstants.GROUND_POS;
+      }
+    }
   }
 
-  // **POSITION CONTROL**
-  public void stow() {
-    io.setPosition(STOWED_POS);
+  @Override
+  public void periodicAfterScheduler() {
+    outputs.kP = kP.get();
+    outputs.kD = kD.get();
+
+    // set outputs
+    outputs.mode = IntakePivotIOOutputMode.CLOSED_LOOP;
+    outputs.positionRad = MathUtil.clamp(goalPositionRad, minAngle, maxAngle);
+
+    io.applyOutputs(outputs);
+
+    Logger.recordOutput("IntakePivot/GoalPositionRad", goalPositionRad);
+    Logger.recordOutput("IntakePivot/Mode", outputs.mode.toString());
   }
 
-  public void deploy() {
-    io.setPosition(DEPLOY_POS);
+  public void setState(IntakePivotState state) {
+    this.state = state;
   }
 
-  public void ground() {
-    io.setPosition(GROUND_POS);
+  public void setGoalPositionRad(double positionRad) {
+    this.goalPositionRad = MathUtil.clamp(positionRad, minAngle, maxAngle);
   }
 
-  public void setPosition(double positionRot) {
-    io.setPosition(positionRot);
+  @AutoLogOutput(key = "IntakePivot/MeasuredPositionRad")
+  public double getMeasuredPositionRad() {
+    return inputs.positionRad;
   }
 
-  public void stop() {
-    io.stop();
-  }
-
-  public double getPosition() {
-    return inputs.positionRot;
-  }
-
+  @AutoLogOutput(key = "IntakePivot/MeasuredVelocity")
   public double getVelocity() {
-    return inputs.velocityRotPerSec;
+    return inputs.velocityRadsPerSec;
   }
 
-  public boolean atPosition(double targetRot) {
-    return Math.abs(inputs.positionRot - targetRot) < POSITION_TOLERANCE;
+  @AutoLogOutput
+  public boolean atGoal() {
+    return DriverStation.isEnabled()
+        && Math.abs(getMeasuredPositionRad() - goalPositionRad)
+            <= Math.toRadians(toleranceDeg.get());
   }
 
-  public boolean isStowed() {
-    return atPosition(STOWED_POS);
-  }
-
-  public boolean isDeployed() {
-    return atPosition(DEPLOY_POS);
-  }
-
+  // limit switch implementation; not done yet
   public boolean atForwardLimit() {
     return inputs.forwardLimitSwitch;
-  }
-
-  public boolean atReverseLimit() {
-    return inputs.reverseLimitSwitch;
   }
 
   public void zeroEncoder() {
     io.zeroToCurrentPos();
   }
 
-  public void setEncoderPosition(double positionRot) {
-    io.setCurrentPosition(positionRot);
+  public void setEncoderPosition(double positionRad) {
+    io.setCurrentPosition(positionRad);
   }
 
   public Command seekCommand(IntakePivotState state) {
-    return this.runOnce(() -> setPosition(state.positionRot))
-        .andThen(Commands.waitUntil(() -> atPosition(state.positionRot)));
+    return this.runOnce(() -> setState(state)).andThen(Commands.waitUntil(this::atGoal));
   }
 }

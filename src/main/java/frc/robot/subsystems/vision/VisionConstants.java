@@ -49,9 +49,11 @@ public class VisionConstants {
 
   /* two front facing cameras */
   public static Transform3d robotToCamera0 =
-      new Transform3d(0.25, 0.15, 0.22, new Rotation3d(0.0, -0.4, Units.degreesToRadians(25)));
+      new Transform3d(
+          -0.343, 0.153988, 0.212343, new Rotation3d(0.0, Units.degreesToRadians(-20.0), 0));
   public static Transform3d robotToCamera1 =
-      new Transform3d(0.25, -0.15, 0.22, new Rotation3d(0.0, -0.4, Units.degreesToRadians(-25)));
+      new Transform3d(
+          0.000, -0.343, 0.196850, new Rotation3d(0.0, -0.4, Units.degreesToRadians(-20.0)));
 
   // Basic filtering thresholds
   public static double maxAmbiguity = 0.3;
