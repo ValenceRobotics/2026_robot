@@ -19,10 +19,15 @@ import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.button.CommandGenericHID;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
+import frc.robot.RobotState.FlywheelState;
+import frc.robot.RobotState.HoodState;
 import frc.robot.RobotState.IntakePivotState;
+import frc.robot.RobotState.IntakeRollerState;
+import frc.robot.RobotState.SpindexerState;
 import frc.robot.commands.DriveCommands;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.drive.GyroIO;
@@ -49,7 +54,6 @@ import frc.robot.subsystems.vision.Vision;
 import frc.robot.subsystems.vision.VisionIO;
 import frc.robot.subsystems.vision.VisionIOPhotonVision;
 import frc.robot.subsystems.vision.VisionIOPhotonVisionSim;
-import frc.robot.util.geometry.AllianceFlipUtil;
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 
 /**
@@ -201,8 +205,7 @@ public class RobotContainer {
         DriveCommands.joystickDrive(
             drive, () -> getDriveForward(), () -> getDriveLeft(), () -> getDriveRotation()));
 
-    // hood.setDefaultCommand(new AimbotTarget(hood, drive));
-
+    intakeRollers.setDefaultCommand(robotState.seek(IntakeRollerState.STOPPED));
     intakePivot.setDefaultCommand(robotState.seek(IntakePivotState.UP));
 
     // Switch to X pattern when X button is pressed
@@ -222,24 +225,30 @@ public class RobotContainer {
     // set intake pivot down when left bumper held
     controller
         .leftBumper()
-        .whileTrue(Commands.run(() -> intakePivot.setState(IntakePivotState.DOWN), intakePivot));
+        .whileTrue(
+            new ParallelCommandGroup(
+                Commands.run(() -> intakeRollers.setState(IntakeRollerState.INWARD), intakeRollers),
+                Commands.run(() -> intakePivot.setState(IntakePivotState.DOWN), intakePivot)));
 
-    controller
-        .y()
-        .whileTrue(Commands.run(() -> intakePivot.setGoalPositionRad(0.523599), intakePivot));
-
-    // devx
+    // aimbot at target while shooting
     controller
         .rightTrigger()
         .whileTrue(
-            DriveCommands.joystickDriveAtAngle(
-                drive,
-                () -> -controller.getLeftY(),
-                () -> -controller.getLeftX(),
-                () ->
-                    drive.getAimbotHeading(
-                        AllianceFlipUtil.apply(
-                            FieldConstants.Hub.topCenterPoint.toTranslation2d()))));
+            new ParallelCommandGroup(
+                DriveCommands.joystickDriveAtAngle(
+                    drive,
+                    () -> -controller.getLeftY(),
+                    () -> -controller.getLeftX(),
+                    () ->
+                        drive.getAimbotHeading(
+                            FieldConstants.Hub.topCenterPoint.toTranslation2d())),
+                // seek goal at all times when holding
+                robotState.seek(FlywheelState.SEEK_GOAL, HoodState.SEEK_GOAL),
+                // feed when flywheel ready
+                Commands.either(
+                    robotState.seek(SpindexerState.INDEXING),
+                    robotState.seek(SpindexerState.IDLE),
+                    () -> flywheel.atGoal() && hood.atGoal())));
   }
 
   private double getDriveForward() {

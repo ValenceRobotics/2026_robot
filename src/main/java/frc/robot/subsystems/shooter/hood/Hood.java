@@ -47,7 +47,7 @@ public class Hood extends FullSubsystem {
     this.velocitySupplier = velocitySupplier;
 
     //  tunable numbers
-    kP.initDefault(0.5);
+    kP.initDefault(.5);
     kD.initDefault(0);
     toleranceDeg.initDefault(10.0);
   }

@@ -1,15 +1,16 @@
 package frc.robot.subsystems.spindexer;
 
-import static frc.robot.subsystems.spindexer.SpindexerConstants.*;
-
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.RobotState.SpindexerState;
+import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
 
 public class Spindexer extends SubsystemBase {
   private final SpindexerIO io;
   private final SpindexerIOInputsAutoLogged inputs = new SpindexerIOInputsAutoLogged();
+
+  @AutoLogOutput private SpindexerState state = SpindexerState.IDLE;
 
   public Spindexer(SpindexerIO io) {
     this.io = io;
@@ -21,6 +22,10 @@ public class Spindexer extends SubsystemBase {
     Logger.processInputs("Spindexer", inputs);
   }
 
+  public void setState(SpindexerState state) {
+    this.state = state;
+  }
+
   public void spin(double speed) {
     io.setVoltage(speed * 12.0);
   }
@@ -30,6 +35,6 @@ public class Spindexer extends SubsystemBase {
   }
 
   public Command seekCommand(SpindexerState state) {
-    return this.runOnce(() -> spin(state.speed));
+    return this.runOnce(() -> setState(state)); // TODO: ADD UNTIL CONDITION BASED OFF (VOLTAGE?)
   }
 }
