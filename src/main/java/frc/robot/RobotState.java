@@ -1,15 +1,24 @@
 package frc.robot;
 
-import static frc.robot.subsystems.intake.IntakeConstants.*;
-import static frc.robot.subsystems.spindexer.SpindexerConstants.*;
+import static frc.robot.subsystems.intake.IntakeConstants.GROUND_POS;
+import static frc.robot.subsystems.intake.IntakeConstants.INTAKE_SPEED;
+import static frc.robot.subsystems.intake.IntakeConstants.OUTTAKE_SPEED;
+import static frc.robot.subsystems.intake.IntakeConstants.STOWED_POS;
+import static frc.robot.subsystems.spindexer.SpindexerConstants.SPINDEXER_INDEX_VOLTS;
+import static frc.robot.subsystems.spindexer.SpindexerConstants.SPINDEXER_REVERSE_VOLTS;
 
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
+import frc.robot.FieldConstants.TrenchSafetyConstants;
+import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.intake.pivot.IntakePivot;
 import frc.robot.subsystems.intake.rollers.IntakeRollers;
 import frc.robot.subsystems.shooter.flywheel.Flywheel;
 import frc.robot.subsystems.shooter.hood.Hood;
 import frc.robot.subsystems.spindexer.Spindexer;
+import org.littletonrobotics.junction.Logger;
 
 public class RobotState {
   private final IntakePivot intakePivot;
@@ -17,6 +26,11 @@ public class RobotState {
   private final Flywheel flywheel;
   private final Hood hood;
   private final Spindexer spindexer;
+  private final Drive drive;
+
+  // Trench safety constants
+  private static final double WARNING_ZONE_DISTANCE = TrenchSafetyConstants.WARNING_ZONE_DISTANCE;
+  private static final double HARD_ZONE_DISTANCE = TrenchSafetyConstants.HARD_ZONE_DISTANCE;
 
   public enum IntakePivotState {
     UP(STOWED_POS),
@@ -71,6 +85,30 @@ public class RobotState {
     this.flywheel = container.flywheel;
     this.hood = container.hood;
     this.spindexer = container.spindexer;
+    this.drive = container.drive;
+  }
+
+  private final Trigger trenchWarningTrigger =
+      new Trigger(() -> getDistanceToNearestTrench() < WARNING_ZONE_DISTANCE);
+
+  private final Trigger trenchHardTrigger =
+      new Trigger(() -> getDistanceToNearestTrench() < HARD_ZONE_DISTANCE);
+
+  public Trigger getTrenchWarningTrigger() {
+    return trenchWarningTrigger;
+  }
+
+  public Trigger getTrenchHardTrigger() {
+    return trenchHardTrigger;
+  }
+
+  private double getDistanceToNearestTrench() {
+    Pose2d robotPose = drive.getPose();
+    double d =
+        TrenchSafetyConstants.getClosestPointToNearestTrench(robotPose.getTranslation()).distance();
+
+    Logger.recordOutput("TrenchSafety/DistanceToTrench", d);
+    return d;
   }
 
   /**

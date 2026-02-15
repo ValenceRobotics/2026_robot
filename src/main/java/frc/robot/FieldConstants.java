@@ -1,5 +1,3 @@
-package frc.robot;
-
 // Copyright (c) 2025-2026 Littleton Robotics
 // http://github.com/Mechanical-Advantage
 //
@@ -7,8 +5,11 @@ package frc.robot;
 // license that can be found in the LICENSE file at
 // the root directory of this project.
 
+package frc.robot;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Translation3d;
@@ -305,6 +306,61 @@ public class FieldConstants {
     // Relevant reference points on alliance side
     public static final Translation2d centerPoint =
         new Translation2d(0, AprilTagLayoutType.OFFICIAL.getLayout().getTagPose(29).get().getY());
+  }
+
+  public static class TrenchSafetyConstants {
+    public static final double HOOD_SAFE_ANGLE_RAD = 0.3;
+    public static final double WARNING_ZONE_DISTANCE = 2;
+    public static final double HARD_ZONE_DISTANCE = 1;
+    public static final double HYSTERESIS = 0.1;
+
+    public record ClosestSegmentResult(double distance, Translation2d closestPoint) {}
+
+    private static Translation2d closestPointOnSegment(
+        Translation2d p, Translation2d a, Translation2d b) {
+      Translation2d ab = b.minus(a);
+      double ab2 = ab.getX() * ab.getX() + ab.getY() * ab.getY();
+      if (ab2 < 1e-9) return a;
+
+      Translation2d ap = p.minus(a);
+      double t = (ap.getX() * ab.getX() + ap.getY() * ab.getY()) / ab2;
+      t = MathUtil.clamp(t, 0.0, 1.0);
+
+      return new Translation2d(a.getX() + ab.getX() * t, a.getY() + ab.getY() * t);
+    }
+
+    public static ClosestSegmentResult getClosestPointToNearestTrench(Translation2d robotPos) {
+      Translation2d[] A = {
+        new Translation2d(LeftTrench.openingTopLeft.getX(), LeftTrench.openingTopLeft.getY()),
+        new Translation2d(RightTrench.openingTopLeft.getX(), RightTrench.openingTopLeft.getY()),
+        new Translation2d(LeftTrench.oppOpeningTopLeft.getX(), LeftTrench.oppOpeningTopLeft.getY()),
+        new Translation2d(
+            RightTrench.oppOpeningTopLeft.getX(), RightTrench.oppOpeningTopLeft.getY())
+      };
+
+      Translation2d[] B = {
+        new Translation2d(LeftTrench.openingTopRight.getX(), LeftTrench.openingTopRight.getY()),
+        new Translation2d(RightTrench.openingTopRight.getX(), RightTrench.openingTopRight.getY()),
+        new Translation2d(
+            LeftTrench.oppOpeningTopRight.getX(), LeftTrench.oppOpeningTopRight.getY()),
+        new Translation2d(
+            RightTrench.oppOpeningTopRight.getX(), RightTrench.oppOpeningTopRight.getY())
+      };
+
+      double bestDist = Double.POSITIVE_INFINITY;
+      Translation2d bestPoint = new Translation2d();
+
+      for (int i = 0; i < 4; i++) {
+        Translation2d c = closestPointOnSegment(robotPos, A[i], B[i]);
+        double d = robotPos.getDistance(c);
+        if (d < bestDist) {
+          bestDist = d;
+          bestPoint = c;
+        }
+      }
+
+      return new ClosestSegmentResult(bestDist, bestPoint);
+    }
   }
 
   @RequiredArgsConstructor

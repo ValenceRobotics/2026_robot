@@ -74,7 +74,9 @@ public class Drive extends SubsystemBase {
   private SwerveDrivePoseEstimator poseEstimator =
       new SwerveDrivePoseEstimator(kinematics, rawGyroRotation, lastModulePositions, Pose2d.kZero);
 
+  // TODO: Delete this
   private Rotation2d aimHeading = null;
+  private boolean trenchProtectionEnabled = false;
 
   public Drive(
       GyroIO gyroIO,
@@ -204,6 +206,11 @@ public class Drive extends SubsystemBase {
    * @param speeds Speeds in meters/sec
    */
   public void runVelocity(ChassisSpeeds speeds) {
+
+    if (trenchProtectionEnabled) {
+      speeds = clampSpeedsForTrench(speeds);
+    }
+
     // Calculate module setpoints
     ChassisSpeeds discreteSpeeds = ChassisSpeeds.discretize(speeds, 0.02);
     SwerveModuleState[] setpointStates = kinematics.toSwerveModuleStates(discreteSpeeds);
@@ -284,6 +291,42 @@ public class Drive extends SubsystemBase {
     return kinematics.toChassisSpeeds(getModuleStates());
   }
 
+  /**
+   * prevents robot from crossing the trench boundary line. blocks movement past hubCenter X
+   * coordinate when hood is unsafe.
+   */
+  private ChassisSpeeds clampSpeedsForTrench(ChassisSpeeds speeds) {
+    ChassisSpeeds field = ChassisSpeeds.fromRobotRelativeSpeeds(speeds, getRotation());
+
+    Translation2d pos = getPose().getTranslation();
+    var closest = FieldConstants.TrenchSafetyConstants.getClosestPointToNearestTrench(pos);
+
+    Translation2d nVec = pos.minus(closest.closestPoint());
+    double dist = closest.distance();
+
+    if (nVec.getNorm() < 1e-6) {
+      return speeds;
+    }
+    Translation2d nHat = nVec.div(nVec.getNorm());
+
+    Translation2d v = new Translation2d(field.vxMetersPerSecond, field.vyMetersPerSecond);
+
+    double vAlongNormal = v.getX() * nHat.getX() + v.getY() * nHat.getY();
+
+    if (vAlongNormal < 0.0) {
+      Translation2d correction = nHat.times(vAlongNormal);
+      v = v.minus(correction);
+    }
+
+    field = new ChassisSpeeds(v.getX(), v.getY(), field.omegaRadiansPerSecond);
+
+    return ChassisSpeeds.fromFieldRelativeSpeeds(
+        field.vxMetersPerSecond,
+        field.vyMetersPerSecond,
+        field.omegaRadiansPerSecond,
+        getRotation());
+  }
+
   /** Returns the position of each module in radians. */
   public double[] getWheelRadiusCharacterizationPositions() {
     double[] values = new double[4];
@@ -357,9 +400,12 @@ public class Drive extends SubsystemBase {
     var targetRotation =
         ShotCalculator.calculate(getPose(), getFieldVelocity(), targetTranslation2d).robotHeading();
 
-    Rotation2d delta = targetRotation.minus(getPose().getRotation());
+    return targetRotation;
+  }
 
-    return delta;
+  // enables trench protect mode
+  public void setTrenchProtection(boolean enabled) {
+    this.trenchProtectionEnabled = enabled;
   }
 
   // clamp robot position to field in simulation

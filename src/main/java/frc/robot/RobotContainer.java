@@ -22,6 +22,7 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.button.CommandGenericHID;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.RobotState.FlywheelState;
 import frc.robot.RobotState.HoodState;
@@ -207,6 +208,21 @@ public class RobotContainer {
 
     intakeRollers.setDefaultCommand(robotState.seek(IntakeRollerState.STOPPED));
     intakePivot.setDefaultCommand(robotState.seek(IntakePivotState.UP));
+    hood.setDefaultCommand(robotState.seek(HoodState.SEEK_GOAL));
+
+    robotState
+        .getTrenchWarningTrigger()
+        .whileTrue(robotState.seek(HoodState.FOLD_BACK).repeatedly());
+
+    robotState
+        .getTrenchHardTrigger()
+        .and(
+            new Trigger(
+                () ->
+                    hood.getMeasuredAngleRad()
+                        > FieldConstants.TrenchSafetyConstants.HOOD_SAFE_ANGLE_RAD))
+        .whileTrue(Commands.runOnce(() -> drive.setTrenchProtection(true), drive))
+        .whileFalse(Commands.runOnce(() -> drive.setTrenchProtection(false), drive));
 
     // Switch to X pattern when X button is pressed
     controller.x().onTrue(Commands.runOnce(drive::stopWithX, drive));
@@ -237,8 +253,8 @@ public class RobotContainer {
             new ParallelCommandGroup(
                 DriveCommands.joystickDriveAtAngle(
                     drive,
-                    () -> -controller.getLeftY(),
-                    () -> -controller.getLeftX(),
+                    () -> -controller.getLeftY() * 0.55,
+                    () -> -controller.getLeftX() * 0.55,
                     () ->
                         drive.getAimbotHeading(
                             FieldConstants.Hub.topCenterPoint.toTranslation2d())),
