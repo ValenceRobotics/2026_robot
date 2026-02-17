@@ -30,6 +30,7 @@ import frc.robot.RobotState.IntakePivotState;
 import frc.robot.RobotState.IntakeRollerState;
 import frc.robot.RobotState.SpindexerState;
 import frc.robot.commands.DriveCommands;
+import frc.robot.subsystems.LEDs.LED;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.drive.GyroIO;
 import frc.robot.subsystems.drive.GyroIOPigeon2;
@@ -71,7 +72,11 @@ public class RobotContainer {
   final IntakePivot intakePivot;
   final IntakeRollers intakeRollers;
   final Flywheel flywheel;
+<<<<<<< Updated upstream
   final Spindexer spindexer;
+=======
+  final LED led;
+>>>>>>> Stashed changes
 
   // Robot state
   final RobotState robotState;
@@ -109,6 +114,7 @@ public class RobotContainer {
                 new VisionIOPhotonVision(camera0Name, robotToCamera0),
                 new VisionIOPhotonVision(camera1Name, robotToCamera1));
 
+<<<<<<< Updated upstream
         this.hood =
             new Hood(
                 new HoodIOSim(),
@@ -120,6 +126,14 @@ public class RobotContainer {
         this.intakeRollers = new IntakeRollers(new IntakeRollersIOTalonFX());
         this.flywheel = new Flywheel(new FlywheelIO() {}, drive::getPose, drive::getFieldVelocity);
         this.spindexer = new Spindexer(new SpindexerIOSim());
+=======
+        hood = new Hood(new HoodIOSim(), drive::getPose, drive::getFieldVelocity);
+        intakePivot = new IntakePivot(new IntakePivotIOSim());
+        intakeRollers = new IntakeRollers(new IntakeRollersIOSim());
+        flywheel = new Flywheel(new FlywheelIO() {}, drive::getPose, drive::getFieldVelocity);
+        led = new LED();
+
+>>>>>>> Stashed changes
         break;
 
       case SIM:
@@ -142,7 +156,11 @@ public class RobotContainer {
         intakePivot = new IntakePivot(new IntakePivotIOSim());
         intakeRollers = new IntakeRollers(new IntakeRollersIOSim());
         flywheel = new Flywheel(new FlywheelIO() {}, drive::getPose, drive::getFieldVelocity);
+<<<<<<< Updated upstream
         spindexer = new Spindexer(new SpindexerIOSim() {});
+=======
+        led = new LED();
+>>>>>>> Stashed changes
 
         break;
 
@@ -164,7 +182,11 @@ public class RobotContainer {
         intakePivot = new IntakePivot(new IntakePivotIO() {});
         intakeRollers = new IntakeRollers(new IntakeRollersIO() {});
         flywheel = new Flywheel(new FlywheelIO() {}, drive::getPose, drive::getFieldVelocity);
+<<<<<<< Updated upstream
         spindexer = new Spindexer(new SpindexerIOSim() {});
+=======
+        led = new LED();
+>>>>>>> Stashed changes
         break;
     }
 
