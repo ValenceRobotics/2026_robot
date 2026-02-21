@@ -73,4 +73,8 @@ public class IntakeRollers extends FullSubsystem {
   public Command seekCommand(IntakeRollerState state) {
     return this.runOnce(() -> setState(state)); // TODO: ADD UNTIL CONDITION BASED OFF (VOLTAGE?)
   }
+
+  public Command seekCommandIndefinite(IntakeRollerState state) {
+    return this.run(() -> setState(state));
+  }
 }

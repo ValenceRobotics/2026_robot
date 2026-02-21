@@ -109,4 +109,8 @@ public class IntakePivot extends FullSubsystem {
   public Command seekCommand(IntakePivotState state) {
     return this.runOnce(() -> setState(state)).andThen(Commands.waitUntil(this::atGoal));
   }
+
+  public Command seekCommandIndefinite(IntakePivotState state) {
+    return this.run(() -> setState(state));
+  }
 }

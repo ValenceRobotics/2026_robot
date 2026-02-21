@@ -37,4 +37,8 @@ public class Spindexer extends SubsystemBase {
   public Command seekCommand(SpindexerState state) {
     return this.runOnce(() -> setState(state)); // TODO: ADD UNTIL CONDITION BASED OFF (VOLTAGE?)
   }
+
+  public Command seekCommandIndefinite(SpindexerState state) {
+    return this.run(() -> setState(state)); // TODO: ADD UNTIL CONDITION BASED OFF (VOLTAGE?)
+  }
 }

@@ -9,7 +9,8 @@ public interface FlywheelIO {
     public double velocityRadsPerSec;
     public double appliedVoltage;
     public double tempCelsius;
-
+    public double supplyCurrentAmps = 0.0;
+    public double statorCurrentAmps = 0.0;
     public boolean followerConnected;
     public double followerTempCelsius;
   }

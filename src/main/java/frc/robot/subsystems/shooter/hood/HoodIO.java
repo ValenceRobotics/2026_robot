@@ -6,7 +6,7 @@ public interface HoodIO {
 
   @AutoLog
   public static class HoodIOInputs {
-    // TODO: add encoder
+    // TODO: add either absolute encoder or limit switch
     public boolean motorConnected = false;
     public double positionRads = 0.0;
     // public double motorRotations = 0.0; from last yrs elevator code
@@ -14,7 +14,6 @@ public interface HoodIO {
     public double velocityRadsPerSec = 0.0;
     public double appliedVolts = 0.0;
     public double supplyCurrentAmps = 0.0;
-    public double torqueCurrentAmps = 0.0;
     public double tempCelsius = 0.0;
   }
 

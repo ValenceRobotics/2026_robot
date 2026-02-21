@@ -34,6 +34,7 @@ import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj.DriverStation;
@@ -75,7 +76,7 @@ public class Drive extends SubsystemBase {
       new SwerveDrivePoseEstimator(kinematics, rawGyroRotation, lastModulePositions, Pose2d.kZero);
 
   // TODO: Delete this
-  private Rotation2d aimHeading = null;
+  private Rotation2d AimbotHeading = Rotation2d.kZero;
   private boolean trenchProtectionEnabled = false;
 
   public Drive(
@@ -302,7 +303,6 @@ public class Drive extends SubsystemBase {
     var closest = FieldConstants.TrenchSafetyConstants.getClosestPointToNearestTrench(pos);
 
     Translation2d nVec = pos.minus(closest.closestPoint());
-    double dist = closest.distance();
 
     if (nVec.getNorm() < 1e-6) {
       return speeds;
@@ -386,15 +386,27 @@ public class Drive extends SubsystemBase {
     return maxSpeedMetersPerSec / driveBaseRadius;
   }
 
-  public void setAimbotHeading(Rotation2d heading) {
-    aimHeading = heading;
+  // cache aimbot heading to avoid repeated calculations in drive
+  public void updateAimbotHeading(Translation2d target) {
+    AimbotHeading = ShotCalculator.calculate(getPose(), getFieldVelocity(), target).robotHeading();
   }
-  // get aimbot heading for shoot on move calculator
-  public Rotation2d getDynamicAimbotHeading() {
-    return aimHeading;
+  // returns cached aimbot heading
+  public Rotation2d getCachedAimbotHeading() {
+    return AimbotHeading;
   }
 
-  // get aimbot heading for shoot while still
+  @AutoLogOutput(key = "Aimbot/AtHeading")
+  public boolean atCachedAimbotHeading() {
+    Rotation2d error = AimbotHeading.minus(getRotation());
+    double omega = gyroInputs.yawVelocityRadPerSec;
+
+    Logger.recordOutput("Aimbot/HeadingErrorRad", Units.radiansToDegrees(error.getRadians()));
+    Logger.recordOutput("Aimbot/OmegaRadPerSec", omega);
+    return Math.abs(error.getRadians()) < DriveConstants.kAimbotHeadingToleranceRad
+        && Math.abs(omega) < DriveConstants.kAimbotOmegaToleranceRadPerSec;
+  }
+
+  // get aimbot heading without using cache
   public Rotation2d getAimbotHeading(Translation2d targetTranslation2d) {
 
     var targetRotation =

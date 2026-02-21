@@ -134,4 +134,22 @@ public class RobotState {
     }
     return compound;
   }
+
+  public Command seekIndefinite(Enum<?>... states) {
+    Command compound = Commands.none();
+    for (Enum<?> state : states) {
+      if (state instanceof IntakePivotState s) {
+        compound = compound.alongWith(intakePivot.seekCommandIndefinite(s));
+      } else if (state instanceof IntakeRollerState s) {
+        compound = compound.alongWith(intakeRollers.seekCommandIndefinite(s));
+      } else if (state instanceof FlywheelState s) {
+        compound = compound.alongWith(flywheel.seekCommandIndefinite(s));
+      } else if (state instanceof HoodState s) {
+        compound = compound.alongWith(hood.seekCommandIndefinite(s));
+      } else if (state instanceof SpindexerState s) {
+        compound = compound.alongWith(spindexer.seekCommandIndefinite(s));
+      }
+    }
+    return compound.repeatedly();
+  }
 }

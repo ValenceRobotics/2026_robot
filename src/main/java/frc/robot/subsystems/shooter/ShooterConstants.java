@@ -6,8 +6,42 @@ import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.interpolation.InterpolatingDoubleTreeMap;
 import edu.wpi.first.math.interpolation.InterpolatingTreeMap;
 import edu.wpi.first.math.interpolation.InverseInterpolator;
+import frc.robot.util.LoggedTunableNumber;
 
 public class ShooterConstants {
+
+  public class HoodConstants {
+    public static final int hoodMotorId = 50;
+    public static final int currentLimit = 20;
+
+    public static LoggedTunableNumber kPReal = new LoggedTunableNumber("Hood/kP", 0.065);
+    public static LoggedTunableNumber kDReal = new LoggedTunableNumber("Hood/kD", 0.001);
+    public static LoggedTunableNumber kGReal = new LoggedTunableNumber("Hood/kG", 0.05);
+
+    public static final double cruiseVelocity = 10; //  m/ sec
+    public static final double maxAcceleration = 5; // m/ sec^2
+    public static final double allowedError = 0.5;
+
+    public static final double gearRatio = 850.0;
+  }
+
+  public class FlywheelConstants {
+    public static final int leaderMotorId = 51;
+    public static final int followerMotorId = 52;
+    public static final int currentLimit = 20;
+
+    public static LoggedTunableNumber kP = new LoggedTunableNumber("Flywheel/kP", 0.065);
+    public static LoggedTunableNumber kD = new LoggedTunableNumber("Flywheel/kD", 0.001);
+    public static LoggedTunableNumber kG = new LoggedTunableNumber("Flywheel/kG", 0.05);
+    public static LoggedTunableNumber kV = new LoggedTunableNumber("Flywheel/kV", 0.0001);
+    public static LoggedTunableNumber kS = new LoggedTunableNumber("Flywheel/kS", 0.0);
+
+    public static final double cruiseVelocity = 10; //  m/ sec
+    public static final double maxAcceleration = 5; // m/ sec^2
+    public static final double allowedError = 0.5;
+
+    public static final double GEAR_RATIO = 1.66;
+  }
 
   public static Transform3d robotToShooter = new Transform3d(0.0, 0.0, 0.44, Rotation3d.kZero);
 

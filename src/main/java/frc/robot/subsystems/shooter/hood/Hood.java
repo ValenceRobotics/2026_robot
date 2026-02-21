@@ -121,7 +121,7 @@ public class Hood extends FullSubsystem {
     return inputs.velocityRadsPerSec;
   }
 
-  @AutoLogOutput
+  @AutoLogOutput(key = "Hood/AtGoal")
   public boolean atGoal() {
     return DriverStation.isEnabled()
         && Math.abs(getMeasuredAngleRad() - goalAngleRad)
@@ -130,5 +130,9 @@ public class Hood extends FullSubsystem {
 
   public Command seekCommand(HoodState state) {
     return this.runOnce(() -> setState(state)).andThen(Commands.waitUntil(this::atGoal));
+  }
+
+  public Command seekCommandIndefinite(HoodState state) {
+    return this.run(() -> setState(state));
   }
 }

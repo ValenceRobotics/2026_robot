@@ -6,7 +6,7 @@ import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.simulation.SingleJointedArmSim;
 
 public class HoodIOSim implements HoodIO {
-  private static final DCMotor MOTOR = DCMotor.getNEO(1);
+  private static final DCMotor MOTOR = DCMotor.getNeo550(1);
 
   private final SingleJointedArmSim sim =
       new SingleJointedArmSim(
@@ -39,7 +39,6 @@ public class HoodIOSim implements HoodIO {
     inputs.velocityRadsPerSec = sim.getVelocityRadPerSec();
     inputs.appliedVolts = appliedVolts;
     inputs.supplyCurrentAmps = sim.getCurrentDrawAmps();
-    inputs.torqueCurrentAmps = commandedCurrent;
   }
 
   @Override

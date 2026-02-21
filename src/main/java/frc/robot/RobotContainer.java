@@ -210,14 +210,18 @@ public class RobotContainer {
     drive.setDefaultCommand(
         DriveCommands.joystickDrive(
             drive, () -> getDriveForward(), () -> getDriveLeft(), () -> getDriveRotation()));
+    intakeRollers.setDefaultCommand(
+        robotState.seekIndefinite(IntakeRollerState.STOPPED).repeatedly());
+    intakePivot.setDefaultCommand(robotState.seekIndefinite(IntakePivotState.UP).repeatedly());
+    hood.setDefaultCommand(robotState.seekIndefinite(HoodState.SEEK_GOAL).repeatedly());
 
-    intakeRollers.setDefaultCommand(robotState.seek(IntakeRollerState.STOPPED));
-    intakePivot.setDefaultCommand(robotState.seek(IntakePivotState.UP));
-    hood.setDefaultCommand(robotState.seek(HoodState.SEEK_GOAL));
+    // aimbot trigger
+    Trigger aimbotHeld = controller.rightTrigger();
 
     robotState
         .getTrenchWarningTrigger()
-        .whileTrue(robotState.seek(HoodState.FOLD_BACK).repeatedly());
+        .and(aimbotHeld.negate())
+        .whileTrue(robotState.seekIndefinite(HoodState.FOLD_BACK));
 
     robotState
         .getTrenchHardTrigger()
@@ -226,8 +230,8 @@ public class RobotContainer {
                 () ->
                     hood.getMeasuredAngleRad()
                         > FieldConstants.TrenchSafetyConstants.HOOD_SAFE_ANGLE_RAD))
-        .whileTrue(Commands.runOnce(() -> drive.setTrenchProtection(true), drive))
-        .whileFalse(Commands.runOnce(() -> drive.setTrenchProtection(false), drive));
+        .onTrue(Commands.runOnce(() -> drive.setTrenchProtection(true)))
+        .onFalse(Commands.runOnce(() -> drive.setTrenchProtection(false)));
 
     // Switch to X pattern when X button is pressed
     controller.x().onTrue(Commands.runOnce(drive::stopWithX, drive));
@@ -246,30 +250,28 @@ public class RobotContainer {
     // set intake pivot down when left bumper held
     controller
         .leftBumper()
-        .whileTrue(
-            new ParallelCommandGroup(
-                Commands.run(() -> intakeRollers.setState(IntakeRollerState.INWARD), intakeRollers),
-                Commands.run(() -> intakePivot.setState(IntakePivotState.DOWN), intakePivot)));
+        .whileTrue(robotState.seekIndefinite(IntakePivotState.DOWN, IntakeRollerState.INWARD));
 
     // aimbot at target while shooting
-    controller
-        .rightTrigger()
-        .whileTrue(
-            new ParallelCommandGroup(
-                DriveCommands.joystickDriveAtAngle(
-                    drive,
-                    () -> -controller.getLeftY() * 0.55,
-                    () -> -controller.getLeftX() * 0.55,
-                    () ->
-                        drive.getAimbotHeading(
-                            FieldConstants.Hub.topCenterPoint.toTranslation2d())),
-                // seek goal at all times when holding
-                robotState.seek(FlywheelState.SEEK_GOAL, HoodState.SEEK_GOAL),
-                // feed when flywheel ready
-                Commands.either(
-                    robotState.seek(SpindexerState.INDEXING),
-                    robotState.seek(SpindexerState.IDLE),
-                    () -> flywheel.atGoal() && hood.atGoal())));
+    aimbotHeld.whileTrue(
+        new ParallelCommandGroup(
+            DriveCommands.joystickDriveAtAngle(
+                drive,
+                () -> -controller.getLeftY() * 0.55,
+                () -> -controller.getLeftX() * 0.55,
+                () -> {
+                  drive.updateAimbotHeading(FieldConstants.Hub.topCenterPoint.toTranslation2d());
+                  return drive.getCachedAimbotHeading();
+                }),
+
+            // seek goal at all times when holding
+            // TODO: Figure out logic to improe shoot  on move at drive goal logic
+            robotState.seekIndefinite(FlywheelState.SEEK_GOAL, HoodState.SEEK_GOAL),
+            // feed when flywheel ready
+            Commands.either(
+                robotState.seekIndefinite(SpindexerState.INDEXING),
+                robotState.seekIndefinite(SpindexerState.IDLE),
+                () -> hood.atGoal() && drive.atCachedAimbotHeading())));
   }
 
   private double getDriveForward() {

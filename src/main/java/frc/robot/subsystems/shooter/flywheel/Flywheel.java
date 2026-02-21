@@ -153,4 +153,11 @@ public class Flywheel extends FullSubsystem {
     }
     return this.runOnce(() -> setState(state)).andThen(Commands.waitUntil(this::atGoal));
   }
+
+  public Command seekCommandIndefinite(FlywheelState state) {
+    if (state == FlywheelState.STOPPED) {
+      return this.run(() -> stop());
+    }
+    return this.run(() -> setState(state));
+  }
 }
