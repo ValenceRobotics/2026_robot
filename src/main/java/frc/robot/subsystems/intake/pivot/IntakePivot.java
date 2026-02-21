@@ -28,7 +28,7 @@ public class IntakePivot extends FullSubsystem {
 
   private double goalPositionRad = IntakeConstants.STOWED_POS;
 
-  @AutoLogOutput private IntakePivotState state = IntakePivotState.UP;
+  @AutoLogOutput private IntakePivotState state = IntakePivotState.DOWN;
 
   public IntakePivot(IntakePivotIO io) {
     this.io = io;

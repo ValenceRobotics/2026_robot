@@ -39,7 +39,7 @@ public class Hood extends FullSubsystem {
   private double goalAngleRad = 0.0;
   private double goalVelocity = 0.0;
 
-  @AutoLogOutput private HoodState state = HoodState.FOLD_BACK;
+  @AutoLogOutput private HoodState state = HoodState.SEEK_GOAL;
 
   public Hood(HoodIO io, Supplier<Pose2d> poseSupplier, Supplier<ChassisSpeeds> velocitySupplier) {
     this.io = io;
