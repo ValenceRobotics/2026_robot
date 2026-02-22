@@ -1,17 +1,11 @@
 package frc.robot;
 
-import static frc.robot.subsystems.intake.IntakeConstants.GROUND_POS;
-import static frc.robot.subsystems.intake.IntakeConstants.STOWED_POS;
-import static frc.robot.subsystems.spindexer.SpindexerConstants.SPINDEXER_INDEX_VOLTS;
-import static frc.robot.subsystems.spindexer.SpindexerConstants.SPINDEXER_REVERSE_VOLTS;
-
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.FieldConstants.TrenchSafetyConstants;
 import frc.robot.subsystems.drive.Drive;
-import frc.robot.subsystems.intake.IntakeConstants.RollersConstants;
 import frc.robot.subsystems.intake.pivot.IntakePivot;
 import frc.robot.subsystems.intake.rollers.IntakeRollers;
 import frc.robot.subsystems.shooter.flywheel.Flywheel;
@@ -32,26 +26,14 @@ public class RobotState {
   private static final double HARD_ZONE_DISTANCE = TrenchSafetyConstants.HARD_ZONE_DISTANCE;
 
   public enum IntakePivotState {
-    UP(STOWED_POS),
-    DOWN(GROUND_POS);
-
-    public final double positionRot;
-
-    IntakePivotState(double positionRot) {
-      this.positionRot = positionRot;
-    }
+    UP,
+    DOWN
   }
 
   public enum IntakeRollerState {
-    INWARD(RollersConstants.INTAKE_VOLTS),
-    OUTWARD(RollersConstants.OUTTAKE_VOLTS),
-    STOPPED(0.0);
-
-    public final double speed;
-
-    IntakeRollerState(double speed) {
-      this.speed = speed;
-    }
+    INWARD,
+    OUTWARD,
+    STOPPED;
   }
 
   public enum FlywheelState {
@@ -67,15 +49,15 @@ public class RobotState {
   }
 
   public enum SpindexerState {
-    INDEXING(SPINDEXER_INDEX_VOLTS),
-    REVERSE(SPINDEXER_REVERSE_VOLTS),
-    IDLE(0.0);
+    INDEXING,
+    REVERSE,
+    IDLE
+  }
 
-    public final double speed;
-
-    SpindexerState(double speed) {
-      this.speed = speed;
-    }
+  public enum IndexerState {
+    INDEXING,
+    REVERSE,
+    IDLE
   }
 
   public RobotState(RobotContainer container) {
