@@ -82,7 +82,7 @@ public class RobotContainer {
 
   // Controller
   private final CommandXboxController controller = new CommandXboxController(1);
-
+  private final CommandXboxController manualController = new CommandXboxController(2);
   private final CommandGenericHID keyboard = new CommandGenericHID(0); // Keyboard 0 on port 0
 
   // Dashboard inputs
@@ -235,10 +235,10 @@ public class RobotContainer {
     drive.setDefaultCommand(
         DriveCommands.joystickDrive(
             drive, () -> getDriveForward(), () -> getDriveLeft(), () -> getDriveRotation()));
-    intakeRollers.setDefaultCommand(
-        robotState.seekIndefinite(IntakeRollerState.STOPPED).repeatedly());
-    intakePivot.setDefaultCommand(robotState.seekIndefinite(IntakePivotState.UP).repeatedly());
-    hood.setDefaultCommand(robotState.seekIndefinite(HoodState.SEEK_GOAL).repeatedly());
+    // intakeRollers.setDefaultCommand(
+    //     robotState.seekIndefinite(IntakeRollerState.STOPPED).repeatedly());
+    // intakePivot.setDefaultCommand(robotState.seekIndefinite(IntakePivotState.UP).repeatedly());
+    // hood.setDefaultCommand(robotState.seekIndefinite(HoodState.SEEK_GOAL).repeatedly());
 
     // aimbot trigger
     Trigger aimbotHeld = controller.rightTrigger();
@@ -297,6 +297,53 @@ public class RobotContainer {
                 robotState.seekIndefinite(SpindexerState.INDEXING),
                 robotState.seekIndefinite(SpindexerState.IDLE),
                 () -> hood.atGoal() && drive.atCachedAimbotHeading())));
+    
+
+
+
+
+    //CONTROLLER 2 for MANUAL mode
+
+    //intake down
+        manualController
+        .leftBumper()
+        .whileTrue(robotState.seekIndefinite(IntakePivotState.DOWN));
+
+    //actually intake
+        manualController
+        .leftTrigger()
+        .whileTrue(robotState.seekIndefinite(IntakeRollerState.INWARD));
+
+    //intake combined
+        manualController
+        .a()
+        .whileTrue(robotState.seekIndefinite(IntakePivotState.DOWN, IntakeRollerState.INWARD));
+
+    //flywheels
+        
+    manualController
+        .rightBumper()
+        .whileTrue(robotState.seekIndefinite(FlywheelState.SEEK_GOAL));
+
+    //hood
+    manualController
+        .rightTrigger()
+        .whileTrue(robotState.seekIndefinite(HoodState.SEEK_GOAL));
+
+    // //indexer
+    //      manualController
+    //     .x()
+    //     .whileTrue(robotState.seekIndefinite(IndexerState.SEEK_GOAL));
+    
+    //spindexer
+    manualController
+        .y()
+        .whileTrue(robotState.seekIndefinite(SpindexerState.INDEXING));
+    //combined
+
+
+                
+
   }
 
   private double getDriveForward() {
@@ -320,6 +367,8 @@ public class RobotContainer {
     }
     return keyboard.getRawAxis(4); // Usually 'J' and 'L' or Arrow Keys
   }
+  
+
 
   /**
    * Use this to pass the autonomous command to the main {@link Robot} class.
