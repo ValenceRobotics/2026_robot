@@ -1,8 +1,6 @@
 package frc.robot;
 
 import static frc.robot.subsystems.intake.IntakeConstants.GROUND_POS;
-import static frc.robot.subsystems.intake.IntakeConstants.INTAKE_SPEED;
-import static frc.robot.subsystems.intake.IntakeConstants.OUTTAKE_SPEED;
 import static frc.robot.subsystems.intake.IntakeConstants.STOWED_POS;
 import static frc.robot.subsystems.spindexer.SpindexerConstants.SPINDEXER_INDEX_VOLTS;
 import static frc.robot.subsystems.spindexer.SpindexerConstants.SPINDEXER_REVERSE_VOLTS;
@@ -13,6 +11,7 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.FieldConstants.TrenchSafetyConstants;
 import frc.robot.subsystems.drive.Drive;
+import frc.robot.subsystems.intake.IntakeConstants.RollersConstants;
 import frc.robot.subsystems.intake.pivot.IntakePivot;
 import frc.robot.subsystems.intake.rollers.IntakeRollers;
 import frc.robot.subsystems.shooter.flywheel.Flywheel;
@@ -44,8 +43,8 @@ public class RobotState {
   }
 
   public enum IntakeRollerState {
-    INWARD(INTAKE_SPEED),
-    OUTWARD(OUTTAKE_SPEED),
+    INWARD(RollersConstants.INTAKE_VOLTS),
+    OUTWARD(RollersConstants.OUTTAKE_VOLTS),
     STOPPED(0.0);
 
     public final double speed;

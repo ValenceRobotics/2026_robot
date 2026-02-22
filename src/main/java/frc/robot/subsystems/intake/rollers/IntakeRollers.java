@@ -14,7 +14,7 @@ public class IntakeRollers extends FullSubsystem {
   private final IntakeRollersIOInputsAutoLogged inputs = new IntakeRollersIOInputsAutoLogged();
   private final IntakeRollersIOOutputs outputs = new IntakeRollersIOOutputs();
 
-  private double goalSpeed = 0.0;
+  private double goalVolts = 0.0;
   @AutoLogOutput private IntakeRollerState state = IntakeRollerState.STOPPED;
 
   public IntakeRollers(IntakeRollersIO io) {
@@ -27,28 +27,25 @@ public class IntakeRollers extends FullSubsystem {
     io.updateInputs(inputs);
 
     switch (state) {
-      case INWARD -> {
-        goalSpeed = IntakeConstants.INTAKE_SPEED;
-      }
-      case OUTWARD -> {
-        goalSpeed = IntakeConstants.OUTTAKE_SPEED;
-      }
-      case STOPPED -> {
-        goalSpeed = 0.0;
-      }
+      case INWARD -> goalVolts = IntakeConstants.RollersConstants.INTAKE_VOLTS;
+      case OUTWARD -> goalVolts = IntakeConstants.RollersConstants.OUTTAKE_VOLTS;
+      case STOPPED -> goalVolts = 0.0;
     }
 
-    Logger.recordOutput("IntakeRollers/GoalSpeed", goalSpeed);
-    Logger.recordOutput("IntakeRollers/VelocityRPM", inputs.velocityRPM);
-    Logger.recordOutput("IntakeRollers/Current", inputs.currentAmps);
-    Logger.recordOutput("IntakeRollers/Voltage", inputs.appliedVolts);
+    io.updateInputs(inputs);
+    Logger.processInputs("IntakeRollers", inputs);
+    Logger.recordOutput("IntakeRollers/GoalVolts", goalVolts);
+    Logger.recordOutput("IntakeRollers/velocityRadsPerSec", inputs.velocityRadsPerSec);
+    Logger.recordOutput("IntakeRollers/SupplyCurrentAmps", inputs.supplyCurrentAmps);
+    Logger.recordOutput("IntakeRollers/StatorCurrentAmps", inputs.statorCurrentAmps);
+    Logger.recordOutput("IntakeRollers/Voltage", inputs.appliedVoltage);
   }
 
   @Override
   public void periodicAfterScheduler() {
     // set outputs
     outputs.mode = IntakeRollersIOMode.VOLTAGE_CONTROL;
-    outputs.appliedVoltage = goalSpeed * 12.0;
+    outputs.appliedVoltage = goalVolts;
     io.applyOutputs(outputs);
   }
 
@@ -56,18 +53,18 @@ public class IntakeRollers extends FullSubsystem {
     this.state = state;
   }
 
-  public void setGoalSpeed(double speed) {
-    goalSpeed = speed;
+  public void setGoalVolts(double volts) {
+    goalVolts = volts;
   }
 
-  @AutoLogOutput(key = "IntakeRollers/MeasuredVelocityRPM")
-  public double getVelocityRPM() {
-    return inputs.velocityRPM;
+  @AutoLogOutput(key = "IntakeRollers/velocityRadsPerSec")
+  public double getVelocityRadsPerSec() {
+    return inputs.velocityRadsPerSec;
   }
 
   @AutoLogOutput(key = "IntakeRollers/MeasuredVoltage")
   public double getAppliedVoltage() {
-    return inputs.appliedVolts;
+    return inputs.appliedVoltage;
   }
 
   public Command seekCommand(IntakeRollerState state) {

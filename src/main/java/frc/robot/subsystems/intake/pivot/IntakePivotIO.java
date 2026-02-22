@@ -5,11 +5,15 @@ import org.littletonrobotics.junction.AutoLog;
 public interface IntakePivotIO {
   @AutoLog
   public static class IntakePivotIOInputs {
-    public double positionRad = 0.0;
-    public double velocityRadsPerSec = 0.0;
-    public double appliedVolts = 0.0;
-    public double currentAmps = 0.0;
-    public double tempCelsius = 0.0;
+    public boolean connected;
+    public double positionRad;
+    public double velocityRadsPerSec;
+    public double appliedVolts;
+    public double currentAmps;
+    public double tempCelsius;
+    public double appliedVoltage;
+    public double supplyCurrentAmps;
+    public double statorCurrentAmps;
 
     // limit switch inputs; not done yet
     public boolean forwardLimitSwitch = false;

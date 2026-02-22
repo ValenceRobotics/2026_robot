@@ -22,7 +22,6 @@ public class FlywheelIOTalonFX implements FlywheelIO {
   private final TalonFX leader;
   private final TalonFX follower;
 
-  // Status signals
   private final StatusSignal<AngularVelocity> leaderVelocity;
   private final StatusSignal<Voltage> leaderVoltage;
   private final StatusSignal<Current> leaderSupplyCurrent;
@@ -30,7 +29,6 @@ public class FlywheelIOTalonFX implements FlywheelIO {
   private final StatusSignal<Temperature> leaderTemp;
   private final StatusSignal<Temperature> followerTemp;
 
-  // Reuse control requests — never allocate in the loop
   private final VelocityTorqueCurrentFOC velocityRequest = new VelocityTorqueCurrentFOC(0.0);
   private final CoastOut coastRequest = new CoastOut();
 
@@ -40,7 +38,6 @@ public class FlywheelIOTalonFX implements FlywheelIO {
 
     var config = new TalonFXConfiguration();
 
-    // 1.66:1 reduction — sensor reads motor, mechanism is flywheel
     config.Feedback.SensorToMechanismRatio = ShooterConstants.FlywheelConstants.GEAR_RATIO;
 
     config.TorqueCurrent.PeakForwardTorqueCurrent = 120.0;
@@ -50,7 +47,7 @@ public class FlywheelIOTalonFX implements FlywheelIO {
     config.CurrentLimits.StatorCurrentLimitEnable = true;
 
     config.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
-    config.MotorOutput.NeutralMode = NeutralModeValue.Coast; // flywheel should coast when idle
+    config.MotorOutput.NeutralMode = NeutralModeValue.Coast;
 
     config.Slot0.kP = ShooterConstants.FlywheelConstants.kP.get();
     config.Slot0.kI = 0.0;

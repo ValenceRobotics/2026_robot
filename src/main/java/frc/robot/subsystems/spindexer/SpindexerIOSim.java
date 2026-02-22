@@ -15,14 +15,16 @@ public class SpindexerIOSim implements SpindexerIO {
   public void updateInputs(SpindexerIOInputs inputs) {
     sim.update(0.020); // Move physics forward 20ms
 
-    inputs.velocityRps = sim.getAngularVelocityRPM() / 60.0;
-    inputs.appliedVolts = appliedVolts;
-    inputs.currentAmps = new double[] {sim.getCurrentDrawAmps()};
+    inputs.velocityRadsPerSec = sim.getAngularVelocityRPM() / 60.0 * 2 * Math.PI;
+    inputs.appliedVoltage = appliedVolts;
   }
 
   @Override
-  public void setVoltage(double volts) {
-    appliedVolts = MathUtil.clamp(volts, -12.0, 12.0);
-    sim.setInputVoltage(appliedVolts);
+  public void applyOutputs(SpindexerIOOutputs outputs) {
+    if (outputs.mode == SpindexerIOMode.VOLTAGE_CONTROL) {
+      appliedVolts = MathUtil.clamp(outputs.appliedVoltage, -12.0, 12.0);
+    } else {
+      appliedVolts = 0.0;
+    }
   }
 }

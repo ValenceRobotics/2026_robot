@@ -6,29 +6,25 @@ public interface IntakeRollersIO {
 
   @AutoLog
   public static class IntakeRollersIOInputs {
-    public double velocityRPM = 0.0;
-    public double appliedVolts = 0.0;
-    public double currentAmps = 0.0;
-    public double tempCelsius = 0.0;
+    public boolean connected;
+    public double velocityRadsPerSec;
+    public double appliedVoltage;
+    public double supplyCurrentAmps;
+    public double statorCurrentAmps;
+    public double tempCelsius;
   }
 
   public enum IntakeRollersIOMode {
-    BRAKE,
     COAST,
     VOLTAGE_CONTROL
   }
 
   public static class IntakeRollersIOOutputs {
-    public IntakeRollersIOMode mode = IntakeRollersIOMode.BRAKE;
+    public IntakeRollersIOMode mode = IntakeRollersIOMode.COAST;
 
     // Voltage control
-    public double appliedVoltage = 0.0;
-
-    // TODO: Implement Closed loop control (maybe not necessary)
-    // public double velocity = 0.0;
-    // public double kP = 0.0;
-    // public double kD = 0.0;
-    // public double feedforward = 0.0;
+    public double appliedVoltage;
+    public double velocityRadsPerSec;
 
     public boolean brakeModeEnabled = true;
   }

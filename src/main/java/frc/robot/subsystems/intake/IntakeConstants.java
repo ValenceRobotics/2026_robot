@@ -1,8 +1,38 @@
 package frc.robot.subsystems.intake;
 
 import edu.wpi.first.math.util.Units;
+import frc.robot.util.LoggedTunableNumber;
 
 public final class IntakeConstants {
+
+  public final class PivotConstants {
+    public static final double GEAR_RATIO = 43.2;
+    public static final int motorId = 41;
+
+    public static final boolean inverted = false;
+
+    public static final double statorLimitA = 40.0; // safe-ish start
+    public static final double peakForwardTorqueA = 60.0; // allow brief bursts
+    public static final double peakReverseTorqueA = -60.0;
+
+    public static final double mmCruiseVelocityRotPerSec = 0.2;
+    public static final double mmAccelRotPerSec2 = .1;
+    public static final double mmJerkRotPerSec3 = 0.0;
+
+    public static final LoggedTunableNumber kP = new LoggedTunableNumber("IntakePivot/kP", 40.0);
+    public static final LoggedTunableNumber kD = new LoggedTunableNumber("IntakePivot/kD", 2.0);
+    public static final LoggedTunableNumber kS = new LoggedTunableNumber("IntakePivot/kS", 0.0);
+    public static final LoggedTunableNumber kV = new LoggedTunableNumber("IntakePivot/kV", 0.0);
+  }
+
+  public final class RollersConstants {
+    public static final double GEAR_RATIO = 3.0; // Placeholder value, update with actual ratio
+
+    public static final int motorId = 42;
+    public static final double INTAKE_VOLTS = 9.6;
+    public static final double OUTTAKE_VOLTS = -7.2;
+  }
+
   public static final int MOTOR_ID = 0;
 
   // Positions
@@ -35,9 +65,6 @@ public final class IntakeConstants {
   public static final double LIMIT_FWD = 3.0;
   public static final double LIMIT_REV = -0.1;
 
-  // Motor speeds
-  public static final double INTAKE_SPEED = 0.8; // Full intake power
-  public static final double OUTTAKE_SPEED = -0.6; // Eject game pieces
   public static final double HOLD_SPEED = 0.1; // Keep piece secured
   public static final double FEED_SPEED = 0.5; // Feed to next mechanism
 

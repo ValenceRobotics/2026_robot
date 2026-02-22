@@ -11,7 +11,7 @@ import frc.robot.util.LoggedTunableNumber;
 public class ShooterConstants {
 
   public class HoodConstants {
-    public static final int hoodMotorId = 50;
+    public static final int hoodMotorId = 31;
     public static final int currentLimit = 20;
 
     public static LoggedTunableNumber kPReal = new LoggedTunableNumber("Hood/kP", 0.065);
@@ -26,8 +26,8 @@ public class ShooterConstants {
   }
 
   public class FlywheelConstants {
-    public static final int leaderMotorId = 51;
-    public static final int followerMotorId = 52;
+    public static final int leaderMotorId = 32;
+    public static final int followerMotorId = 33;
     public static final int currentLimit = 20;
 
     public static LoggedTunableNumber kP = new LoggedTunableNumber("Flywheel/kP", 0.065);

@@ -22,9 +22,8 @@ public class IntakeRollersIOSim implements IntakeRollersIO {
 
     sim.update(0.02);
 
-    inputs.velocityRPM = sim.getAngularVelocityRPM();
-    inputs.appliedVolts = appliedVolts;
-    inputs.currentAmps = sim.getCurrentDrawAmps();
+    inputs.velocityRadsPerSec = sim.getAngularVelocityRPM() * 2.0 * Math.PI / 60.0;
+    inputs.appliedVoltage = appliedVolts;
     inputs.tempCelsius = 25.0;
   }
 
@@ -35,11 +34,6 @@ public class IntakeRollersIOSim implements IntakeRollersIO {
       case VOLTAGE_CONTROL -> {
         appliedVolts = MathUtil.clamp(outputs.appliedVoltage, -12.0, 12.0);
         sim.setInputVoltage(appliedVolts);
-      }
-
-      case BRAKE -> {
-        appliedVolts = 0.0;
-        sim.setInputVoltage(0.0);
       }
 
       case COAST -> {
