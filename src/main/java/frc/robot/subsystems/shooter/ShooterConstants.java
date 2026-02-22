@@ -30,10 +30,10 @@ public class ShooterConstants {
     public static final int followerMotorId = 33;
     public static final int currentLimit = 20;
 
-    public static LoggedTunableNumber kP = new LoggedTunableNumber("Flywheel/kP", 0.065);
-    public static LoggedTunableNumber kD = new LoggedTunableNumber("Flywheel/kD", 0.001);
-    public static LoggedTunableNumber kG = new LoggedTunableNumber("Flywheel/kG", 0.05);
-    public static LoggedTunableNumber kV = new LoggedTunableNumber("Flywheel/kV", 0.0001);
+    public static LoggedTunableNumber kP = new LoggedTunableNumber("Flywheel/kP", 0.7);
+    public static LoggedTunableNumber kD = new LoggedTunableNumber("Flywheel/kD", 0.2);
+    public static LoggedTunableNumber kG = new LoggedTunableNumber("Flywheel/kG", 0.5);
+    public static LoggedTunableNumber kV = new LoggedTunableNumber("Flywheel/kV", 0.1);
     public static LoggedTunableNumber kS = new LoggedTunableNumber("Flywheel/kS", 0.0);
 
     public static final double cruiseVelocity = 10; //  m/ sec

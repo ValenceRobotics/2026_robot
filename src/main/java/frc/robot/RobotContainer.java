@@ -14,7 +14,6 @@ import static frc.robot.subsystems.vision.VisionConstants.robotToCamera1;
 
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
-
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.GenericHID;
@@ -49,10 +48,12 @@ import frc.robot.subsystems.intake.rollers.IntakeRollersIOSim;
 import frc.robot.subsystems.intake.rollers.IntakeRollersIOTalonFX;
 import frc.robot.subsystems.shooter.flywheel.Flywheel;
 import frc.robot.subsystems.shooter.flywheel.FlywheelIO;
+import frc.robot.subsystems.shooter.flywheel.FlywheelIOTalonFX;
 import frc.robot.subsystems.shooter.hood.Hood;
 import frc.robot.subsystems.shooter.hood.HoodIO;
 import frc.robot.subsystems.shooter.hood.HoodIOSim;
 import frc.robot.subsystems.spindexer.Spindexer;
+import frc.robot.subsystems.spindexer.SpindexerIOReal;
 import frc.robot.subsystems.spindexer.SpindexerIOSim;
 import frc.robot.subsystems.vision.Vision;
 import frc.robot.subsystems.vision.VisionIO;
@@ -122,8 +123,9 @@ public class RobotContainer {
             new IntakePivot(
                 new IntakePivotIOTalonFX()); // if this breaks change it back to iosim here for now
         this.intakeRollers = new IntakeRollers(new IntakeRollersIOTalonFX());
-        this.flywheel = new Flywheel(new FlywheelIO() {}, drive::getPose, drive::getFieldVelocity);
-        this.spindexer = new Spindexer(new SpindexerIOSim());
+        this.flywheel =
+            new Flywheel(new FlywheelIOTalonFX(), drive::getPose, drive::getFieldVelocity);
+        this.spindexer = new Spindexer(new SpindexerIOReal());
         this.led = new LED();
         break;
 
@@ -177,29 +179,22 @@ public class RobotContainer {
     // Initialize robot state
     robotState = new RobotState(this);
 
-        //Start of Named Commands for auto:
+    // Start of Named Commands for auto:
     NamedCommands.registerCommand(
-        "flywheelHoodGo", 
+        "flywheelHoodGo",
         Commands.parallel(
             robotState.seekIndefinite(HoodState.SEEK_GOAL),
-            robotState.seekIndefinite(FlywheelState.SEEK_GOAL)
-        )
-    );
+            robotState.seekIndefinite(FlywheelState.SEEK_GOAL)));
 
     NamedCommands.registerCommand(
-        "indexerGo", 
+        "indexerGo",
         Commands.either(
             robotState.seekIndefinite(SpindexerState.INDEXING),
             robotState.seekIndefinite(SpindexerState.IDLE),
-            () -> hood.atGoal() && flywheel.atGoal())
+            () -> hood.atGoal() && flywheel.atGoal()));
 
-        );
-
-     NamedCommands.registerCommand(
-        "intake", 
-        robotState.seekIndefinite(IntakePivotState.DOWN, IntakeRollerState.INWARD)
-    );
-
+    NamedCommands.registerCommand(
+        "intake", robotState.seekIndefinite(IntakePivotState.DOWN, IntakeRollerState.INWARD));
 
     // Set up auto routines
     autoChooser = new LoggedDashboardChooser<>("Auto Choices", AutoBuilder.buildAutoChooser());
@@ -235,10 +230,11 @@ public class RobotContainer {
     drive.setDefaultCommand(
         DriveCommands.joystickDrive(
             drive, () -> getDriveForward(), () -> getDriveLeft(), () -> getDriveRotation()));
-    // intakeRollers.setDefaultCommand(
-    //     robotState.seekIndefinite(IntakeRollerState.STOPPED).repeatedly());
+    intakeRollers.setDefaultCommand(
+        robotState.seekIndefinite(IntakeRollerState.STOPPED).repeatedly());
     // intakePivot.setDefaultCommand(robotState.seekIndefinite(IntakePivotState.UP).repeatedly());
     // hood.setDefaultCommand(robotState.seekIndefinite(HoodState.SEEK_GOAL).repeatedly());
+    spindexer.setDefaultCommand(robotState.seekIndefinite(SpindexerState.IDLE));
 
     // aimbot trigger
     Trigger aimbotHeld = controller.rightTrigger();
@@ -297,52 +293,40 @@ public class RobotContainer {
                 robotState.seekIndefinite(SpindexerState.INDEXING),
                 robotState.seekIndefinite(SpindexerState.IDLE),
                 () -> hood.atGoal() && drive.atCachedAimbotHeading())));
-    
 
+    // CONTROLLER 2 for MANUAL mode
 
+    // intake down
+    // manualController
+    // .leftBumper()
+    // .whileTrue(robotState.seekIndefinite(IntakePivotState.DOWN));
 
+    // actually intake
+    manualController.leftTrigger().whileTrue(robotState.seekIndefinite(IntakeRollerState.INWARD));
 
-    //CONTROLLER 2 for MANUAL mode
+    // intake combined
+    // manualController
+    // .a()
+    // .whileTrue(robotState.seekIndefinite(IntakePivotState.DOWN, IntakeRollerState.INWARD));
 
-    //intake down
-        manualController
-        .leftBumper()
-        .whileTrue(robotState.seekIndefinite(IntakePivotState.DOWN));
+    // flywheels
 
-    //actually intake
-        manualController
-        .leftTrigger()
-        .whileTrue(robotState.seekIndefinite(IntakeRollerState.INWARD));
+    // manualController.rightBumper().whileTrue(robotState.seekIndefinite(FlywheelState.SEEK_GOAL));
+    manualController.rightBumper().whileTrue(robotState.seekIndefinite(FlywheelState.SEEK_GOAL));
 
-    //intake combined
-        manualController
-        .a()
-        .whileTrue(robotState.seekIndefinite(IntakePivotState.DOWN, IntakeRollerState.INWARD));
-
-    //flywheels
-        
-    manualController
-        .rightBumper()
-        .whileTrue(robotState.seekIndefinite(FlywheelState.SEEK_GOAL));
-
-    //hood
-    manualController
-        .rightTrigger()
-        .whileTrue(robotState.seekIndefinite(HoodState.SEEK_GOAL));
+    // hood
+    // manualController
+    //     .rightTrigger()
+    //     .whileTrue(robotState.seekIndefinite(HoodState.SEEK_GOAL));
 
     // //indexer
     //      manualController
     //     .x()
     //     .whileTrue(robotState.seekIndefinite(IndexerState.SEEK_GOAL));
-    
-    //spindexer
-    manualController
-        .y()
-        .whileTrue(robotState.seekIndefinite(SpindexerState.INDEXING));
-    //combined
 
-
-                
+    // spindexer
+    manualController.y().whileTrue(robotState.seekIndefinite(SpindexerState.INDEXING));
+    // combined
 
   }
 
@@ -367,8 +351,6 @@ public class RobotContainer {
     }
     return keyboard.getRawAxis(4); // Usually 'J' and 'L' or Arrow Keys
   }
-  
-
 
   /**
    * Use this to pass the autonomous command to the main {@link Robot} class.

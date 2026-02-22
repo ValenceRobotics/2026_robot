@@ -7,7 +7,6 @@ public final class SpindexerConstants {
 
   public static final double GEAR_RATIO = 5.0; // Placeholder value, update with actual ratio
 
-  public static final int motorId = 42;
-  public static final boolean INVERTED = false;
+  public static final boolean INVERTED = true;
   public static final int CURRENT_LIMIT_AMPS = 30;
 }
