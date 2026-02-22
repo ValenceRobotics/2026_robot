@@ -48,12 +48,12 @@
     },
     {
       "anchor": {
-        "x": 6.967040436921296,
-        "y": 6.602668185763889
+        "x": 7.4495084125195925,
+        "y": 6.186992554858935
       },
       "prevControl": {
-        "x": 6.7479231075568,
-        "y": 6.723032615609965
+        "x": 7.230391083155096,
+        "y": 6.30735698470501
       },
       "nextControl": null,
       "isLocked": false,
@@ -70,10 +70,15 @@
   "pointTowardsZones": [],
   "eventMarkers": [
     {
-      "name": "",
-      "waypointRelativePos": 0,
+      "name": "intake",
+      "waypointRelativePos": 2.5431613869863017,
       "endWaypointRelativePos": null,
-      "command": null
+      "command": {
+        "type": "named",
+        "data": {
+          "name": "intake"
+        }
+      }
     }
   ],
   "globalConstraints": {

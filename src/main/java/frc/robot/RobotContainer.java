@@ -177,6 +177,30 @@ public class RobotContainer {
     // Initialize robot state
     robotState = new RobotState(this);
 
+        //Start of Named Commands for auto:
+    NamedCommands.registerCommand(
+        "flywheelHoodGo", 
+        Commands.parallel(
+            robotState.seekIndefinite(HoodState.SEEK_GOAL),
+            robotState.seekIndefinite(FlywheelState.SEEK_GOAL)
+        )
+    );
+
+    NamedCommands.registerCommand(
+        "indexerGo", 
+        Commands.either(
+            robotState.seekIndefinite(SpindexerState.INDEXING),
+            robotState.seekIndefinite(SpindexerState.IDLE),
+            () -> hood.atGoal() && flywheel.atGoal())
+
+        );
+
+     NamedCommands.registerCommand(
+        "intake", 
+        robotState.seekIndefinite(IntakePivotState.DOWN, IntakeRollerState.INWARD)
+    );
+
+
     // Set up auto routines
     autoChooser = new LoggedDashboardChooser<>("Auto Choices", AutoBuilder.buildAutoChooser());
 

@@ -42,7 +42,19 @@
       "name": "hub"
     }
   ],
-  "eventMarkers": [],
+  "eventMarkers": [
+    {
+      "name": "flywheels+ hood start",
+      "waypointRelativePos": 0,
+      "endWaypointRelativePos": null,
+      "command": {
+        "type": "named",
+        "data": {
+          "name": "flywheelHoodGo"
+        }
+      }
+    }
+  ],
   "globalConstraints": {
     "maxVelocity": 5.0,
     "maxAcceleration": 5.5,

@@ -3,12 +3,12 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 7.010363891601562,
+        "x": 7.183785756269592,
         "y": 2.445037414550782
       },
       "prevControl": null,
       "nextControl": {
-        "x": 7.260345583890936,
+        "x": 7.4337674485589655,
         "y": 2.4420119360529253
       },
       "isLocked": false,
@@ -36,7 +36,19 @@
   ],
   "constraintZones": [],
   "pointTowardsZones": [],
-  "eventMarkers": [],
+  "eventMarkers": [
+    {
+      "name": "flywheels+ hood start",
+      "waypointRelativePos": 0.6453339041095888,
+      "endWaypointRelativePos": null,
+      "command": {
+        "type": "named",
+        "data": {
+          "name": "flywheelHoodGo"
+        }
+      }
+    }
+  ],
   "globalConstraints": {
     "maxVelocity": 5.0,
     "maxAcceleration": 5.5,
