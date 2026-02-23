@@ -5,7 +5,7 @@ import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.CoastOut;
 import com.ctre.phoenix6.controls.Follower;
-import com.ctre.phoenix6.controls.VelocityTorqueCurrentFOC;
+import com.ctre.phoenix6.controls.VelocityVoltage;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.MotorAlignmentValue;
@@ -29,7 +29,8 @@ public class FlywheelIOTalonFX implements FlywheelIO {
   private final StatusSignal<Temperature> leaderTemp;
   private final StatusSignal<Temperature> followerTemp;
 
-  private final VelocityTorqueCurrentFOC velocityRequest = new VelocityTorqueCurrentFOC(0.0);
+  private final VelocityVoltage velocityRequest = new VelocityVoltage(0.0);
+
   private final CoastOut coastRequest = new CoastOut();
 
   public FlywheelIOTalonFX() {
@@ -39,9 +40,6 @@ public class FlywheelIOTalonFX implements FlywheelIO {
     var config = new TalonFXConfiguration();
 
     config.Feedback.SensorToMechanismRatio = ShooterConstants.FlywheelConstants.GEAR_RATIO;
-
-    config.TorqueCurrent.PeakForwardTorqueCurrent = 120.0;
-    config.TorqueCurrent.PeakReverseTorqueCurrent = -120.0;
 
     config.CurrentLimits.StatorCurrentLimit = 120.0;
     config.CurrentLimits.StatorCurrentLimitEnable = true;
@@ -59,11 +57,9 @@ public class FlywheelIOTalonFX implements FlywheelIO {
     PhoenixUtil.tryUntilOk(10, () -> leader.getConfigurator().apply(config));
     PhoenixUtil.tryUntilOk(10, () -> follower.getConfigurator().apply(config));
 
-    PhoenixUtil.tryUntilOk(
-        10,
-        () -> follower.setControl(new Follower(leader.getDeviceID(), MotorAlignmentValue.Opposed)));
+    PhoenixUtil.tryUntilOk(10, () -> follower.setControl(new Follower(leader.getDeviceID(), MotorAlignmentValue.Opposed)));
 
-    // Cache signals
+    //cache signals
     leaderVelocity = leader.getVelocity();
     leaderVoltage = leader.getMotorVoltage();
     leaderSupplyCurrent = leader.getSupplyCurrent();
@@ -86,11 +82,11 @@ public class FlywheelIOTalonFX implements FlywheelIO {
                 leaderVelocity, leaderVoltage, leaderSupplyCurrent, leaderStatorCurrent)
             .isOK();
 
-    var followerTempStatus = BaseStatusSignal.refreshAll(followerTemp);
+    inputs.followerConnected = BaseStatusSignal.refreshAll(followerTemp).isOK();
     BaseStatusSignal.refreshAll(leaderTemp);
-    inputs.followerConnected = followerTempStatus.isOK();
 
     inputs.velocityRadsPerSec = leaderVelocity.getValueAsDouble() * 2.0 * Math.PI;
+
     inputs.appliedVoltage = leaderVoltage.getValueAsDouble();
     inputs.supplyCurrentAmps = leaderSupplyCurrent.getValueAsDouble();
     inputs.statorCurrentAmps = leaderStatorCurrent.getValueAsDouble();
@@ -102,9 +98,10 @@ public class FlywheelIOTalonFX implements FlywheelIO {
   public void applyOutputs(FlywheelIOOutputs outputs) {
     switch (outputs.mode) {
       case COAST -> leader.setControl(coastRequest);
+
       case VELOCITY -> {
         double velocityRotPerSec = outputs.velocityRadsPerSec / (2.0 * Math.PI);
-        leader.setControl(velocityRequest.withVelocity(velocityRotPerSec));
+        leader.setControl(velocityRequest.withVelocity(velocityRotPerSec).withFeedForward(0.0));
       }
     }
   }

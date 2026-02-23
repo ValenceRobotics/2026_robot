@@ -12,8 +12,11 @@ import static frc.robot.subsystems.vision.VisionConstants.camera1Name;
 import static frc.robot.subsystems.vision.VisionConstants.robotToCamera0;
 import static frc.robot.subsystems.vision.VisionConstants.robotToCamera1;
 
+import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
+
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
+
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.GenericHID;
@@ -27,17 +30,20 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.RobotState.FlywheelState;
 import frc.robot.RobotState.HoodState;
+import frc.robot.RobotState.IndexerState;
 import frc.robot.RobotState.IntakePivotState;
 import frc.robot.RobotState.IntakeRollerState;
 import frc.robot.RobotState.SpindexerState;
 import frc.robot.commands.DriveCommands;
-import frc.robot.subsystems.LEDs.LED;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.drive.GyroIO;
 import frc.robot.subsystems.drive.GyroIOPigeon2;
 import frc.robot.subsystems.drive.ModuleIO;
 import frc.robot.subsystems.drive.ModuleIOSim;
 import frc.robot.subsystems.drive.ModuleIOSpark;
+import frc.robot.subsystems.indexer.Indexer;
+import frc.robot.subsystems.indexer.IndexerIO;
+import frc.robot.subsystems.indexer.IndexerIOReal;
 import frc.robot.subsystems.intake.pivot.IntakePivot;
 import frc.robot.subsystems.intake.pivot.IntakePivotIO;
 import frc.robot.subsystems.intake.pivot.IntakePivotIOSim;
@@ -59,7 +65,6 @@ import frc.robot.subsystems.vision.Vision;
 import frc.robot.subsystems.vision.VisionIO;
 import frc.robot.subsystems.vision.VisionIOPhotonVision;
 import frc.robot.subsystems.vision.VisionIOPhotonVisionSim;
-import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 
 /**
  * This class is where the bulk of the robot should be declared. Since Command-based is a
@@ -76,7 +81,8 @@ public class RobotContainer {
   final IntakeRollers intakeRollers;
   final Flywheel flywheel;
   final Spindexer spindexer;
-  final LED led;
+  final Indexer indexer;
+//   final LED led;
 
   // Robot state
   final RobotState robotState;
@@ -94,7 +100,6 @@ public class RobotContainer {
     switch (Constants.getMode()) {
       case REAL:
         // Real robot, instantiate hardware IO implementations
-
         drive =
             new Drive(
                 new GyroIOPigeon2(),
@@ -118,7 +123,8 @@ public class RobotContainer {
             new Hood(
                 new HoodIOSim(),
                 drive::getPose,
-                drive::getFieldVelocity); // these have to be ioreal atsp i think
+                drive::getFieldVelocity); 
+        this.indexer = new Indexer (new IndexerIOReal());
         this.intakePivot =
             new IntakePivot(
                 new IntakePivotIOTalonFX()); // if this breaks change it back to iosim here for now
@@ -126,7 +132,7 @@ public class RobotContainer {
         this.flywheel =
             new Flywheel(new FlywheelIOTalonFX(), drive::getPose, drive::getFieldVelocity);
         this.spindexer = new Spindexer(new SpindexerIOReal());
-        this.led = new LED();
+        // this.led = new LED();
         break;
 
       case SIM:
@@ -150,7 +156,8 @@ public class RobotContainer {
         intakeRollers = new IntakeRollers(new IntakeRollersIOSim());
         flywheel = new Flywheel(new FlywheelIO() {}, drive::getPose, drive::getFieldVelocity);
         spindexer = new Spindexer(new SpindexerIOSim() {});
-        led = new LED();
+        this.indexer = new Indexer(new IndexerIO(){} );
+        // led = new LED();
 
         break;
 
@@ -173,7 +180,8 @@ public class RobotContainer {
         intakeRollers = new IntakeRollers(new IntakeRollersIO() {});
         flywheel = new Flywheel(new FlywheelIO() {}, drive::getPose, drive::getFieldVelocity);
         spindexer = new Spindexer(new SpindexerIOSim() {});
-        led = new LED();
+        indexer = new Indexer(new IndexerIO() {});
+        // led = new LED();
         break;
     }
     // Initialize robot state
@@ -294,6 +302,7 @@ public class RobotContainer {
                 robotState.seekIndefinite(SpindexerState.IDLE),
                 () -> hood.atGoal() && drive.atCachedAimbotHeading())));
 
+
     // CONTROLLER 2 for MANUAL mode
 
     // intake down
@@ -312,7 +321,7 @@ public class RobotContainer {
     // flywheels
 
     // manualController.rightBumper().whileTrue(robotState.seekIndefinite(FlywheelState.SEEK_GOAL));
-    manualController.rightBumper().whileTrue(robotState.seekIndefinite(FlywheelState.SEEK_GOAL));
+    manualController.rightBumper().whileTrue(robotState.seekIndefinite(FlywheelState.SEEK_GOAL)).onFalse(robotState.seekIndefinite(FlywheelState.STOPPED));
 
     // hood
     // manualController
@@ -325,7 +334,7 @@ public class RobotContainer {
     //     .whileTrue(robotState.seekIndefinite(IndexerState.SEEK_GOAL));
 
     // spindexer
-    manualController.y().whileTrue(robotState.seekIndefinite(SpindexerState.INDEXING));
+    manualController.y().whileTrue(robotState.seekIndefinite(SpindexerState.INDEXING, IndexerState.INDEXING));
     // combined
 
   }
