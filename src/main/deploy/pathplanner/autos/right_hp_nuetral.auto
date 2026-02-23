@@ -1,0 +1,37 @@
+{
+  "version": "2025.0",
+  "command": {
+    "type": "sequential",
+    "data": {
+      "commands": [
+        {
+          "type": "path",
+          "data": {
+            "pathName": "right_trench_hp"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "hp_shootr"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "shootr_nuetral"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "nuetral_shootr"
+          }
+        }
+      ]
+    }
+  },
+  "resetOdom": true,
+  "folder": null,
+  "choreoAuto": false
+}

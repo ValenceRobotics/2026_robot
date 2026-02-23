@@ -12,16 +12,28 @@ import static frc.robot.subsystems.vision.VisionConstants.camera1Name;
 import static frc.robot.subsystems.vision.VisionConstants.robotToCamera0;
 import static frc.robot.subsystems.vision.VisionConstants.robotToCamera1;
 
+import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
+
 import com.pathplanner.lib.auto.AutoBuilder;
+import com.pathplanner.lib.auto.NamedCommands;
+
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.button.CommandGenericHID;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
+import frc.robot.RobotState.FlywheelState;
+import frc.robot.RobotState.HoodState;
+import frc.robot.RobotState.IndexerState;
+import frc.robot.RobotState.IntakePivotState;
+import frc.robot.RobotState.IntakeRollerState;
+import frc.robot.RobotState.SpindexerState;
 import frc.robot.commands.DriveCommands;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.drive.GyroIO;
@@ -29,11 +41,30 @@ import frc.robot.subsystems.drive.GyroIOPigeon2;
 import frc.robot.subsystems.drive.ModuleIO;
 import frc.robot.subsystems.drive.ModuleIOSim;
 import frc.robot.subsystems.drive.ModuleIOSpark;
+import frc.robot.subsystems.indexer.Indexer;
+import frc.robot.subsystems.indexer.IndexerIO;
+import frc.robot.subsystems.indexer.IndexerIOReal;
+import frc.robot.subsystems.intake.pivot.IntakePivot;
+import frc.robot.subsystems.intake.pivot.IntakePivotIO;
+import frc.robot.subsystems.intake.pivot.IntakePivotIOSim;
+import frc.robot.subsystems.intake.pivot.IntakePivotIOTalonFX;
+import frc.robot.subsystems.intake.rollers.IntakeRollers;
+import frc.robot.subsystems.intake.rollers.IntakeRollersIO;
+import frc.robot.subsystems.intake.rollers.IntakeRollersIOSim;
+import frc.robot.subsystems.intake.rollers.IntakeRollersIOTalonFX;
+import frc.robot.subsystems.shooter.flywheel.Flywheel;
+import frc.robot.subsystems.shooter.flywheel.FlywheelIO;
+import frc.robot.subsystems.shooter.flywheel.FlywheelIOTalonFX;
+import frc.robot.subsystems.shooter.hood.Hood;
+import frc.robot.subsystems.shooter.hood.HoodIO;
+import frc.robot.subsystems.shooter.hood.HoodIOSim;
+import frc.robot.subsystems.spindexer.Spindexer;
+import frc.robot.subsystems.spindexer.SpindexerIOReal;
+import frc.robot.subsystems.spindexer.SpindexerIOSim;
 import frc.robot.subsystems.vision.Vision;
 import frc.robot.subsystems.vision.VisionIO;
-import frc.robot.subsystems.vision.VisionIOLimelight;
+import frc.robot.subsystems.vision.VisionIOPhotonVision;
 import frc.robot.subsystems.vision.VisionIOPhotonVisionSim;
-import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 
 /**
  * This class is where the bulk of the robot should be declared. Since Command-based is a
@@ -43,12 +74,22 @@ import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
  */
 public class RobotContainer {
   // Subsystems
-  private final Drive drive;
-  private final Vision vision;
+  final Drive drive;
+  final Vision vision;
+  final Hood hood;
+  final IntakePivot intakePivot;
+  final IntakeRollers intakeRollers;
+  final Flywheel flywheel;
+  final Spindexer spindexer;
+  final Indexer indexer;
+//   final LED led;
+
+  // Robot state
+  final RobotState robotState;
 
   // Controller
   private final CommandXboxController controller = new CommandXboxController(1);
-
+  private final CommandXboxController manualController = new CommandXboxController(2);
   private final CommandGenericHID keyboard = new CommandGenericHID(0); // Keyboard 0 on port 0
 
   // Dashboard inputs
@@ -56,10 +97,9 @@ public class RobotContainer {
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
-    switch (Constants.currentMode) {
+    switch (Constants.getMode()) {
       case REAL:
         // Real robot, instantiate hardware IO implementations
-
         drive =
             new Drive(
                 new GyroIOPigeon2(),
@@ -68,17 +108,31 @@ public class RobotContainer {
                 new ModuleIOSpark(2),
                 new ModuleIOSpark(3));
 
+        // vision =
+        //     new Vision(
+        //         drive::addVisionMeasurement,
+        //         new VisionIOLimelight(camera0Name, drive::getRotation),
+        //         new VisionIOLimelight(camera1Name, drive::getRotation));
         vision =
             new Vision(
                 drive::addVisionMeasurement,
-                new VisionIOLimelight(camera0Name, drive::getRotation),
-                new VisionIOLimelight(camera1Name, drive::getRotation));
-        // vision =
-        // new Vision(
-        // demoDrive::addVisionMeasurement,
-        // new VisionIOPhotonVision(camera0Name, robotToCamera0),
-        // new VisionIOPhotonVision(camera1Name, robotToCamera1));
+                new VisionIOPhotonVision(camera0Name, robotToCamera0),
+                new VisionIOPhotonVision(camera1Name, robotToCamera1));
 
+        this.hood =
+            new Hood(
+                new HoodIOSim(),
+                drive::getPose,
+                drive::getFieldVelocity); 
+        this.indexer = new Indexer (new IndexerIOReal());
+        this.intakePivot =
+            new IntakePivot(
+                new IntakePivotIOTalonFX()); // if this breaks change it back to iosim here for now
+        this.intakeRollers = new IntakeRollers(new IntakeRollersIOTalonFX());
+        this.flywheel =
+            new Flywheel(new FlywheelIOTalonFX(), drive::getPose, drive::getFieldVelocity);
+        this.spindexer = new Spindexer(new SpindexerIOReal());
+        // this.led = new LED();
         break;
 
       case SIM:
@@ -97,6 +151,14 @@ public class RobotContainer {
                 new VisionIOPhotonVisionSim(camera0Name, robotToCamera0, drive::getPose),
                 new VisionIOPhotonVisionSim(camera1Name, robotToCamera1, drive::getPose));
 
+        hood = new Hood(new HoodIOSim(), drive::getPose, drive::getFieldVelocity);
+        intakePivot = new IntakePivot(new IntakePivotIOSim());
+        intakeRollers = new IntakeRollers(new IntakeRollersIOSim());
+        flywheel = new Flywheel(new FlywheelIO() {}, drive::getPose, drive::getFieldVelocity);
+        spindexer = new Spindexer(new SpindexerIOSim() {});
+        this.indexer = new Indexer(new IndexerIO(){} );
+        // led = new LED();
+
         break;
 
       default:
@@ -112,8 +174,35 @@ public class RobotContainer {
                 new ModuleIO() {});
 
         vision = new Vision(drive::addVisionMeasurement, new VisionIO() {}, new VisionIO() {});
+
+        hood = new Hood(new HoodIO() {}, drive::getPose, drive::getFieldVelocity);
+        intakePivot = new IntakePivot(new IntakePivotIO() {});
+        intakeRollers = new IntakeRollers(new IntakeRollersIO() {});
+        flywheel = new Flywheel(new FlywheelIO() {}, drive::getPose, drive::getFieldVelocity);
+        spindexer = new Spindexer(new SpindexerIOSim() {});
+        indexer = new Indexer(new IndexerIO() {});
+        // led = new LED();
         break;
     }
+    // Initialize robot state
+    robotState = new RobotState(this);
+
+    // Start of Named Commands for auto:
+    NamedCommands.registerCommand(
+        "flywheelHoodGo",
+        Commands.parallel(
+            robotState.seekIndefinite(HoodState.SEEK_GOAL),
+            robotState.seekIndefinite(FlywheelState.SEEK_GOAL)));
+
+    NamedCommands.registerCommand(
+        "indexerGo",
+        Commands.either(
+            robotState.seekIndefinite(SpindexerState.INDEXING),
+            robotState.seekIndefinite(SpindexerState.IDLE),
+            () -> hood.atGoal() && flywheel.atGoal()));
+
+    NamedCommands.registerCommand(
+        "intake", robotState.seekIndefinite(IntakePivotState.DOWN, IntakeRollerState.INWARD));
 
     // Set up auto routines
     autoChooser = new LoggedDashboardChooser<>("Auto Choices", AutoBuilder.buildAutoChooser());
@@ -148,27 +237,37 @@ public class RobotContainer {
     // Default command, normal field-relative drive
     drive.setDefaultCommand(
         DriveCommands.joystickDrive(
-            drive,
-            () -> -controller.getLeftY(),
-            () -> -controller.getLeftX(),
-            () -> -controller.getRightX()));
+            drive, () -> getDriveForward(), () -> getDriveLeft(), () -> getDriveRotation()));
+    intakeRollers.setDefaultCommand(
+        robotState.seekIndefinite(IntakeRollerState.STOPPED).repeatedly());
+    // intakePivot.setDefaultCommand(robotState.seekIndefinite(IntakePivotState.UP).repeatedly());
+    // hood.setDefaultCommand(robotState.seekIndefinite(HoodState.SEEK_GOAL).repeatedly());
+    spindexer.setDefaultCommand(robotState.seekIndefinite(SpindexerState.IDLE));
 
-    // Lock to 0° when A button is held
-    controller
-        .a()
-        .whileTrue(
-            DriveCommands.joystickDriveAtAngle(
-                drive,
-                () -> -controller.getLeftY(),
-                () -> -controller.getLeftX(),
-                () -> Rotation2d.kZero));
+    // aimbot trigger
+    Trigger aimbotHeld = controller.rightTrigger();
+
+    robotState
+        .getTrenchWarningTrigger()
+        .and(aimbotHeld.negate())
+        .whileTrue(robotState.seekIndefinite(HoodState.FOLD_BACK));
+
+    robotState
+        .getTrenchHardTrigger()
+        .and(
+            new Trigger(
+                () ->
+                    hood.getMeasuredAngleRad()
+                        > FieldConstants.TrenchSafetyConstants.HOOD_SAFE_ANGLE_RAD))
+        .onTrue(Commands.runOnce(() -> drive.setTrenchProtection(true)))
+        .onFalse(Commands.runOnce(() -> drive.setTrenchProtection(false)));
 
     // Switch to X pattern when X button is pressed
     controller.x().onTrue(Commands.runOnce(drive::stopWithX, drive));
 
-    // Reset gyro to 0° when B button is pressed
+    // Reset gyro to 0° when Start button is pressed
     controller
-        .b()
+        .start()
         .onTrue(
             Commands.runOnce(
                     () ->
@@ -176,6 +275,90 @@ public class RobotContainer {
                             new Pose2d(drive.getPose().getTranslation(), Rotation2d.kZero)),
                     drive)
                 .ignoringDisable(true));
+
+    // set intake pivot down when left bumper held
+    controller
+        .leftBumper()
+        .whileTrue(robotState.seekIndefinite(IntakePivotState.DOWN, IntakeRollerState.INWARD));
+
+    // aimbot at target while shooting
+    aimbotHeld.whileTrue(
+        new ParallelCommandGroup(
+            DriveCommands.joystickDriveAtAngle(
+                drive,
+                () -> -controller.getLeftY() * 0.55,
+                () -> -controller.getLeftX() * 0.55,
+                () -> {
+                  drive.updateAimbotHeading(FieldConstants.Hub.topCenterPoint.toTranslation2d());
+                  return drive.getCachedAimbotHeading();
+                }),
+
+            // seek goal at all times when holding
+            // TODO: Figure out logic to improe shoot  on move at drive goal logic
+            robotState.seekIndefinite(FlywheelState.SEEK_GOAL, HoodState.SEEK_GOAL),
+            // feed when flywheel ready
+            Commands.either(
+                robotState.seekIndefinite(SpindexerState.INDEXING),
+                robotState.seekIndefinite(SpindexerState.IDLE),
+                () -> hood.atGoal() && drive.atCachedAimbotHeading())));
+
+
+    // CONTROLLER 2 for MANUAL mode
+
+    // intake down
+    // manualController
+    // .leftBumper()
+    // .whileTrue(robotState.seekIndefinite(IntakePivotState.DOWN));
+
+    // actually intake
+    manualController.leftTrigger().whileTrue(robotState.seekIndefinite(IntakeRollerState.INWARD));
+
+    // intake combined
+    // manualController
+    // .a()
+    // .whileTrue(robotState.seekIndefinite(IntakePivotState.DOWN, IntakeRollerState.INWARD));
+
+    // flywheels
+
+    // manualController.rightBumper().whileTrue(robotState.seekIndefinite(FlywheelState.SEEK_GOAL));
+    manualController.rightBumper().whileTrue(robotState.seekIndefinite(FlywheelState.SEEK_GOAL)).onFalse(robotState.seekIndefinite(FlywheelState.STOPPED));
+
+    // hood
+    // manualController
+    //     .rightTrigger()
+    //     .whileTrue(robotState.seekIndefinite(HoodState.SEEK_GOAL));
+
+    // //indexer
+    //      manualController
+    //     .x()
+    //     .whileTrue(robotState.seekIndefinite(IndexerState.SEEK_GOAL));
+
+    // spindexer
+    manualController.y().whileTrue(robotState.seekIndefinite(SpindexerState.INDEXING, IndexerState.INDEXING));
+    // combined
+
+  }
+
+  private double getDriveForward() {
+    // If controller is plugged in, use it. Otherwise, use keyboard.
+    if (controller.getHID().isConnected()) {
+      return -controller.getLeftY();
+    }
+    return keyboard.getRawAxis(1); // Usually 'W' and 'S' in Sim
+  }
+
+  private double getDriveLeft() {
+    if (controller.getHID().isConnected()) {
+      return -controller.getLeftX();
+    }
+    return keyboard.getRawAxis(0); // Usually 'A' and 'D' in Sim
+  }
+
+  private double getDriveRotation() {
+    if (controller.getHID().isConnected()) {
+      return -controller.getRightX();
+    }
+    return keyboard.getRawAxis(4); // Usually 'J' and 'L' or Arrow Keys
   }
 
   /**

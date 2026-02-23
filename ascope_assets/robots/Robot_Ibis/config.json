@@ -1,0 +1,59 @@
+{
+  "name": "Ibis",
+  "model": "model",
+  "rotations": [
+    {
+      "axis": "x",
+      "degrees": 90
+    }
+  ],
+  "position": [
+    0,
+    0,
+    0.05
+  ],
+  "cameras": [
+    {
+      "rotations": [
+        {
+          "axis": "y",
+          "degrees": -20
+        }
+      ],
+      "position": [
+        0.342,
+        0.154,
+        0.212
+      ],
+      "name": "cam1",
+      "fov": 70,
+      "resolution": [
+        1200,
+        800
+      ]
+    },
+    {
+      "rotations": [
+        {
+          "axis": "y",
+          "degrees": -20
+        },
+        {
+          "axis": "z",
+          "degrees": -100
+        }
+      ],
+      "position": [
+        0.000000,
+        -0.342900,
+        0.196850
+      ],
+      "name": "cam2",
+      "fov": 70,
+      "resolution": [
+        1200,
+        800
+      ]
+    }
+  ]
+}

@@ -1,0 +1,43 @@
+{
+  "version": "2025.0",
+  "command": {
+    "type": "sequential",
+    "data": {
+      "commands": [
+        {
+          "type": "path",
+          "data": {
+            "pathName": "left_dep"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "left_dep_shoot(hub)"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "shoot_left_bar_nuetral"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "nuetralintake_shoot"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "shoot_climb"
+          }
+        }
+      ]
+    }
+  },
+  "resetOdom": true,
+  "folder": null,
+  "choreoAuto": false
+}

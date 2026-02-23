@@ -26,6 +26,7 @@ import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Twist2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
@@ -33,6 +34,7 @@ import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj.DriverStation;
@@ -42,9 +44,11 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.Constants;
-import frc.robot.Constants.FieldConstants;
 import frc.robot.Constants.Mode;
+import frc.robot.FieldConstants;
+import frc.robot.subsystems.shooter.ShotCalculator;
 import frc.robot.util.LocalADStarAK;
+import frc.robot.util.geometry.AllianceFlipUtil;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 import org.littletonrobotics.junction.AutoLogOutput;
@@ -70,6 +74,10 @@ public class Drive extends SubsystemBase {
       };
   private SwerveDrivePoseEstimator poseEstimator =
       new SwerveDrivePoseEstimator(kinematics, rawGyroRotation, lastModulePositions, Pose2d.kZero);
+
+  // TODO: Delete this
+  private Rotation2d AimbotHeading = Rotation2d.kZero;
+  private boolean trenchProtectionEnabled = false;
 
   public Drive(
       GyroIO gyroIO,
@@ -178,12 +186,19 @@ public class Drive extends SubsystemBase {
     }
 
     // Update gyro alert
-    gyroDisconnectedAlert.set(!gyroInputs.connected && Constants.currentMode != Mode.SIM);
+    gyroDisconnectedAlert.set(!gyroInputs.connected && Constants.getMode() != Mode.SIM);
 
     // clamp pose to inside field
     if (RobotBase.isSimulation()) {
       clampPoseToField();
     }
+
+    Logger.recordOutput(
+        "Drive/DistanceFromHub",
+        getPose()
+            .getTranslation()
+            .getDistance(
+                AllianceFlipUtil.apply(FieldConstants.Hub.topCenterPoint.toTranslation2d())));
   }
 
   /**
@@ -192,6 +207,11 @@ public class Drive extends SubsystemBase {
    * @param speeds Speeds in meters/sec
    */
   public void runVelocity(ChassisSpeeds speeds) {
+
+    if (trenchProtectionEnabled) {
+      speeds = clampSpeedsForTrench(speeds);
+    }
+
     // Calculate module setpoints
     ChassisSpeeds discreteSpeeds = ChassisSpeeds.discretize(speeds, 0.02);
     SwerveModuleState[] setpointStates = kinematics.toSwerveModuleStates(discreteSpeeds);
@@ -272,6 +292,41 @@ public class Drive extends SubsystemBase {
     return kinematics.toChassisSpeeds(getModuleStates());
   }
 
+  /**
+   * prevents robot from crossing the trench boundary line. blocks movement past hubCenter X
+   * coordinate when hood is unsafe.
+   */
+  private ChassisSpeeds clampSpeedsForTrench(ChassisSpeeds speeds) {
+    ChassisSpeeds field = ChassisSpeeds.fromRobotRelativeSpeeds(speeds, getRotation());
+
+    Translation2d pos = getPose().getTranslation();
+    var closest = FieldConstants.TrenchSafetyConstants.getClosestPointToNearestTrench(pos);
+
+    Translation2d nVec = pos.minus(closest.closestPoint());
+
+    if (nVec.getNorm() < 1e-6) {
+      return speeds;
+    }
+    Translation2d nHat = nVec.div(nVec.getNorm());
+
+    Translation2d v = new Translation2d(field.vxMetersPerSecond, field.vyMetersPerSecond);
+
+    double vAlongNormal = v.getX() * nHat.getX() + v.getY() * nHat.getY();
+
+    if (vAlongNormal < 0.0) {
+      Translation2d correction = nHat.times(vAlongNormal);
+      v = v.minus(correction);
+    }
+
+    field = new ChassisSpeeds(v.getX(), v.getY(), field.omegaRadiansPerSecond);
+
+    return ChassisSpeeds.fromFieldRelativeSpeeds(
+        field.vxMetersPerSecond,
+        field.vyMetersPerSecond,
+        field.omegaRadiansPerSecond,
+        getRotation());
+  }
+
   /** Returns the position of each module in radians. */
   public double[] getWheelRadiusCharacterizationPositions() {
     double[] values = new double[4];
@@ -301,6 +356,12 @@ public class Drive extends SubsystemBase {
     return getPose().getRotation();
   }
 
+  /** Returns the current field-relative velocity. */
+  @AutoLogOutput(key = "RobotState/FieldVelocity")
+  public ChassisSpeeds getFieldVelocity() {
+    return ChassisSpeeds.fromRobotRelativeSpeeds(getChassisSpeeds(), getRotation());
+  }
+
   /** Resets the current odometry pose. */
   public void setPose(Pose2d pose) {
     poseEstimator.resetPosition(rawGyroRotation, getModulePositions(), pose);
@@ -325,11 +386,46 @@ public class Drive extends SubsystemBase {
     return maxSpeedMetersPerSec / driveBaseRadius;
   }
 
+  // cache aimbot heading to avoid repeated calculations in drive
+  public void updateAimbotHeading(Translation2d target) {
+    AimbotHeading = ShotCalculator.calculate(getPose(), getFieldVelocity(), target).robotHeading();
+  }
+  // returns cached aimbot heading
+  public Rotation2d getCachedAimbotHeading() {
+    return AimbotHeading;
+  }
+
+  @AutoLogOutput(key = "Aimbot/AtHeading")
+  public boolean atCachedAimbotHeading() {
+    Rotation2d error = AimbotHeading.minus(getRotation());
+    double omega = gyroInputs.yawVelocityRadPerSec;
+
+    Logger.recordOutput("Aimbot/HeadingErrorRad", Units.radiansToDegrees(error.getRadians()));
+    Logger.recordOutput("Aimbot/OmegaRadPerSec", omega);
+    return Math.abs(error.getRadians()) < DriveConstants.kAimbotHeadingToleranceRad
+        && Math.abs(omega) < DriveConstants.kAimbotOmegaToleranceRadPerSec;
+  }
+
+  // get aimbot heading without using cache
+  public Rotation2d getAimbotHeading(Translation2d targetTranslation2d) {
+
+    var targetRotation =
+        ShotCalculator.calculate(getPose(), getFieldVelocity(), targetTranslation2d).robotHeading();
+
+    return targetRotation;
+  }
+
+  // enables trench protect mode
+  public void setTrenchProtection(boolean enabled) {
+    this.trenchProtectionEnabled = enabled;
+  }
+
+  // clamp robot position to field in simulation
   private void clampPoseToField() {
     Pose2d pose = getPose();
 
-    double x = MathUtil.clamp(pose.getX(), 0.0, FieldConstants.FIELD_LENGTH);
-    double y = MathUtil.clamp(pose.getY(), 0.0, FieldConstants.FIELD_WIDTH);
+    double x = MathUtil.clamp(pose.getX(), 0.0, FieldConstants.fieldLength);
+    double y = MathUtil.clamp(pose.getY(), 0.0, FieldConstants.fieldWidth);
 
     setPose(new Pose2d(x, y, pose.getRotation()));
   }
