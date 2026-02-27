@@ -44,7 +44,7 @@ public class FlywheelIOTalonFX implements FlywheelIO {
     config.CurrentLimits.StatorCurrentLimit = 120.0;
     config.CurrentLimits.StatorCurrentLimitEnable = true;
 
-    config.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
+    config.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
     config.MotorOutput.NeutralMode = NeutralModeValue.Coast;
 
     config.Slot0.kP = ShooterConstants.FlywheelConstants.kP.get();
@@ -57,9 +57,11 @@ public class FlywheelIOTalonFX implements FlywheelIO {
     PhoenixUtil.tryUntilOk(10, () -> leader.getConfigurator().apply(config));
     PhoenixUtil.tryUntilOk(10, () -> follower.getConfigurator().apply(config));
 
-    PhoenixUtil.tryUntilOk(10, () -> follower.setControl(new Follower(leader.getDeviceID(), MotorAlignmentValue.Opposed)));
+    PhoenixUtil.tryUntilOk(
+        10,
+        () -> follower.setControl(new Follower(leader.getDeviceID(), MotorAlignmentValue.Opposed)));
 
-    //cache signals
+    // cache signals
     leaderVelocity = leader.getVelocity();
     leaderVoltage = leader.getMotorVoltage();
     leaderSupplyCurrent = leader.getSupplyCurrent();

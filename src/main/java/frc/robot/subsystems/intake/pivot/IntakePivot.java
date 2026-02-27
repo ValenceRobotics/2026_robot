@@ -1,6 +1,7 @@
 package frc.robot.subsystems.intake.pivot;
 
 import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
@@ -33,7 +34,7 @@ public class IntakePivot extends FullSubsystem {
   public IntakePivot(IntakePivotIO io) {
     this.io = io;
 
-    toleranceDeg.initDefault(15.0);
+    toleranceDeg.initDefault(0.5);
     kP.initDefault(0.5);
     kD.initDefault(0);
   }
@@ -65,6 +66,7 @@ public class IntakePivot extends FullSubsystem {
     io.applyOutputs(outputs);
 
     Logger.recordOutput("IntakePivot/GoalPositionRad", goalPositionRad);
+    Logger.recordOutput("IntakePivot/GoalPositionDegrees", Units.radiansToDegrees(goalPositionRad));
     Logger.recordOutput("IntakePivot/Mode", outputs.mode.toString());
   }
 
@@ -78,6 +80,11 @@ public class IntakePivot extends FullSubsystem {
 
   @AutoLogOutput(key = "IntakePivot/MeasuredPositionRad")
   public double getMeasuredPositionRad() {
+    return inputs.positionRad;
+  }
+
+  @AutoLogOutput(key = "IntakePivot/MeasuredPositionDegrees")
+  public double getMeasuredPositionDegrees() {
     return inputs.positionRad;
   }
 

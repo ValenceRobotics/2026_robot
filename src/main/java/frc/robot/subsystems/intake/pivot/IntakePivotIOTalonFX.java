@@ -39,10 +39,10 @@ public class IntakePivotIOTalonFX implements IntakePivotIO {
 
     config.Feedback.SensorToMechanismRatio = IntakeConstants.PivotConstants.GEAR_RATIO;
 
-    config.TorqueCurrent.PeakForwardTorqueCurrent =
-        IntakeConstants.PivotConstants.peakForwardTorqueA;
-    config.TorqueCurrent.PeakReverseTorqueCurrent =
-        IntakeConstants.PivotConstants.peakReverseTorqueA;
+    // config.TorqueCurrent.PeakForwardTorqueCurrent =
+    //     IntakeConstants.PivotConstants.peakForwardTorqueA;
+    // config.TorqueCurrent.PeakReverseTorqueCurrent =
+    //     IntakeConstants.PivotConstants.peakReverseTorqueA;
 
     config.CurrentLimits.StatorCurrentLimit = IntakeConstants.PivotConstants.statorLimitA;
     config.CurrentLimits.StatorCurrentLimitEnable = true;

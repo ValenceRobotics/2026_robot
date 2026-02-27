@@ -6,6 +6,7 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.FieldConstants.TrenchSafetyConstants;
 import frc.robot.subsystems.drive.Drive;
+import frc.robot.subsystems.indexer.Indexer;
 import frc.robot.subsystems.intake.pivot.IntakePivot;
 import frc.robot.subsystems.intake.rollers.IntakeRollers;
 import frc.robot.subsystems.shooter.flywheel.Flywheel;
@@ -19,6 +20,7 @@ public class RobotState {
   private final Flywheel flywheel;
   private final Hood hood;
   private final Spindexer spindexer;
+  private final Indexer indexer;
   private final Drive drive;
 
   // Trench safety constants
@@ -45,7 +47,8 @@ public class RobotState {
   public enum HoodState {
     SEEK_GOAL,
     PASS_BALL,
-    FOLD_BACK
+    FOLD_BACK,
+    MANUAL
   }
 
   public enum SpindexerState {
@@ -66,6 +69,7 @@ public class RobotState {
     this.flywheel = container.flywheel;
     this.hood = container.hood;
     this.spindexer = container.spindexer;
+    this.indexer = container.indexer;
     this.drive = container.drive;
   }
 
@@ -111,6 +115,8 @@ public class RobotState {
         compound = compound.alongWith(hood.seekCommand(s));
       } else if (state instanceof SpindexerState s) {
         compound = compound.alongWith(spindexer.seekCommand(s));
+      } else if (state instanceof IndexerState s) {
+        compound = compound.alongWith(indexer.seekCommand(s));
       }
     }
     return compound;
@@ -129,6 +135,8 @@ public class RobotState {
         compound = compound.alongWith(hood.seekCommandIndefinite(s));
       } else if (state instanceof SpindexerState s) {
         compound = compound.alongWith(spindexer.seekCommandIndefinite(s));
+      } else if (state instanceof IndexerState s) {
+        compound = compound.alongWith(indexer.seekCommandIndefinite(s));
       }
     }
     return compound.repeatedly();

@@ -130,13 +130,22 @@ public class Flywheel extends FullSubsystem {
     return inputs.velocityRadsPerSec;
   }
 
-  public void setGoalVelocity(double velocityRadsPerSec) {
+  public void setGoalVelocityRads(double velocityRadsPerSec) {
     this.goalVelocity = velocityRadsPerSec;
     this.running = true;
   }
 
+  public void setGoalVelocityRPM(double velocityRPMperSecond) {
+    this.goalVelocity = velocityRPMperSecond;
+    this.running = true;
+  }
+
   public Command runVelocityCommand(DoubleSupplier velocity) {
-    return this.runEnd(() -> setGoalVelocity(velocity.getAsDouble()), this::stop);
+    return this.runEnd(() -> setGoalVelocityRads(velocity.getAsDouble()), this::stop);
+  }
+
+  public Command runVelocityCommandRPM(DoubleSupplier velocityRPM) {
+    return this.runEnd(() -> setGoalVelocityRads(velocityRPM.getAsDouble()), this::stop);
   }
 
   public Command stopCommand() {

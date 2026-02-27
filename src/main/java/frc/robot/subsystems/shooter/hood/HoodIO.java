@@ -21,7 +21,8 @@ public interface HoodIO {
   public static enum HoodIOOutputMode {
     BRAKE,
     COAST,
-    CLOSED_LOOP
+    CLOSED_LOOP,
+    VOLTAGE_CONTROL
   }
 
   public static class HoodIOOutputs {
@@ -32,6 +33,7 @@ public interface HoodIO {
     public double velocityRadsPerSec = 0.0;
     public double kP = 0.0;
     public double kD = 0.0;
+    public double voltage;
   }
 
   public default void updateInputs(HoodIOInputs inputs) {}

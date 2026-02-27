@@ -1,12 +1,12 @@
 package frc.robot.subsystems.intake.pivot;
 
-import static frc.robot.subsystems.intake.IntakeConstants.GEAR_RATIO;
 import static frc.robot.subsystems.intake.IntakeConstants.STOWED_POS;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.simulation.SingleJointedArmSim;
+import frc.robot.subsystems.shooter.ShooterConstants.HoodConstants;
 
 public class IntakePivotIOSim implements IntakePivotIO {
   private final SingleJointedArmSim pivotSim;
@@ -17,7 +17,7 @@ public class IntakePivotIOSim implements IntakePivotIO {
     pivotSim =
         new SingleJointedArmSim(
             DCMotor.getFalcon500(1),
-            GEAR_RATIO,
+            HoodConstants.gearRatio,
             0.1,
             0.5,
             Units.degreesToRadians(-5),

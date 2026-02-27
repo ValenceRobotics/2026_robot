@@ -9,11 +9,11 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import frc.robot.FieldConstants;
 import frc.robot.RobotState.HoodState;
+import frc.robot.subsystems.shooter.ShooterConstants;
 import frc.robot.subsystems.shooter.ShotCalculator;
 import frc.robot.subsystems.shooter.hood.HoodIO.HoodIOOutputMode;
 import frc.robot.subsystems.shooter.hood.HoodIO.HoodIOOutputs;
 import frc.robot.util.FullSubsystem;
-import frc.robot.util.LoggedTunableNumber;
 import java.util.function.Supplier;
 import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
@@ -28,14 +28,10 @@ public class Hood extends FullSubsystem {
   private final Supplier<ChassisSpeeds> velocitySupplier;
 
   // make these loggabletunable numbers
-  private static final double minAngle = Units.degreesToRadians(0);
-  private static final double maxAngle = Units.degreesToRadians(90);
+  private static final double minAngle = Units.degreesToRadians(10);
+  private static final double maxAngle = Units.degreesToRadians(34.5);
 
-  private static final LoggedTunableNumber kP = new LoggedTunableNumber("Hood/kP");
-  private static final LoggedTunableNumber kD = new LoggedTunableNumber("Hood/kD");
-  private static final LoggedTunableNumber toleranceDeg =
-      new LoggedTunableNumber("Hood/ToleranceDeg");
-
+  private double goalVoltage = 0.0;
   private double goalAngleRad = 0.0;
   private double goalVelocity = 0.0;
 
@@ -45,11 +41,6 @@ public class Hood extends FullSubsystem {
     this.io = io;
     this.poseSupplier = poseSupplier;
     this.velocitySupplier = velocitySupplier;
-
-    //  tunable numbers
-    kP.initDefault(.5);
-    kD.initDefault(0);
-    toleranceDeg.initDefault(10.0);
   }
 
   @Override
@@ -82,6 +73,7 @@ public class Hood extends FullSubsystem {
         goalAngleRad = 0.0;
         goalVelocity = 0.0;
       }
+      case MANUAL -> {}
     }
   }
 
@@ -89,17 +81,17 @@ public class Hood extends FullSubsystem {
   public void periodicAfterScheduler() {
     // set outputs
     outputs.mode = HoodIOOutputMode.CLOSED_LOOP;
+
     outputs.positionRad = MathUtil.clamp(goalAngleRad, minAngle, maxAngle);
     outputs.velocityRadsPerSec = goalVelocity;
-    outputs.kP = kP.get();
-    outputs.kD = kD.get();
+    outputs.voltage = goalVoltage;
 
     io.applyOutputs(outputs);
 
-    Logger.recordOutput("Hood/GoalAngleRad", goalAngleRad);
+    Logger.recordOutput("Hood/GoalAngleDegrees", Units.radiansToDegrees(goalAngleRad));
     Logger.recordOutput("Hood/GoalVelocity", goalVelocity);
+    Logger.recordOutput("Hood/GoalVolts", goalVoltage);
     Logger.recordOutput("Hood/Mode", outputs.mode.toString());
-    Logger.recordOutput("Hood/Kp", kP.get());
   }
 
   public void setState(HoodState state) {
@@ -109,6 +101,15 @@ public class Hood extends FullSubsystem {
   public void setGoalParams(double angle, double velocity) {
     goalAngleRad = angle;
     goalVelocity = velocity;
+  }
+
+  public void setGoalVoltage(double volts) {
+    goalVoltage = volts;
+  }
+
+  @AutoLogOutput(key = "Hood/MeasuredAngleDegrees")
+  public double getMeasuredAngleDegrees() {
+    return Units.radiansToDegrees(inputs.positionRads);
   }
 
   @AutoLogOutput(key = "Hood/MeasuredAngleRads")
@@ -125,7 +126,11 @@ public class Hood extends FullSubsystem {
   public boolean atGoal() {
     return DriverStation.isEnabled()
         && Math.abs(getMeasuredAngleRad() - goalAngleRad)
-            <= Units.degreesToRadians(toleranceDeg.get());
+            <= Units.degreesToRadians(ShooterConstants.HoodConstants.toleranceDeg.get());
+  }
+
+  public Command moveToAngle(double angleRad) {
+    return this.runOnce(() -> setGoalParams(angleRad, 0)).andThen(Commands.waitUntil(this::atGoal));
   }
 
   public Command seekCommand(HoodState state) {

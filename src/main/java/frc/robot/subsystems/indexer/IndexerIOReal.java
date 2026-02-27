@@ -1,6 +1,5 @@
 package frc.robot.subsystems.indexer;
 
-
 import com.revrobotics.PersistMode;
 import com.revrobotics.ResetMode;
 import com.revrobotics.spark.SparkLowLevel.MotorType;

@@ -12,13 +12,11 @@ import static frc.robot.subsystems.vision.VisionConstants.camera1Name;
 import static frc.robot.subsystems.vision.VisionConstants.robotToCamera0;
 import static frc.robot.subsystems.vision.VisionConstants.robotToCamera1;
 
-import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
-
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
-
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -57,6 +55,7 @@ import frc.robot.subsystems.shooter.flywheel.FlywheelIO;
 import frc.robot.subsystems.shooter.flywheel.FlywheelIOTalonFX;
 import frc.robot.subsystems.shooter.hood.Hood;
 import frc.robot.subsystems.shooter.hood.HoodIO;
+import frc.robot.subsystems.shooter.hood.HoodIOReal;
 import frc.robot.subsystems.shooter.hood.HoodIOSim;
 import frc.robot.subsystems.spindexer.Spindexer;
 import frc.robot.subsystems.spindexer.SpindexerIOReal;
@@ -65,6 +64,7 @@ import frc.robot.subsystems.vision.Vision;
 import frc.robot.subsystems.vision.VisionIO;
 import frc.robot.subsystems.vision.VisionIOPhotonVision;
 import frc.robot.subsystems.vision.VisionIOPhotonVisionSim;
+import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 
 /**
  * This class is where the bulk of the robot should be declared. Since Command-based is a
@@ -82,7 +82,7 @@ public class RobotContainer {
   final Flywheel flywheel;
   final Spindexer spindexer;
   final Indexer indexer;
-//   final LED led;
+  //   final LED led;
 
   // Robot state
   final RobotState robotState;
@@ -119,12 +119,8 @@ public class RobotContainer {
                 new VisionIOPhotonVision(camera0Name, robotToCamera0),
                 new VisionIOPhotonVision(camera1Name, robotToCamera1));
 
-        this.hood =
-            new Hood(
-                new HoodIOSim(),
-                drive::getPose,
-                drive::getFieldVelocity); 
-        this.indexer = new Indexer (new IndexerIOReal());
+        this.hood = new Hood(new HoodIOReal(), drive::getPose, drive::getFieldVelocity);
+        this.indexer = new Indexer(new IndexerIOReal());
         this.intakePivot =
             new IntakePivot(
                 new IntakePivotIOTalonFX()); // if this breaks change it back to iosim here for now
@@ -156,7 +152,7 @@ public class RobotContainer {
         intakeRollers = new IntakeRollers(new IntakeRollersIOSim());
         flywheel = new Flywheel(new FlywheelIO() {}, drive::getPose, drive::getFieldVelocity);
         spindexer = new Spindexer(new SpindexerIOSim() {});
-        this.indexer = new Indexer(new IndexerIO(){} );
+        this.indexer = new Indexer(new IndexerIO() {});
         // led = new LED();
 
         break;
@@ -240,8 +236,9 @@ public class RobotContainer {
             drive, () -> getDriveForward(), () -> getDriveLeft(), () -> getDriveRotation()));
     intakeRollers.setDefaultCommand(
         robotState.seekIndefinite(IntakeRollerState.STOPPED).repeatedly());
-    // intakePivot.setDefaultCommand(robotState.seekIndefinite(IntakePivotState.UP).repeatedly());
+    intakePivot.setDefaultCommand(robotState.seekIndefinite(IntakePivotState.DOWN).repeatedly());
     // hood.setDefaultCommand(robotState.seekIndefinite(HoodState.SEEK_GOAL).repeatedly());
+    hood.setDefaultCommand(robotState.seekIndefinite(HoodState.MANUAL).repeatedly());
     spindexer.setDefaultCommand(robotState.seekIndefinite(SpindexerState.IDLE));
 
     // aimbot trigger
@@ -302,31 +299,46 @@ public class RobotContainer {
                 robotState.seekIndefinite(SpindexerState.IDLE),
                 () -> hood.atGoal() && drive.atCachedAimbotHeading())));
 
-
     // CONTROLLER 2 for MANUAL mode
 
     // intake down
-    // manualController
-    // .leftBumper()
-    // .whileTrue(robotState.seekIndefinite(IntakePivotState.DOWN));
 
     // actually intake
     manualController.leftTrigger().whileTrue(robotState.seekIndefinite(IntakeRollerState.INWARD));
 
+    manualController
+        .b()
+        .whileTrue(robotState.seekIndefinite(FlywheelState.SEEK_GOAL))
+        .onFalse(robotState.seekIndefinite(FlywheelState.STOPPED));
+
     // intake combined
-    // manualController
-    // .a()
-    // .whileTrue(robotState.seekIndefinite(IntakePivotState.DOWN, IntakeRollerState.INWARD));
+    manualController
+        .a()
+        .whileTrue(robotState.seekIndefinite(IntakePivotState.DOWN, IntakeRollerState.INWARD));
+
+    manualController
+        .povUp()
+        .whileTrue(robotState.seekIndefinite(IntakePivotState.UP))
+        .onFalse(robotState.seekIndefinite(IntakePivotState.DOWN));
 
     // flywheels
 
     // manualController.rightBumper().whileTrue(robotState.seekIndefinite(FlywheelState.SEEK_GOAL));
-    manualController.rightBumper().whileTrue(robotState.seekIndefinite(FlywheelState.SEEK_GOAL)).onFalse(robotState.seekIndefinite(FlywheelState.STOPPED));
+    manualController
+        .rightBumper()
+        .whileTrue(
+            robotState.seekIndefinite(
+                IndexerState.INDEXING, FlywheelState.SEEK_GOAL, SpindexerState.INDEXING))
+        .onFalse(
+            robotState.seekIndefinite(
+                IndexerState.IDLE, FlywheelState.STOPPED, SpindexerState.IDLE));
 
     // hood
-    // manualController
-    //     .rightTrigger()
-    //     .whileTrue(robotState.seekIndefinite(HoodState.SEEK_GOAL));
+    manualController.rightTrigger().whileTrue(hood.moveToAngle(Units.degreesToRadians(11)));
+    manualController.povLeft().whileTrue(hood.moveToAngle(Units.degreesToRadians(25)));
+    // manualController.rightTrigger().whileTrue(Commands.run(() -> hood.setGoalVoltage(10), hood));
+
+    manualController.leftBumper().whileTrue(hood.moveToAngle(Units.degreesToRadians(30)));
 
     // //indexer
     //      manualController
@@ -334,7 +346,10 @@ public class RobotContainer {
     //     .whileTrue(robotState.seekIndefinite(IndexerState.SEEK_GOAL));
 
     // spindexer
-    manualController.y().whileTrue(robotState.seekIndefinite(SpindexerState.INDEXING, IndexerState.INDEXING));
+    manualController
+        .y()
+        .whileTrue(robotState.seekIndefinite(SpindexerState.INDEXING, IndexerState.INDEXING))
+        .onFalse(robotState.seekIndefinite(SpindexerState.IDLE, IndexerState.IDLE));
     // combined
 
   }

@@ -6,6 +6,7 @@ import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.interpolation.InterpolatingDoubleTreeMap;
 import edu.wpi.first.math.interpolation.InterpolatingTreeMap;
 import edu.wpi.first.math.interpolation.InverseInterpolator;
+import edu.wpi.first.math.util.Units;
 import frc.robot.util.LoggedTunableNumber;
 
 public class ShooterConstants {
@@ -14,15 +15,19 @@ public class ShooterConstants {
     public static final int hoodMotorId = 31;
     public static final int currentLimit = 20;
 
-    public static LoggedTunableNumber kPReal = new LoggedTunableNumber("Hood/kP", 0.065);
+    public static LoggedTunableNumber kPReal = new LoggedTunableNumber("Hood/kP", 1000);
     public static LoggedTunableNumber kDReal = new LoggedTunableNumber("Hood/kD", 0.001);
-    public static LoggedTunableNumber kGReal = new LoggedTunableNumber("Hood/kG", 0.05);
+    public static LoggedTunableNumber kGReal = new LoggedTunableNumber("Hood/kG", 0);
+    public static LoggedTunableNumber toleranceDeg =
+        new LoggedTunableNumber("Hood/toleranceDegree", .25);
 
-    public static final double cruiseVelocity = 10; //  m/ sec
-    public static final double maxAcceleration = 5; // m/ sec^2
-    public static final double allowedError = 0.5;
+    public static final double cruiseVelocity = 100; //  m/ sec
+    public static final double maxAcceleration = 20; // m/ sec^2
 
-    public static final double gearRatio = 850.0;
+    public static final double gearRatio = 465.0;
+
+    public static final double MIN_ANGLE = Units.degreesToRadians(10);
+    public static final double MAX_ANGLE = Units.degreesToRadians(35);
   }
 
   public class FlywheelConstants {
