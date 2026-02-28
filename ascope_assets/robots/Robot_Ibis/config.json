@@ -35,20 +35,35 @@
     {
       "rotations": [
         {
-          "axis": "y",
-          "degrees": -20
-        },
-        {
           "axis": "z",
-          "degrees": -100
+          "degrees": 55
         }
       ],
       "position": [
-        0.000000,
-        -0.342900,
-        0.196850
+        0.000,
+        0.343,
+        0.197
       ],
       "name": "cam2",
+      "fov": 70,
+      "resolution": [
+        1200,
+        800
+      ]
+    },
+    {
+      "rotations": [
+        {
+          "axis": "z",
+          "degrees": -55
+        }
+      ],
+      "position": [
+        0.000,
+        -0.343,
+        0.197
+      ],
+      "name": "cam3",
       "fov": 70,
       "resolution": [
         1200,
