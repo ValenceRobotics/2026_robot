@@ -10,7 +10,6 @@ import frc.robot.subsystems.intake.IntakeConstants;
 import frc.robot.subsystems.intake.pivot.IntakePivotIO.IntakePivotIOOutputMode;
 import frc.robot.subsystems.intake.pivot.IntakePivotIO.IntakePivotIOOutputs;
 import frc.robot.util.FullSubsystem;
-import frc.robot.util.LoggedTunableNumber;
 import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
 
@@ -22,21 +21,12 @@ public class IntakePivot extends FullSubsystem {
   private static final double minAngle = IntakeConstants.MIN_ANGLE;
   private static final double maxAngle = IntakeConstants.MAX_ANGLE;
 
-  private static final LoggedTunableNumber kP = new LoggedTunableNumber("IntakePivot/kP");
-  private static final LoggedTunableNumber kD = new LoggedTunableNumber("IntakePivot/kD");
-  private static final LoggedTunableNumber toleranceDeg =
-      new LoggedTunableNumber("IntakePivot/ToleranceDeg");
-
-  private double goalPositionRad = IntakeConstants.STOWED_POS;
+  private double goalPositionRad = 0.0;
 
   @AutoLogOutput private IntakePivotState state = IntakePivotState.DOWN;
 
   public IntakePivot(IntakePivotIO io) {
     this.io = io;
-
-    toleranceDeg.initDefault(1.0);
-    kP.initDefault(0.5);
-    kD.initDefault(0);
   }
 
   @Override
@@ -56,9 +46,6 @@ public class IntakePivot extends FullSubsystem {
 
   @Override
   public void periodicAfterScheduler() {
-    outputs.kP = kP.get();
-    outputs.kD = kD.get();
-
     // set outputs
     outputs.mode = IntakePivotIOOutputMode.CLOSED_LOOP;
     outputs.positionRad = MathUtil.clamp(goalPositionRad, minAngle, maxAngle);
@@ -97,13 +84,13 @@ public class IntakePivot extends FullSubsystem {
   public boolean atGoal() {
     return DriverStation.isEnabled()
         && Math.abs(getMeasuredPositionRad() - goalPositionRad)
-            <= Math.toRadians(toleranceDeg.get());
+            <= Math.toRadians(IntakeConstants.PivotConstants.toleranceDeg.get());
   }
 
   // limit switch implementation; not done yet
-  public boolean atForwardLimit() {
-    return inputs.forwardLimitSwitch;
-  }
+  // public boolean atForwardLimit() {
+  //   return inputs.forwardLimitSwitch;
+  // }
 
   public void zeroEncoder() {
     io.zeroToCurrentPos();

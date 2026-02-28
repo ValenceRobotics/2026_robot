@@ -14,6 +14,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import frc.robot.FieldConstants;
 import frc.robot.RobotState.FlywheelState;
+import frc.robot.subsystems.shooter.ShooterConstants.FlywheelConstants;
 import frc.robot.subsystems.shooter.ShotCalculator;
 import frc.robot.subsystems.shooter.flywheel.FlywheelIO.FlywheelIOOutputMode;
 import frc.robot.subsystems.shooter.flywheel.FlywheelIO.FlywheelIOOutputs;
@@ -30,9 +31,9 @@ public class Flywheel extends FullSubsystem {
 
   // tunable stuff
   private static final LoggedTunableNumber tolerance =
-      new LoggedTunableNumber("Flywheel/Tolerance", 10.0);
+      FlywheelConstants.tolerance;
   private static final LoggedTunableNumber atGoalDebounceTime =
-      new LoggedTunableNumber("Flywheel/AtGoalDebounceTime", 0.15);
+      FlywheelConstants.atGoalDebouncerTime;
 
   @AutoLogOutput private boolean running = false;
   @AutoLogOutput private boolean atGoal = false;
@@ -41,6 +42,7 @@ public class Flywheel extends FullSubsystem {
   @AutoLogOutput private FlywheelState state = FlywheelState.STOPPED;
 
   private Debouncer atGoalDebouncer;
+
 
   public Flywheel(
       FlywheelIO io, Supplier<Pose2d> poseSupplier, Supplier<ChassisSpeeds> velocitySupplier) {
@@ -111,7 +113,7 @@ public class Flywheel extends FullSubsystem {
   }
 
   @AutoLogOutput(key = "Flywheel/MeasuredVelocity")
-  public double getMeasuredAngleRad() {
+  public double getMeasuredVelocityRadPerSec() {
     return inputs.velocityRadsPerSec;
   }
 

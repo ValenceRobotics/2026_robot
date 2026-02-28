@@ -6,6 +6,7 @@ import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.simulation.SingleJointedArmSim;
+import frc.robot.subsystems.intake.IntakeConstants;
 import frc.robot.subsystems.shooter.ShooterConstants.HoodConstants;
 
 public class IntakePivotIOSim implements IntakePivotIO {
@@ -56,7 +57,7 @@ public class IntakePivotIOSim implements IntakePivotIO {
         double posError = outputs.positionRad - pivotSim.getAngleRads();
         double velError = outputs.velocityRadsPerSec - pivotSim.getVelocityRadPerSec();
 
-        double volts = (posError * outputs.kP) + (velError * outputs.kD);
+        double volts = (posError * IntakeConstants.PivotConstants.kP.get()) + (velError * IntakeConstants.PivotConstants.kD.get());
 
         appliedVolts = MathUtil.clamp(volts, -12.0, 12.0);
       }

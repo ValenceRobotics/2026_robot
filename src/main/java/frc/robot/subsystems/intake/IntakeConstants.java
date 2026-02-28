@@ -23,6 +23,8 @@ public final class IntakeConstants {
     public static final LoggedTunableNumber kD = new LoggedTunableNumber("IntakePivot/kD", 0.1);
     public static final LoggedTunableNumber kS = new LoggedTunableNumber("IntakePivot/kS", 0.08);
     public static final LoggedTunableNumber kV = new LoggedTunableNumber("IntakePivot/kV", 0.0);
+      public static final LoggedTunableNumber toleranceDeg =
+          new LoggedTunableNumber("IntakePivot/ToleranceDeg", 1.0);
   }
 
   public final class RollersConstants {

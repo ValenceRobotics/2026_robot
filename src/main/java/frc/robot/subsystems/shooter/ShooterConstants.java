@@ -39,7 +39,11 @@ public class ShooterConstants {
     public static LoggedTunableNumber kV = new LoggedTunableNumber("Flywheel/kV", 0.1);
     public static LoggedTunableNumber kS = new LoggedTunableNumber("Flywheel/kS", 0.0);
 
-    public static final double cruiseVelocity = 10; //  m/ sec
+    public static LoggedTunableNumber tolerance = new LoggedTunableNumber("Flywheel/Tolerance", 10.0);
+
+    public static LoggedTunableNumber atGoalDebouncerTime = new LoggedTunableNumber("Flywheel/AtGoalDebounceTime", 0.15);
+
+    public static final double cruiseVelocity = 15; //  m/ sec
     public static final double maxAcceleration = 5; // m/ sec^2
     public static final double allowedError = 0.5;
 
@@ -58,24 +62,24 @@ public class ShooterConstants {
   static {
 
     // pg constants change ltr
-    hoodAngleMap.put(1.34, Rotation2d.fromDegrees(7.39750444894));
-    hoodAngleMap.put(1.78, Rotation2d.fromDegrees(19.0));
-    hoodAngleMap.put(2.17, Rotation2d.fromDegrees(24.0));
-    hoodAngleMap.put(2.81, Rotation2d.fromDegrees(27.0));
-    hoodAngleMap.put(3.82, Rotation2d.fromDegrees(29.0));
-    hoodAngleMap.put(4.09, Rotation2d.fromDegrees(30.0));
-    hoodAngleMap.put(4.40, Rotation2d.fromDegrees(31.0));
-    hoodAngleMap.put(4.77, Rotation2d.fromDegrees(32.0));
-    hoodAngleMap.put(5.60, Rotation2d.fromDegrees(35.0));
-    hoodAngleMap.put(6.138, Rotation2d.fromDegrees(43.0));
+    hoodAngleMap.put(1.34, Rotation2d.fromDegrees(12.6331849283));
+    hoodAngleMap.put(1.78, Rotation2d.fromDegrees(14.792398641));
+    hoodAngleMap.put(2.17, Rotation2d.fromDegrees(16.3097209383));
+    hoodAngleMap.put(2.81, Rotation2d.fromDegrees(18.2438637299));
+    hoodAngleMap.put(3.82, Rotation2d.fromDegrees(20.3956933844));
+    hoodAngleMap.put(4.09, Rotation2d.fromDegrees(20.8448082168));
+    hoodAngleMap.put(4.40, Rotation2d.fromDegrees(21.3116778872));
+    hoodAngleMap.put(4.77, Rotation2d.fromDegrees(21.8105546923));
+    hoodAngleMap.put(5.60, Rotation2d.fromDegrees(22.7460220738));
+    hoodAngleMap.put(6.138, Rotation2d.fromDegrees(22.8445734707));
 
-    flywheelMap.put(1.34, 2100.0);
-    flywheelMap.put(2.17, 2200.0);
-    flywheelMap.put(3.82, 2500.0);
-    flywheelMap.put(5.60, 2900.0);
+    flywheelMap.put(1.34, 2085.76546142);
+    flywheelMap.put(2.17, 2266.99766188);
+    flywheelMap.put(3.82, 2615.7114474);
+    flywheelMap.put(5.60, 2958.20454555);
 
-    timeOfFlightMap.put(1.5, 0.90);
-    timeOfFlightMap.put(3.0, 1.05);
-    timeOfFlightMap.put(5.5, 1.20);
+    timeOfFlightMap.put(1.5, 0.950496777883);
+    timeOfFlightMap.put(3.0, 1.19735698926);
+    timeOfFlightMap.put(5.5, 1.52228878711);
   }
 }

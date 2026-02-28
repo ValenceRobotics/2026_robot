@@ -67,6 +67,7 @@ import frc.robot.subsystems.vision.Vision;
 import frc.robot.subsystems.vision.VisionIO;
 import frc.robot.subsystems.vision.VisionIOPhotonVision;
 import frc.robot.subsystems.vision.VisionIOPhotonVisionSim;
+import frc.robot.util.LoggedTunableNumber;
 
 /**
  * This class is where the bulk of the robot should be declared. Since Command-based is a
@@ -93,6 +94,12 @@ public class RobotContainer {
   private final CommandXboxController controller = new CommandXboxController(1);
   private final CommandXboxController manualController = new CommandXboxController(2);
   private final CommandGenericHID keyboard = new CommandGenericHID(0); // Keyboard 0 on port 0
+
+  /* TUNING STUFF FOR PRACTICE FIELD */
+  private final LoggedTunableNumber tuneHoodDeg =
+    new LoggedTunableNumber("Tune/HoodDeg", 15.0);
+  private final LoggedTunableNumber tuneFlywheelRadPerSec =
+      new LoggedTunableNumber("Tune/FlywheelRadPerSec", 300.0);
 
   // Dashboard inputs
   private final LoggedDashboardChooser<Command> autoChooser;
@@ -313,56 +320,37 @@ public class RobotContainer {
 
 
     /* CONTROLLER 2 FOR TESTING */
-    // intake down
+    
+    manualController.leftTrigger()
+            .whileTrue(robotState.seekIndefinite(IntakeRollerState.INWARD))
+            .onFalse(robotState.seekIndefinite(IntakeRollerState.STOPPED));
+    
+    manualController.rightTrigger()
+            .whileTrue(
+                new ParallelCommandGroup(
+                    robotState.seekIndefinite(SpindexerState.INDEXING, IndexerState.INDEXING),
+                    Commands.run(
+                        () -> {
+                        hood.setState(HoodState.MANUAL);
+                        flywheel.setState(FlywheelState.MANUAL);
 
-    // actually intake
-    manualController.leftTrigger().whileTrue(robotState.seekIndefinite(IntakeRollerState.INWARD));
+                        hood.setGoalParams(
+                            Units.degreesToRadians(tuneHoodDeg.get()),
+                            0.0);
 
-    manualController
-        .b()
-        .whileTrue(robotState.seekIndefinite(FlywheelState.SEEK_GOAL))
-        .onFalse(robotState.seekIndefinite(FlywheelState.STOPPED));
+                        flywheel.setGoalVelocityRads(
+                            tuneFlywheelRadPerSec.get());
+                        },
+                        hood,
+                        flywheel)))
+            .onFalse(robotState.seekIndefinite(SpindexerState.IDLE, IndexerState.IDLE));
 
-    // intake combined
-    manualController
-        .a()
-        .whileTrue(robotState.seekIndefinite(IntakePivotState.DOWN, IntakeRollerState.INWARD));
+    manualController.povUp()
+            .whileTrue(robotState.seekIndefinite(IntakePivotState.UP));
+    
+            
+    
 
-    manualController
-        .povUp()
-        .whileTrue(robotState.seekIndefinite(IntakePivotState.UP))
-        .onFalse(robotState.seekIndefinite(IntakePivotState.DOWN));
-
-    // flywheels
-
-    // manualController.rightBumper().whileTrue(robotState.seekIndefinite(FlywheelState.SEEK_GOAL));
-    manualController
-        .rightBumper()
-        .whileTrue(
-            robotState.seekIndefinite(
-                IndexerState.INDEXING, FlywheelState.SEEK_GOAL, SpindexerState.INDEXING))
-        .onFalse(
-            robotState.seekIndefinite(
-                IndexerState.IDLE, FlywheelState.STOPPED, SpindexerState.IDLE));
-
-    // hood
-    manualController.rightTrigger().whileTrue(hood.moveToAngle(Units.degreesToRadians(11)));
-    manualController.povLeft().whileTrue(hood.moveToAngle(Units.degreesToRadians(25)));
-    // manualController.rightTrigger().whileTrue(Commands.run(() -> hood.setGoalVoltage(10), hood));
-
-    manualController.leftBumper().whileTrue(hood.moveToAngle(Units.degreesToRadians(30)));
-
-    // //indexer
-    //      manualController
-    //     .x()
-    //     .whileTrue(robotState.seekIndefinite(IndexerState.SEEK_GOAL));
-
-    // spindexer
-    manualController
-        .y()
-        .whileTrue(robotState.seekIndefinite(SpindexerState.INDEXING, IndexerState.INDEXING))
-        .onFalse(robotState.seekIndefinite(SpindexerState.IDLE, IndexerState.IDLE));
-    // combined
 
   }
 
