@@ -1,5 +1,10 @@
 package frc.robot.subsystems.shooter.hood;
 
+import java.util.function.Supplier;
+
+import org.littletonrobotics.junction.AutoLogOutput;
+import org.littletonrobotics.junction.Logger;
+
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
@@ -10,13 +15,11 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import frc.robot.FieldConstants;
 import frc.robot.RobotState.HoodState;
 import frc.robot.subsystems.shooter.ShooterConstants;
+import frc.robot.subsystems.shooter.ShooterConstants.HoodConstants;
 import frc.robot.subsystems.shooter.ShotCalculator;
 import frc.robot.subsystems.shooter.hood.HoodIO.HoodIOOutputMode;
 import frc.robot.subsystems.shooter.hood.HoodIO.HoodIOOutputs;
 import frc.robot.util.FullSubsystem;
-import java.util.function.Supplier;
-import org.littletonrobotics.junction.AutoLogOutput;
-import org.littletonrobotics.junction.Logger;
 
 public class Hood extends FullSubsystem {
 
@@ -28,8 +31,8 @@ public class Hood extends FullSubsystem {
   private final Supplier<ChassisSpeeds> velocitySupplier;
 
   // make these loggabletunable numbers
-  private static final double minAngle = Units.degreesToRadians(10);
-  private static final double maxAngle = Units.degreesToRadians(34.5);
+  private static final double minAngle = HoodConstants.MIN_ANGLE;
+  private static final double maxAngle = HoodConstants.MAX_ANGLE;
 
   private double goalVoltage = 0.0;
   private double goalAngleRad = 0.0;
@@ -120,6 +123,11 @@ public class Hood extends FullSubsystem {
   @AutoLogOutput(key = "Hood/MeasuredVelocityRadsPerSec")
   public double getMeasuredVelocityRadsPerSec() {
     return inputs.velocityRadsPerSec;
+  }
+
+  @AutoLogOutput(key = "Hood/BottomLimitSwitch")
+  public boolean isBottomPressed() {
+      return inputs.bottomLimitSwitch;
   }
 
   @AutoLogOutput(key = "Hood/AtGoal")

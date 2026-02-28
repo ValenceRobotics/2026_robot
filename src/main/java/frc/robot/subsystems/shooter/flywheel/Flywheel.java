@@ -1,5 +1,11 @@
 package frc.robot.subsystems.shooter.flywheel;
 
+import java.util.function.DoubleSupplier;
+import java.util.function.Supplier;
+
+import org.littletonrobotics.junction.AutoLogOutput;
+import org.littletonrobotics.junction.Logger;
+
 import edu.wpi.first.math.filter.Debouncer;
 import edu.wpi.first.math.filter.Debouncer.DebounceType;
 import edu.wpi.first.math.geometry.Pose2d;
@@ -13,10 +19,6 @@ import frc.robot.subsystems.shooter.flywheel.FlywheelIO.FlywheelIOOutputMode;
 import frc.robot.subsystems.shooter.flywheel.FlywheelIO.FlywheelIOOutputs;
 import frc.robot.util.FullSubsystem;
 import frc.robot.util.LoggedTunableNumber;
-import java.util.function.DoubleSupplier;
-import java.util.function.Supplier;
-import org.littletonrobotics.junction.AutoLogOutput;
-import org.littletonrobotics.junction.Logger;
 
 public class Flywheel extends FullSubsystem {
   private final FlywheelIO io;
@@ -81,6 +83,9 @@ public class Flywheel extends FullSubsystem {
         goalVelocity = 0.0;
         running = false;
       }
+      case MANUAL -> {
+        // do not change goal velocity or running state, allow manual control to handle that
+      }
     }
 
     boolean inTolerance =
@@ -135,8 +140,8 @@ public class Flywheel extends FullSubsystem {
     this.running = true;
   }
 
-  public void setGoalVelocityRPM(double velocityRPMperSecond) {
-    this.goalVelocity = velocityRPMperSecond;
+  public void setGoalVelocityRPM(double rpm) {
+    this.goalVelocity = rpm * 2.0 * Math.PI / 60.0; // rpm to rad rad/s
     this.running = true;
   }
 
@@ -144,9 +149,9 @@ public class Flywheel extends FullSubsystem {
     return this.runEnd(() -> setGoalVelocityRads(velocity.getAsDouble()), this::stop);
   }
 
-  public Command runVelocityCommandRPM(DoubleSupplier velocityRPM) {
-    return this.runEnd(() -> setGoalVelocityRads(velocityRPM.getAsDouble()), this::stop);
-  }
+  public Command runVelocityCommandRPM(DoubleSupplier rpm) {
+  return this.runEnd(() -> setGoalVelocityRPM(rpm.getAsDouble()), this::stop);
+}
 
   public Command stopCommand() {
     return this.runOnce(this::stop);

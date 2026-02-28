@@ -12,8 +12,11 @@ import static frc.robot.subsystems.vision.VisionConstants.camera1Name;
 import static frc.robot.subsystems.vision.VisionConstants.robotToCamera0;
 import static frc.robot.subsystems.vision.VisionConstants.robotToCamera1;
 
+import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
+
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
+
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.util.Units;
@@ -64,7 +67,6 @@ import frc.robot.subsystems.vision.Vision;
 import frc.robot.subsystems.vision.VisionIO;
 import frc.robot.subsystems.vision.VisionIOPhotonVision;
 import frc.robot.subsystems.vision.VisionIOPhotonVisionSim;
-import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 
 /**
  * This class is where the bulk of the robot should be declared. Since Command-based is a
@@ -233,14 +235,24 @@ public class RobotContainer {
     // Default command, normal field-relative drive
     drive.setDefaultCommand(
         DriveCommands.joystickDrive(
-            drive, () -> getDriveForward(), () -> getDriveLeft(), () -> getDriveRotation()));
-    intakeRollers.setDefaultCommand(
-        robotState.seekIndefinite(IntakeRollerState.STOPPED).repeatedly());
-    intakePivot.setDefaultCommand(robotState.seekIndefinite(IntakePivotState.DOWN).repeatedly());
-    // hood.setDefaultCommand(robotState.seekIndefinite(HoodState.SEEK_GOAL).repeatedly());
-    hood.setDefaultCommand(robotState.seekIndefinite(HoodState.MANUAL).repeatedly());
-    spindexer.setDefaultCommand(robotState.seekIndefinite(SpindexerState.IDLE));
+            drive,
+            () -> -controller.getLeftY(),
+            () -> -controller.getLeftX(),
+            () -> -controller.getRightX()));
 
+    intakeRollers.setDefaultCommand(robotState.seekIndefinite(IntakeRollerState.STOPPED).repeatedly());
+    intakePivot.setDefaultCommand(robotState.seekIndefinite(IntakePivotState.DOWN).repeatedly());
+
+    // hood.setDefaultCommand(robotState.seekIndefinite(HoodState.SEEK_GOAL).repeatedly()); // for comp 
+    hood.setDefaultCommand(robotState.seekIndefinite(HoodState.MANUAL).repeatedly()); // for testing
+    // flywheel.setDefaultCommand(robotState.seekIndefinite(FlywheelState.SEEK_GOAL).repeatedly()); // for comp
+    flywheel.setDefaultCommand(robotState.seekIndefinite(FlywheelState.MANUAL).repeatedly()); // for testing
+
+    spindexer.setDefaultCommand(robotState.seekIndefinite(SpindexerState.IDLE).repeatedly());
+    indexer.setDefaultCommand(robotState.seekIndefinite(IndexerState.IDLE).repeatedly());
+
+
+    /* COMP CONTROLS */
     // aimbot trigger
     Trigger aimbotHeld = controller.rightTrigger();
 
@@ -299,8 +311,8 @@ public class RobotContainer {
                 robotState.seekIndefinite(SpindexerState.IDLE),
                 () -> hood.atGoal() && drive.atCachedAimbotHeading())));
 
-    // CONTROLLER 2 for MANUAL mode
 
+    /* CONTROLLER 2 FOR TESTING */
     // intake down
 
     // actually intake
@@ -352,28 +364,6 @@ public class RobotContainer {
         .onFalse(robotState.seekIndefinite(SpindexerState.IDLE, IndexerState.IDLE));
     // combined
 
-  }
-
-  private double getDriveForward() {
-    // If controller is plugged in, use it. Otherwise, use keyboard.
-    if (controller.getHID().isConnected()) {
-      return -controller.getLeftY();
-    }
-    return keyboard.getRawAxis(1); // Usually 'W' and 'S' in Sim
-  }
-
-  private double getDriveLeft() {
-    if (controller.getHID().isConnected()) {
-      return -controller.getLeftX();
-    }
-    return keyboard.getRawAxis(0); // Usually 'A' and 'D' in Sim
-  }
-
-  private double getDriveRotation() {
-    if (controller.getHID().isConnected()) {
-      return -controller.getRightX();
-    }
-    return keyboard.getRawAxis(4); // Usually 'J' and 'L' or Arrow Keys
   }
 
   /**

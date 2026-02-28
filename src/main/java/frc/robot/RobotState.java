@@ -41,7 +41,8 @@ public class RobotState {
   public enum FlywheelState {
     SEEK_GOAL,
     PASS_BALL,
-    STOPPED
+    STOPPED, 
+    MANUAL
   }
 
   public enum HoodState {

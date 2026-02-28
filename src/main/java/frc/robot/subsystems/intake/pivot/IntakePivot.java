@@ -34,7 +34,7 @@ public class IntakePivot extends FullSubsystem {
   public IntakePivot(IntakePivotIO io) {
     this.io = io;
 
-    toleranceDeg.initDefault(0.5);
+    toleranceDeg.initDefault(1.0);
     kP.initDefault(0.5);
     kD.initDefault(0);
   }

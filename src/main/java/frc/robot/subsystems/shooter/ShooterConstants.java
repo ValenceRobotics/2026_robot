@@ -15,19 +15,17 @@ public class ShooterConstants {
     public static final int hoodMotorId = 31;
     public static final int currentLimit = 20;
 
-    public static LoggedTunableNumber kPReal = new LoggedTunableNumber("Hood/kP", 1000);
-    public static LoggedTunableNumber kDReal = new LoggedTunableNumber("Hood/kD", 0.001);
+    public static LoggedTunableNumber kPReal = new LoggedTunableNumber("Hood/kP", 8.0);
+    public static LoggedTunableNumber kDReal = new LoggedTunableNumber("Hood/kD", 0);
     public static LoggedTunableNumber kGReal = new LoggedTunableNumber("Hood/kG", 0);
-    public static LoggedTunableNumber toleranceDeg =
-        new LoggedTunableNumber("Hood/toleranceDegree", .25);
-
-    public static final double cruiseVelocity = 100; //  m/ sec
-    public static final double maxAcceleration = 20; // m/ sec^2
-
-    public static final double gearRatio = 465.0;
+    public static LoggedTunableNumber toleranceDeg = new LoggedTunableNumber("Hood/ToleranceDeg", 0.2);
+    
+    public static LoggedTunableNumber motorStopToleranceDeg = new LoggedTunableNumber("Hood/MotorStopToleranceDeg", 0.1);
 
     public static final double MIN_ANGLE = Units.degreesToRadians(10);
-    public static final double MAX_ANGLE = Units.degreesToRadians(35);
+    public static final double MAX_ANGLE = Units.degreesToRadians(34.5);
+    
+    public static final double gearRatio = 465.0;
   }
 
   public class FlywheelConstants {
@@ -35,7 +33,7 @@ public class ShooterConstants {
     public static final int followerMotorId = 33;
     public static final int currentLimit = 20;
 
-    public static LoggedTunableNumber kP = new LoggedTunableNumber("Flywheel/kP", 0.7);
+    public static LoggedTunableNumber kP = new LoggedTunableNumber("Flywheel/kP", 1.0);
     public static LoggedTunableNumber kD = new LoggedTunableNumber("Flywheel/kD", 0.2);
     public static LoggedTunableNumber kG = new LoggedTunableNumber("Flywheel/kG", 0.5);
     public static LoggedTunableNumber kV = new LoggedTunableNumber("Flywheel/kV", 0.1);
@@ -48,7 +46,7 @@ public class ShooterConstants {
     public static final double GEAR_RATIO = 1.66;
   }
 
-  public static Transform3d robotToShooter = new Transform3d(0.0, 0.0, 0.44, Rotation3d.kZero);
+  public static Transform3d robotToShooter = new Transform3d(0.19, -.16, 0.49, Rotation3d.kZero); // estimated ; might need to change y value to positive 
 
   public static final InterpolatingTreeMap<Double, Rotation2d> hoodAngleMap =
       new InterpolatingTreeMap<>(InverseInterpolator.forDouble(), Rotation2d::interpolate);
@@ -60,7 +58,7 @@ public class ShooterConstants {
   static {
 
     // pg constants change ltr
-    hoodAngleMap.put(1.34, Rotation2d.fromDegrees(19.0));
+    hoodAngleMap.put(1.34, Rotation2d.fromDegrees(7.39750444894));
     hoodAngleMap.put(1.78, Rotation2d.fromDegrees(19.0));
     hoodAngleMap.put(2.17, Rotation2d.fromDegrees(24.0));
     hoodAngleMap.put(2.81, Rotation2d.fromDegrees(27.0));
