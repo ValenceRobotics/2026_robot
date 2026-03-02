@@ -55,12 +55,12 @@ public class Indexer extends FullSubsystem {
     goalVolts = volts;
   }
 
-  @AutoLogOutput(key = "Spindexer/velocityRadsPerSec")
+  @AutoLogOutput(key = "Indexer/velocityRadsPerSec")
   public double getVelocityRadsPerSec() {
     return inputs.velocityRadsPerSec;
   }
 
-  @AutoLogOutput(key = "Spindexer/MeasuredVoltage")
+  @AutoLogOutput(key = "Indexer/MeasuredVoltage")
   public double getAppliedVoltage() {
     return inputs.appliedVoltage;
   }

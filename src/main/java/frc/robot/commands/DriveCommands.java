@@ -7,6 +7,13 @@
 
 package frc.robot.commands;
 
+import java.text.DecimalFormat;
+import java.text.NumberFormat;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.function.DoubleSupplier;
+import java.util.function.Supplier;
+
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.filter.SlewRateLimiter;
@@ -22,14 +29,11 @@ import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
+import frc.robot.FieldConstants;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.drive.DriveConstants;
-import java.text.DecimalFormat;
-import java.text.NumberFormat;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.function.DoubleSupplier;
-import java.util.function.Supplier;
+import frc.robot.util.geometry.AllianceFlipUtil;
+
 
 public class DriveCommands {
   private static final double DEADBAND = 0.1;
@@ -151,6 +155,57 @@ public class DriveCommands {
         .beforeStarting(() -> angleController.reset(drive.getRotation().getRadians()));
   }
 
+  // /**
+  //  * Drives around the hub on a circle of radius rSetMeters.
+  //  * leftX controls tangential speed (CW/CCW). leftY optionally can scale speed too if you want.
+  //  * kR is radial P-gain in (m/s)/m.
+  //  */
+  // public static Command orbitHub(
+  //     Drive drive,
+  //     DoubleSupplier rSetMeters,
+  //     DoubleSupplier leftX,          // tangential direction + speed
+  //     DoubleSupplier maxTangentialMps,
+  //     double kR) {
+
+  //   return drive.run(() -> {
+  //     Translation2d hub =
+  //         AllianceFlipUtil.apply(FieldConstants.Hub.topCenterPoint.toTranslation2d());
+
+  //     Translation2d pos = drive.getPose().getTranslation();
+  //     Translation2d d = pos.minus(hub);
+
+  //     double dist = d.getNorm();
+  //     if (dist < 1e-6) {
+  //       drive.stop();
+  //       return;
+  //     }
+
+  //     Translation2d rHat = d.div(dist);
+  //     // CCW tangent: rotate radial by +90deg => ( -y, x )
+  //     Translation2d tHat = new Translation2d(-rHat.getY(), rHat.getX());
+
+  //     double rSet = rSetMeters.getAsDouble();
+  //     double error = dist - rSet;
+
+  //     // driver tangential speed
+  //     double vAround =
+  //         MathUtil.clamp(leftX.getAsDouble(), -1.0, 1.0) * maxTangentialMps.getAsDouble();
+
+  //     // radial correction (negative pulls inward if dist > rSet)
+  //     double vRad = -kR * error;
+
+  //     Translation2d vField = tHat.times(vAround).plus(rHat.times(vRad));
+
+  //     ChassisSpeeds speeds =
+  //         ChassisSpeeds.fromFieldRelativeSpeeds(
+  //             vField.getX(),
+  //             vField.getY(),
+  //             0.0, // keep omega 0 OR replace with an aim-at-hub controller
+  //             drive.getRotation());
+
+  //     drive.runVelocity(speeds);
+  //   });
+  // }
   /**
    * Measures the velocity feedforward constants for the drive motors.
    *
@@ -212,7 +267,7 @@ public class DriveCommands {
                   System.out.println("\tkS: " + formatter.format(kS));
                   System.out.println("\tkV: " + formatter.format(kV));
                 }));
-  }
+              }
 
   /** Measures the robot's wheel radius by spinning in a circle. */
   public static Command wheelRadiusCharacterization(Drive drive) {
@@ -282,72 +337,6 @@ public class DriveCommands {
                               + formatter.format(Units.metersToInches(wheelRadius))
                               + " inches");
                     })));
-  }
-
-  public static Command driveSimpleFFCharacterizationUntil6V(Drive drive) {
-    List<Double> velocitySamples = new LinkedList<>();
-    List<Double> voltageSamples = new LinkedList<>();
-    Timer timer = new Timer();
-
-    double rampRate = 0.25; // volts per second
-    double maxVoltage = 6.0;
-    double duration = maxVoltage / rampRate;
-
-    return Commands.sequence(
-            Commands.runOnce(
-                () -> {
-                  velocitySamples.clear();
-                  voltageSamples.clear();
-                }),
-            Commands.runOnce(timer::restart),
-            Commands.run(
-                    () -> {
-                      double voltage = timer.get() * rampRate;
-
-                      if (voltage > maxVoltage) {
-                        voltage = maxVoltage;
-                      }
-
-                      drive.runCharacterization(voltage);
-
-                      velocitySamples.add(drive.getFFCharacterizationVelocity());
-                      voltageSamples.add(voltage);
-                    },
-                    drive)
-                .withTimeout(duration))
-        .finallyDo(
-            () -> {
-              int n = velocitySamples.size();
-              if (n < 2) {
-                System.out.println("Not enough data collected.");
-                return;
-              }
-
-              double sumX = 0.0;
-              double sumY = 0.0;
-              double sumXY = 0.0;
-              double sumX2 = 0.0;
-
-              for (int i = 0; i < n; i++) {
-                double x = velocitySamples.get(i);
-                double y = voltageSamples.get(i);
-
-                sumX += x;
-                sumY += y;
-                sumXY += x * y;
-                sumX2 += x * x;
-              }
-
-              double kS = (sumY * sumX2 - sumX * sumXY) / (n * sumX2 - sumX * sumX);
-              double kV = (n * sumXY - sumX * sumY) / (n * sumX2 - sumX * sumX);
-
-              System.out.println("========== DRIVE FF RESULTS ==========");
-              System.out.println("kS = " + kS);
-              System.out.println("kV = " + kV);
-              System.out.println("======================================");
-
-              drive.stop();
-            });
   }
 
   private static class WheelRadiusCharacterizationState {

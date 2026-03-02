@@ -114,6 +114,6 @@ public class DriveConstants {
           moduleTranslations);
 
   // aimbot stuff
-  public static final double kAimbotHeadingToleranceRad = Math.toRadians(5.0);
+  public static final double kAimbotHeadingToleranceRad = Math.toRadians(2.0);
   public static final double kAimbotOmegaToleranceRadPerSec = Math.toRadians(25.0);
 }

@@ -199,6 +199,12 @@ public class Drive extends SubsystemBase {
             .getTranslation()
             .getDistance(
                 AllianceFlipUtil.apply(FieldConstants.Hub.topCenterPoint.toTranslation2d())));
+
+    Logger.recordOutput(
+        "Field/HubCenter",
+        new Pose2d(
+            AllianceFlipUtil.apply(FieldConstants.Hub.topCenterPoint.toTranslation2d()),
+            new Rotation2d()));
   }
 
   /**

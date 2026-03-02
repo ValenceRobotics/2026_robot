@@ -18,35 +18,10 @@ public class VisionConstants {
   public static AprilTagFieldLayout aprilTagLayout =
       AprilTagFieldLayout.loadField(AprilTagFields.kDefaultField);
 
-  // scuffed way to get april tag layout from pre-existing JSON - note: change loadField method when
-  // wpilib is updated
-  // public static final AprilTagFieldLayout aprilTagLayout;
-
-  // static {
-  //   try {
-  //     Path layoutPath =
-  //         Filesystem.getDeployDirectory().toPath().resolve("apriltags/2026-rebuilt-welded.json");
-
-  //     aprilTagLayout = new AprilTagFieldLayout(layoutPath.toString());
-  //     aprilTagLayout.setOrigin(AprilTagFieldLayout.OriginPosition.kBlueAllianceWallRightSide);
-
-  //   } catch (IOException e) {
-  //     throw new RuntimeException("Failed to load AprilTag field layout", e);
-  //   }
-  // }
-
   // Camera names, must match names configured on coprocessor
   public static String camera0Name = "camera_0";
   public static String camera1Name = "camera_1";
   public static String camera2Name = "camera_2";
-
-  // Robot to camera transforms
-  // (Not used by Limelight, configure in web UI instead)
-  /* AK translations - front, back  */
-  // public static Transform3d robotToCamera0 =
-  //     new Transform3d(0.2, 0.0, 0.2, new Rotation3d(0.0, -0.4, 0.0));
-  // public static Transform3d robotToCamera1 =
-  //     new Transform3d(-0.2, 0.0, 0.2, new Rotation3d(0.0, -0.4, Math.PI));
 
   /* two front facing cameras */
   public static Transform3d robotToCamera0 =
@@ -58,18 +33,14 @@ public class VisionConstants {
           -0.343,
           0.196850,
           new Rotation3d(
-              Units.degreesToRadians(-15),
-              0,
-              Units.degreesToRadians(-55))); // left of shooter
+              Units.degreesToRadians(-15), 0, Units.degreesToRadians(-55))); // left of shooter
   public static Transform3d robotToCamera2 =
       new Transform3d(
           0.000,
           0.343,
           0.196850,
           new Rotation3d(
-              Units.degreesToRadians(15),
-              0,
-              Units.degreesToRadians(55))); // right of shooter
+              Units.degreesToRadians(15), 0, Units.degreesToRadians(55))); // right of shooter
 
   // Basic filtering thresholds
   public static double maxAmbiguity = 0.3;
