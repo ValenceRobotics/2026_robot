@@ -18,13 +18,15 @@ public class ShooterConstants {
     public static LoggedTunableNumber kPReal = new LoggedTunableNumber("Hood/kP", 8.0);
     public static LoggedTunableNumber kDReal = new LoggedTunableNumber("Hood/kD", 0);
     public static LoggedTunableNumber kGReal = new LoggedTunableNumber("Hood/kG", 0);
-    public static LoggedTunableNumber toleranceDeg = new LoggedTunableNumber("Hood/ToleranceDeg", 0.2);
-    
-    public static LoggedTunableNumber motorStopToleranceDeg = new LoggedTunableNumber("Hood/MotorStopToleranceDeg", 0.1);
+    public static LoggedTunableNumber toleranceDeg =
+        new LoggedTunableNumber("Hood/ToleranceDeg", 0.2);
+
+    public static LoggedTunableNumber motorStopToleranceDeg =
+        new LoggedTunableNumber("Hood/MotorStopToleranceDeg", 0.1);
 
     public static final double MIN_ANGLE = Units.degreesToRadians(10);
     public static final double MAX_ANGLE = Units.degreesToRadians(34.5);
-    
+
     public static final double gearRatio = 465.0;
   }
 
@@ -33,15 +35,17 @@ public class ShooterConstants {
     public static final int followerMotorId = 33;
     public static final int currentLimit = 20;
 
-    public static LoggedTunableNumber kP = new LoggedTunableNumber("Flywheel/kP", 1.0);
-    public static LoggedTunableNumber kD = new LoggedTunableNumber("Flywheel/kD", 0.2);
-    public static LoggedTunableNumber kG = new LoggedTunableNumber("Flywheel/kG", 0.5);
-    public static LoggedTunableNumber kV = new LoggedTunableNumber("Flywheel/kV", 0.1);
-    public static LoggedTunableNumber kS = new LoggedTunableNumber("Flywheel/kS", 0.0);
+    public static LoggedTunableNumber kP = new LoggedTunableNumber("Flywheel/kP", 0.0);
+    public static LoggedTunableNumber kD = new LoggedTunableNumber("Flywheel/kD", 0.0);
+    public static LoggedTunableNumber kG = new LoggedTunableNumber("Flywheel/kG", 0.0);
+    public static LoggedTunableNumber kV = new LoggedTunableNumber("Flywheel/kV", 0.19424);
+    public static LoggedTunableNumber kS = new LoggedTunableNumber("Flywheel/kS", 0.17831);
 
-    public static LoggedTunableNumber tolerance = new LoggedTunableNumber("Flywheel/Tolerance", 10.0);
+    public static LoggedTunableNumber tolerance =
+        new LoggedTunableNumber("Flywheel/Tolerance", 500.0);
 
-    public static LoggedTunableNumber atGoalDebouncerTime = new LoggedTunableNumber("Flywheel/AtGoalDebounceTime", 0.15);
+    public static LoggedTunableNumber atGoalDebouncerTime =
+        new LoggedTunableNumber("Flywheel/AtGoalDebounceTime", 0.15);
 
     public static final double cruiseVelocity = 15; //  m/ sec
     public static final double maxAcceleration = 5; // m/ sec^2
@@ -50,7 +54,12 @@ public class ShooterConstants {
     public static final double GEAR_RATIO = 1.66;
   }
 
-  public static Transform3d robotToShooter = new Transform3d(0.19, -.16, 0.49, Rotation3d.kZero); // estimated ; might need to change y value to positive 
+  public static Transform3d robotToShooter =
+      new Transform3d(
+          0.19,
+          -.16,
+          0.49,
+          Rotation3d.kZero); // estimated ; might need to change y value to positive
 
   public static final InterpolatingTreeMap<Double, Rotation2d> hoodAngleMap =
       new InterpolatingTreeMap<>(InverseInterpolator.forDouble(), Rotation2d::interpolate);

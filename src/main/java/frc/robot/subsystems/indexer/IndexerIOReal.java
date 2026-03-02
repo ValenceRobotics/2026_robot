@@ -11,7 +11,7 @@ import frc.robot.util.SparkUtil;
 public class IndexerIOReal implements IndexerIO {
 
   private final SparkMax motor;
-  private IdleMode currentIdleMode = IdleMode.kCoast;
+  private IdleMode currentIdleMode = IdleMode.kBrake;
 
   public IndexerIOReal() {
 
@@ -22,7 +22,7 @@ public class IndexerIOReal implements IndexerIO {
     config
         .smartCurrentLimit(IndexerConstants.CURRENT_LIMIT_AMPS)
         .inverted(IndexerConstants.INVERTED)
-        .idleMode(IdleMode.kCoast)
+        .idleMode(IdleMode.kBrake)
         .voltageCompensation(12.0);
 
     config

@@ -10,13 +10,15 @@ import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 import com.revrobotics.spark.config.SparkMaxConfig;
-
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DigitalInput;
+import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.subsystems.shooter.ShooterConstants;
 import frc.robot.subsystems.shooter.ShooterConstants.HoodConstants;
 import frc.robot.util.SparkUtil;
+import org.littletonrobotics.junction.AutoLogOutput;
 
 public class HoodIOReal implements HoodIO {
 
@@ -24,9 +26,10 @@ public class HoodIOReal implements HoodIO {
       new SparkMax(ShooterConstants.HoodConstants.hoodMotorId, MotorType.kBrushless);
   private SparkClosedLoopController hoodController;
   private IdleMode currentIdleMode = IdleMode.kBrake;
-  private final DigitalInput bottomSwitch = new DigitalInput(9); // assuming wired into rio 
+  private final DigitalInput bottomSwitch = new DigitalInput(1); // assuming wired into rio
   private boolean lastBottomPressed = false;
-  // private final SparkLimitSwitch bottomSwitch = hood.getReverseLimitSwitch(); // this is assuming is wired in to sparkmax
+  // private final SparkLimitSwitch bottomSwitch = hood.getReverseLimitSwitch(); // this is assuming
+  // is wired in to sparkmax
 
   public HoodIOReal() {
     hoodController = hood.getClosedLoopController();
@@ -62,7 +65,9 @@ public class HoodIOReal implements HoodIO {
             hood.configure(
                 hoodConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters));
 
-    hood.getEncoder().setPosition(Units.degreesToRadians(10));
+    Trigger bottomHoodLimitSwitch = new Trigger(this::isBottomPressed);
+
+    bottomHoodLimitSwitch.onTrue(Commands.runOnce(() -> this.zeroHood()));
   }
 
   @Override
@@ -79,8 +84,6 @@ public class HoodIOReal implements HoodIO {
     if (bottomPressed && !lastBottomPressed) {
       hood.getEncoder().setPosition(Units.degreesToRadians(10));
     }
-    lastBottomPressed = bottomPressed;
-
   }
 
   @Override
@@ -128,10 +131,16 @@ public class HoodIOReal implements HoodIO {
     }
   }
 
+  @AutoLogOutput(key = "Hood/best limit switch")
   public boolean isBottomPressed() {
-    return bottomSwitch.get();
+    // return (!bottomSwitch.get());
+    return false;
   }
-  
+
+  public void zeroHood() {
+    hood.getEncoder().setPosition(Units.degreesToRadians(10));
+  }
+
   private void setIdleMode(IdleMode mode) {
     if (currentIdleMode == mode) return;
     currentIdleMode = mode;

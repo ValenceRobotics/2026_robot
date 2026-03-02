@@ -23,7 +23,7 @@ public class IntakePivot extends FullSubsystem {
 
   private double goalPositionRad = 0.0;
 
-  @AutoLogOutput private IntakePivotState state = IntakePivotState.DOWN;
+  @AutoLogOutput private IntakePivotState state = IntakePivotState.UP; // need to change to down
 
   public IntakePivot(IntakePivotIO io) {
     this.io = io;

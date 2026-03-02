@@ -1,17 +1,15 @@
 package frc.robot.subsystems.shooter.flywheel;
 
-import java.util.function.DoubleSupplier;
-import java.util.function.Supplier;
+import static edu.wpi.first.units.Units.Volts;
 
-import org.littletonrobotics.junction.AutoLogOutput;
-import org.littletonrobotics.junction.Logger;
-
+import com.ctre.phoenix6.SignalLogger;
 import edu.wpi.first.math.filter.Debouncer;
 import edu.wpi.first.math.filter.Debouncer.DebounceType;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.FieldConstants;
 import frc.robot.RobotState.FlywheelState;
 import frc.robot.subsystems.shooter.ShooterConstants.FlywheelConstants;
@@ -20,6 +18,10 @@ import frc.robot.subsystems.shooter.flywheel.FlywheelIO.FlywheelIOOutputMode;
 import frc.robot.subsystems.shooter.flywheel.FlywheelIO.FlywheelIOOutputs;
 import frc.robot.util.FullSubsystem;
 import frc.robot.util.LoggedTunableNumber;
+import java.util.function.DoubleSupplier;
+import java.util.function.Supplier;
+import org.littletonrobotics.junction.AutoLogOutput;
+import org.littletonrobotics.junction.Logger;
 
 public class Flywheel extends FullSubsystem {
   private final FlywheelIO io;
@@ -30,8 +32,7 @@ public class Flywheel extends FullSubsystem {
   private final Supplier<ChassisSpeeds> velocitySupplier;
 
   // tunable stuff
-  private static final LoggedTunableNumber tolerance =
-      FlywheelConstants.tolerance;
+  private static final LoggedTunableNumber tolerance = FlywheelConstants.tolerance;
   private static final LoggedTunableNumber atGoalDebounceTime =
       FlywheelConstants.atGoalDebouncerTime;
 
@@ -43,6 +44,16 @@ public class Flywheel extends FullSubsystem {
 
   private Debouncer atGoalDebouncer;
 
+  private final SysIdRoutine m_sysIdRoutine =
+      new SysIdRoutine(
+          new SysIdRoutine.Config(
+              null, // Use default ramp rate (1 V/s)
+              Volts.of(4), // Reduce dynamic step voltage to 4 to prevent brownout
+              null, // Use default timeout (10 s)
+              // Log state with Phoenix SignalLogger class
+              (state) -> SignalLogger.writeString("state", state.toString())),
+          new SysIdRoutine.Mechanism(
+              (voltage) -> runCharacterization(voltage.in(Volts)), null, this));
 
   public Flywheel(
       FlywheelIO io, Supplier<Pose2d> poseSupplier, Supplier<ChassisSpeeds> velocitySupplier) {
@@ -91,7 +102,11 @@ public class Flywheel extends FullSubsystem {
     }
 
     boolean inTolerance =
-        running && Math.abs(inputs.velocityRadsPerSec - goalVelocity) < tolerance.get();
+        running
+            && Math.abs(
+                    (inputs.velocityRadsPerSec * (60 / 2 * Math.PI))
+                        - (goalVelocity * (60 / 2 * Math.PI)))
+                < tolerance.get();
     atGoal = atGoalDebouncer.calculate(inTolerance);
   }
 
@@ -110,6 +125,18 @@ public class Flywheel extends FullSubsystem {
     Logger.recordOutput("Flywheel/GoalRPM", goalVelocity * 60.0 / (2.0 * Math.PI));
 
     io.applyOutputs(outputs);
+  }
+
+  public Command sysIdQuasistatic(SysIdRoutine.Direction direction) {
+    return m_sysIdRoutine.quasistatic(direction);
+  }
+
+  public Command sysIdDynamic(SysIdRoutine.Direction direction) {
+    return m_sysIdRoutine.dynamic(direction);
+  }
+
+  public void runCharacterization(double output) {
+    io.setFlywheelOpenLoop(output);
   }
 
   @AutoLogOutput(key = "Flywheel/MeasuredVelocity")
@@ -152,8 +179,8 @@ public class Flywheel extends FullSubsystem {
   }
 
   public Command runVelocityCommandRPM(DoubleSupplier rpm) {
-  return this.runEnd(() -> setGoalVelocityRPM(rpm.getAsDouble()), this::stop);
-}
+    return this.run(() -> setGoalVelocityRPM(rpm.getAsDouble()));
+  }
 
   public Command stopCommand() {
     return this.runOnce(this::stop);

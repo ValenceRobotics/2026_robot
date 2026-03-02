@@ -1,10 +1,5 @@
 package frc.robot.subsystems.shooter.hood;
 
-import java.util.function.Supplier;
-
-import org.littletonrobotics.junction.AutoLogOutput;
-import org.littletonrobotics.junction.Logger;
-
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
@@ -20,6 +15,10 @@ import frc.robot.subsystems.shooter.ShotCalculator;
 import frc.robot.subsystems.shooter.hood.HoodIO.HoodIOOutputMode;
 import frc.robot.subsystems.shooter.hood.HoodIO.HoodIOOutputs;
 import frc.robot.util.FullSubsystem;
+import java.util.function.DoubleSupplier;
+import java.util.function.Supplier;
+import org.littletonrobotics.junction.AutoLogOutput;
+import org.littletonrobotics.junction.Logger;
 
 public class Hood extends FullSubsystem {
 
@@ -35,10 +34,10 @@ public class Hood extends FullSubsystem {
   private static final double maxAngle = HoodConstants.MAX_ANGLE;
 
   private double goalVoltage = 0.0;
-  private double goalAngleRad = 0.0;
+  private double goalAngleRad = Units.degreesToRadians(10.0);
   private double goalVelocity = 0.0;
 
-  @AutoLogOutput private HoodState state = HoodState.SEEK_GOAL;
+  @AutoLogOutput private HoodState state = HoodState.MANUAL;
 
   public Hood(HoodIO io, Supplier<Pose2d> poseSupplier, Supplier<ChassisSpeeds> velocitySupplier) {
     this.io = io;
@@ -127,7 +126,7 @@ public class Hood extends FullSubsystem {
 
   @AutoLogOutput(key = "Hood/BottomLimitSwitch")
   public boolean isBottomPressed() {
-      return inputs.bottomLimitSwitch;
+    return inputs.bottomLimitSwitch;
   }
 
   @AutoLogOutput(key = "Hood/AtGoal")
@@ -137,8 +136,9 @@ public class Hood extends FullSubsystem {
             <= Units.degreesToRadians(ShooterConstants.HoodConstants.toleranceDeg.get());
   }
 
-  public Command moveToAngle(double angleRad) {
-    return this.runOnce(() -> setGoalParams(angleRad, 0)).andThen(Commands.waitUntil(this::atGoal));
+  public Command moveToAngle(DoubleSupplier angleDeg) {
+    return this.runOnce(() -> setGoalParams(Units.degreesToRadians(angleDeg.getAsDouble()), 0))
+        .andThen(Commands.waitUntil(this::atGoal));
   }
 
   public Command seekCommand(HoodState state) {

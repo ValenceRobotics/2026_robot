@@ -284,6 +284,72 @@ public class DriveCommands {
                     })));
   }
 
+  public static Command driveSimpleFFCharacterizationUntil6V(Drive drive) {
+    List<Double> velocitySamples = new LinkedList<>();
+    List<Double> voltageSamples = new LinkedList<>();
+    Timer timer = new Timer();
+
+    double rampRate = 0.25; // volts per second
+    double maxVoltage = 6.0;
+    double duration = maxVoltage / rampRate;
+
+    return Commands.sequence(
+            Commands.runOnce(
+                () -> {
+                  velocitySamples.clear();
+                  voltageSamples.clear();
+                }),
+            Commands.runOnce(timer::restart),
+            Commands.run(
+                    () -> {
+                      double voltage = timer.get() * rampRate;
+
+                      if (voltage > maxVoltage) {
+                        voltage = maxVoltage;
+                      }
+
+                      drive.runCharacterization(voltage);
+
+                      velocitySamples.add(drive.getFFCharacterizationVelocity());
+                      voltageSamples.add(voltage);
+                    },
+                    drive)
+                .withTimeout(duration))
+        .finallyDo(
+            () -> {
+              int n = velocitySamples.size();
+              if (n < 2) {
+                System.out.println("Not enough data collected.");
+                return;
+              }
+
+              double sumX = 0.0;
+              double sumY = 0.0;
+              double sumXY = 0.0;
+              double sumX2 = 0.0;
+
+              for (int i = 0; i < n; i++) {
+                double x = velocitySamples.get(i);
+                double y = voltageSamples.get(i);
+
+                sumX += x;
+                sumY += y;
+                sumXY += x * y;
+                sumX2 += x * x;
+              }
+
+              double kS = (sumY * sumX2 - sumX * sumXY) / (n * sumX2 - sumX * sumX);
+              double kV = (n * sumXY - sumX * sumY) / (n * sumX2 - sumX * sumX);
+
+              System.out.println("========== DRIVE FF RESULTS ==========");
+              System.out.println("kS = " + kS);
+              System.out.println("kV = " + kV);
+              System.out.println("======================================");
+
+              drive.stop();
+            });
+  }
+
   private static class WheelRadiusCharacterizationState {
     double[] positions = new double[4];
     Rotation2d lastAngle = Rotation2d.kZero;

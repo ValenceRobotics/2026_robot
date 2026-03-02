@@ -12,14 +12,10 @@ import static frc.robot.subsystems.vision.VisionConstants.camera1Name;
 import static frc.robot.subsystems.vision.VisionConstants.robotToCamera0;
 import static frc.robot.subsystems.vision.VisionConstants.robotToCamera1;
 
-import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
-
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
-
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -68,6 +64,7 @@ import frc.robot.subsystems.vision.VisionIO;
 import frc.robot.subsystems.vision.VisionIOPhotonVision;
 import frc.robot.subsystems.vision.VisionIOPhotonVisionSim;
 import frc.robot.util.LoggedTunableNumber;
+import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 
 /**
  * This class is where the bulk of the robot should be declared. Since Command-based is a
@@ -85,7 +82,7 @@ public class RobotContainer {
   final Flywheel flywheel;
   final Spindexer spindexer;
   final Indexer indexer;
-  //   final LED led;
+  // final LED led;
 
   // Robot state
   final RobotState robotState;
@@ -95,11 +92,10 @@ public class RobotContainer {
   private final CommandXboxController manualController = new CommandXboxController(2);
   private final CommandGenericHID keyboard = new CommandGenericHID(0); // Keyboard 0 on port 0
 
-  /* TUNING STUFF FOR PRACTICE FIELD */
-  private final LoggedTunableNumber tuneHoodDeg =
-    new LoggedTunableNumber("Tune/HoodDeg", 15.0);
-  private final LoggedTunableNumber tuneFlywheelRadPerSec =
-      new LoggedTunableNumber("Tune/FlywheelRadPerSec", 300.0);
+  private static LoggedTunableNumber tuneHoodDeg =
+      new LoggedTunableNumber("tuning/hood angle", 10.0);
+  private static LoggedTunableNumber tuneFlywheelRPM =
+      new LoggedTunableNumber("tuning/flywheel RPM", 1000.0);
 
   // Dashboard inputs
   private final LoggedDashboardChooser<Command> autoChooser;
@@ -118,10 +114,10 @@ public class RobotContainer {
                 new ModuleIOSpark(3));
 
         // vision =
-        //     new Vision(
-        //         drive::addVisionMeasurement,
-        //         new VisionIOLimelight(camera0Name, drive::getRotation),
-        //         new VisionIOLimelight(camera1Name, drive::getRotation));
+        // new Vision(
+        // drive::addVisionMeasurement,
+        // new VisionIOLimelight(camera0Name, drive::getRotation),
+        // new VisionIOLimelight(camera1Name, drive::getRotation));
         vision =
             new Vision(
                 drive::addVisionMeasurement,
@@ -218,6 +214,9 @@ public class RobotContainer {
     autoChooser.addOption(
         "Drive Simple FF Characterization", DriveCommands.feedforwardCharacterization(drive));
     autoChooser.addOption(
+        "Drive Simple FF Characterization Until 6V",
+        DriveCommands.driveSimpleFFCharacterizationUntil6V(drive));
+    autoChooser.addOption(
         "Drive SysId (Quasistatic Forward)",
         drive.sysIdQuasistatic(SysIdRoutine.Direction.kForward));
     autoChooser.addOption(
@@ -239,25 +238,47 @@ public class RobotContainer {
    * edu.wpi.first.wpilibj2.command.button.JoystickButton}.
    */
   private void configureButtonBindings() {
+    // manualController.leftBumper().onTrue(Commands.runOnce(SignalLogger::start));
+    // manualController.rightBumper().onTrue(Commands.runOnce(SignalLogger::stop));
+    //
+    // manualController.y().whileTrue(flywheel.sysIdQuasistatic(SysIdRoutine.Direction.kForward));
+    //
+    // manualController.a().whileTrue(flywheel.sysIdQuasistatic(SysIdRoutine.Direction.kReverse));
+    // manualController.b().whileTrue(flywheel.sysIdDynamic(SysIdRoutine.Direction.kForward));
+    // manualController.x().whileTrue(flywheel.sysIdDynamic(SysIdRoutine.Direction.kReverse));
+    // }
     // Default command, normal field-relative drive
+    // drive.setDefaultCommand(
+    // DriveCommands.joystickDrive(
+    // drive,
+    // () -> -controller.getLeftY(),
+    // () -> -controller.getLeftX(),
+    // () -> -controller.getRightX()));
+
     drive.setDefaultCommand(
         DriveCommands.joystickDrive(
             drive,
-            () -> -controller.getLeftY(),
-            () -> -controller.getLeftX(),
-            () -> -controller.getRightX()));
+            () -> manualController.getLeftY(),
+            () -> manualController.getLeftX(),
+            () -> -manualController.getRightX()));
 
-    intakeRollers.setDefaultCommand(robotState.seekIndefinite(IntakeRollerState.STOPPED).repeatedly());
-    intakePivot.setDefaultCommand(robotState.seekIndefinite(IntakePivotState.DOWN).repeatedly());
+    intakeRollers.setDefaultCommand(
+        robotState.seekIndefinite(IntakeRollerState.STOPPED).repeatedly());
+    //
+    // intakePivot.setDefaultCommand(robotState.seekIndefinite(IntakePivotState.DOWN).repeatedly());
 
-    // hood.setDefaultCommand(robotState.seekIndefinite(HoodState.SEEK_GOAL).repeatedly()); // for comp 
-    hood.setDefaultCommand(robotState.seekIndefinite(HoodState.MANUAL).repeatedly()); // for testing
-    // flywheel.setDefaultCommand(robotState.seekIndefinite(FlywheelState.SEEK_GOAL).repeatedly()); // for comp
-    flywheel.setDefaultCommand(robotState.seekIndefinite(FlywheelState.MANUAL).repeatedly()); // for testing
+    // hood.setDefaultCommand(robotState.seekIndefinite(HoodState.SEEK_GOAL).repeatedly());
+    // // for
+    // comp
+    hood.setDefaultCommand(robotState.seekIndefinite(HoodState.MANUAL).repeatedly()); // fo testing
+    //
+    flywheel.setDefaultCommand(robotState.seekIndefinite(FlywheelState.SEEK_GOAL).repeatedly());
+    // // for comp
+    flywheel.setDefaultCommand(
+        robotState.seekIndefinite(FlywheelState.MANUAL).repeatedly()); // for testing
 
     spindexer.setDefaultCommand(robotState.seekIndefinite(SpindexerState.IDLE).repeatedly());
     indexer.setDefaultCommand(robotState.seekIndefinite(IndexerState.IDLE).repeatedly());
-
 
     /* COMP CONTROLS */
     // aimbot trigger
@@ -310,7 +331,7 @@ public class RobotContainer {
                 }),
 
             // seek goal at all times when holding
-            // TODO: Figure out logic to improe shoot  on move at drive goal logic
+            // TODO: Figure out logic to improe shoot on move at drive goal logic
             robotState.seekIndefinite(FlywheelState.SEEK_GOAL, HoodState.SEEK_GOAL),
             // feed when flywheel ready
             Commands.either(
@@ -318,40 +339,63 @@ public class RobotContainer {
                 robotState.seekIndefinite(SpindexerState.IDLE),
                 () -> hood.atGoal() && drive.atCachedAimbotHeading())));
 
-
     /* CONTROLLER 2 FOR TESTING */
-    
-    manualController.leftTrigger()
-            .whileTrue(robotState.seekIndefinite(IntakeRollerState.INWARD))
-            .onFalse(robotState.seekIndefinite(IntakeRollerState.STOPPED));
-    
-    manualController.rightTrigger()
-            .whileTrue(
-                new ParallelCommandGroup(
-                    robotState.seekIndefinite(SpindexerState.INDEXING, IndexerState.INDEXING),
-                    Commands.run(
-                        () -> {
-                        hood.setState(HoodState.MANUAL);
-                        flywheel.setState(FlywheelState.MANUAL);
 
-                        hood.setGoalParams(
-                            Units.degreesToRadians(tuneHoodDeg.get()),
-                            0.0);
+    manualController
+        .leftTrigger()
+        .whileTrue(robotState.seekIndefinite(IntakeRollerState.INWARD))
+        .onFalse(robotState.seekIndefinite(IntakeRollerState.STOPPED));
 
-                        flywheel.setGoalVelocityRads(
-                            tuneFlywheelRadPerSec.get());
-                        },
-                        hood,
-                        flywheel)))
-            .onFalse(robotState.seekIndefinite(SpindexerState.IDLE, IndexerState.IDLE));
+    // manualController
+    // .rightTrigger()
+    // .whileTrue(
+    // new ParallelCommandGroup(
+    // flywheel.runVelocityCommandRPM(() -> tuneFlywheelRPM.get()),
+    // hood.moveToAngle(tuneHoodDeg::get),
+    // Commands.either(
+    // robotState.seek(SpindexerState.INDEXING, IndexerState.INDEXING),
+    // robotState.seek(SpindexerState.IDLE, IndexerState.IDLE),
+    // () -> hood.atGoal())
+    // .repeatedly()));
 
-    manualController.povUp()
-            .whileTrue(robotState.seekIndefinite(IntakePivotState.UP));
-    
-            
-    
+    manualController
+        .rightTrigger()
+        .whileTrue(
+            (flywheel
+                    .runVelocityCommandRPM(() -> tuneFlywheelRPM.get())
+                    .alongWith(hood.moveToAngle(tuneHoodDeg::get)))
+                .until(() -> hood.atGoal() && flywheel.atGoal())
+                .andThen(
+                    robotState
+                        .seek(SpindexerState.INDEXING, IndexerState.INDEXING)
+                        .alongWith(flywheel.runVelocityCommandRPM(() -> tuneFlywheelRPM.get()))))
+        .onFalse(
+            robotState
+                .seek(SpindexerState.IDLE, IndexerState.IDLE)
+                .alongWith(flywheel.stopCommand()));
 
+    // manualController.a().whileTrue(flywheel.runVelocityCommandRPM(() -> 1000));
+    manualController
+        .rightBumper()
+        .whileTrue(flywheel.runVelocityCommandRPM(() -> tuneFlywheelRPM.get()));
 
+    manualController.povLeft().onTrue(hood.moveToAngle(tuneHoodDeg::get));
+
+    manualController
+        .start()
+        .onTrue(
+            Commands.runOnce(
+                    () ->
+                        drive.setPose(
+                            new Pose2d(drive.getPose().getTranslation(), Rotation2d.kZero)),
+                    drive)
+                .ignoringDisable(true));
+
+    // manualController
+    // .rightBumper()
+    // .whileTrue(hood.moveToAngle(Units.degreesToRadians(tuneHoodDeg.get())));
+
+    manualController.povUp().whileTrue(robotState.seekIndefinite(IntakePivotState.UP));
   }
 
   /**

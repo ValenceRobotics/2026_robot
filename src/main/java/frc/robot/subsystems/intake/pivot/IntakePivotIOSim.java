@@ -57,7 +57,9 @@ public class IntakePivotIOSim implements IntakePivotIO {
         double posError = outputs.positionRad - pivotSim.getAngleRads();
         double velError = outputs.velocityRadsPerSec - pivotSim.getVelocityRadPerSec();
 
-        double volts = (posError * IntakeConstants.PivotConstants.kP.get()) + (velError * IntakeConstants.PivotConstants.kD.get());
+        double volts =
+            (posError * IntakeConstants.PivotConstants.kP.get())
+                + (velError * IntakeConstants.PivotConstants.kD.get());
 
         appliedVolts = MathUtil.clamp(volts, -12.0, 12.0);
       }
