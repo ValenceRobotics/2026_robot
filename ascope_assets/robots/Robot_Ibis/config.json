@@ -25,7 +25,7 @@
         0.154,
         0.212
       ],
-      "name": "cam1",
+      "name": "camera_0",
       "fov": 70,
       "resolution": [
         1200,
@@ -37,6 +37,10 @@
         {
           "axis": "z",
           "degrees": 55
+        },
+        {
+          "axis": "x",
+          "degrees": 15
         }
       ],
       "position": [
@@ -44,7 +48,7 @@
         0.343,
         0.197
       ],
-      "name": "cam2",
+      "name": "camera_1",
       "fov": 70,
       "resolution": [
         1200,
@@ -56,6 +60,10 @@
         {
           "axis": "z",
           "degrees": -55
+        },
+        {
+          "axis": "x",
+          "degrees": -15
         }
       ],
       "position": [
@@ -63,7 +71,7 @@
         -0.343,
         0.197
       ],
-      "name": "cam3",
+      "name": "camera_2",
       "fov": 70,
       "resolution": [
         1200,
