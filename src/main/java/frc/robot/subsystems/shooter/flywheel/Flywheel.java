@@ -144,6 +144,12 @@ public class Flywheel extends FullSubsystem {
     return inputs.velocityRadsPerSec;
   }
 
+  @AutoLogOutput(key = "Flywheel/RPM error")
+  public double getMeasuredError() {
+    return Math.abs(
+        (inputs.velocityRadsPerSec * (60 / 2 * Math.PI)) - (goalVelocity * (60 / 2 * Math.PI)));
+  }
+
   @AutoLogOutput(key = "Flywheel/MeasuredVelocityRPM")
   public double getMeasuredVelocityRPM() {
     return inputs.velocityRadsPerSec * 60.0 / (2.0 * Math.PI);
@@ -179,7 +185,7 @@ public class Flywheel extends FullSubsystem {
   }
 
   public Command runVelocityCommandRPM(DoubleSupplier rpm) {
-    return this.run(() -> setGoalVelocityRPM(rpm.getAsDouble()));
+    return this.runEnd(() -> setGoalVelocityRPM(rpm.getAsDouble()), this::stop);
   }
 
   public Command stopCommand() {

@@ -7,13 +7,6 @@
 
 package frc.robot.commands;
 
-import java.text.DecimalFormat;
-import java.text.NumberFormat;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.function.DoubleSupplier;
-import java.util.function.Supplier;
-
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.filter.SlewRateLimiter;
@@ -29,11 +22,14 @@ import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
-import frc.robot.FieldConstants;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.drive.DriveConstants;
-import frc.robot.util.geometry.AllianceFlipUtil;
-
+import java.text.DecimalFormat;
+import java.text.NumberFormat;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.function.DoubleSupplier;
+import java.util.function.Supplier;
 
 public class DriveCommands {
   private static final double DEADBAND = 0.1;
@@ -267,7 +263,7 @@ public class DriveCommands {
                   System.out.println("\tkS: " + formatter.format(kS));
                   System.out.println("\tkV: " + formatter.format(kV));
                 }));
-              }
+  }
 
   /** Measures the robot's wheel radius by spinning in a circle. */
   public static Command wheelRadiusCharacterization(Drive drive) {

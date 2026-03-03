@@ -68,6 +68,7 @@ public class HoodIOReal implements HoodIO {
     Trigger bottomHoodLimitSwitch = new Trigger(this::isBottomPressed);
 
     bottomHoodLimitSwitch.onTrue(Commands.runOnce(() -> this.zeroHood()));
+    hood.getEncoder().setPosition(Units.degreesToRadians(10));
   }
 
   @Override
