@@ -42,14 +42,10 @@ public class ShooterConstants {
     public static LoggedTunableNumber kS = new LoggedTunableNumber("Flywheel/kS", 0.17831);
 
     public static LoggedTunableNumber tolerance =
-        new LoggedTunableNumber("Flywheel/Tolerance", 500.0);
+        new LoggedTunableNumber("Flywheel/Tolerance", 100.0);
 
     public static LoggedTunableNumber atGoalDebouncerTime =
         new LoggedTunableNumber("Flywheel/AtGoalDebounceTime", 0.15);
-
-    public static final double cruiseVelocity = 15; //  m/ sec
-    public static final double maxAcceleration = 5; // m/ sec^2
-    public static final double allowedError = 0.5;
 
     public static final double GEAR_RATIO = 1.66;
   }

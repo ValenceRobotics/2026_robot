@@ -25,6 +25,7 @@ import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Twist2d;
@@ -47,6 +48,7 @@ import frc.robot.Constants;
 import frc.robot.Constants.Mode;
 import frc.robot.FieldConstants;
 import frc.robot.subsystems.shooter.ShotCalculator;
+import frc.robot.subsystems.vision.VisionConstants;
 import frc.robot.util.LocalADStarAK;
 import frc.robot.util.geometry.AllianceFlipUtil;
 import java.util.concurrent.locks.Lock;
@@ -205,6 +207,13 @@ public class Drive extends SubsystemBase {
         new Pose2d(
             AllianceFlipUtil.apply(FieldConstants.Hub.topCenterPoint.toTranslation2d()),
             new Rotation2d()));
+
+    Logger.recordOutput(
+        "Vision/Camera0Pose", new Pose3d(getPose()).transformBy(VisionConstants.robotToCamera0));
+    Logger.recordOutput(
+        "Vision/Camera1Pose", new Pose3d(getPose()).transformBy(VisionConstants.robotToCamera1));
+    Logger.recordOutput(
+        "Vision/Camera2Pose", new Pose3d(getPose()).transformBy(VisionConstants.robotToCamera2));
   }
 
   /**

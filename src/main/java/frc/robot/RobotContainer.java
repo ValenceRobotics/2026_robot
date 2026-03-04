@@ -252,9 +252,9 @@ public class RobotContainer {
             () -> -manualController.getLeftX(),
             () -> -manualController.getRightX()));
 
-    // hood.setDefaultCommand(robotState.seekIndefinite(HoodState.SEEK_GOAL).repeatedly()); // for
-    // comp
-    hood.setDefaultCommand(robotState.seekIndefinite(HoodState.MANUAL).repeatedly()); // fo testing
+    // hood.setDefaultCommand(robotState.seekIndefinite(HoodState.SEEK_GOAL).repeatedly());
+    // // for comp
+    hood.setDefaultCommand(robotState.seekIndefinite(HoodState.MANUAL).repeatedly()); // for testing
 
     // flywheel.setDefaultCommand(robotState.seekIndefinite(FlywheelState.SEEK_GOAL).repeatedly());
     // // for comp
@@ -367,23 +367,30 @@ public class RobotContainer {
                     robotState.seekIndefinite(SpindexerState.INDEXING, IndexerState.INDEXING))))
         .onFalse(robotState.seekIndefinite(SpindexerState.IDLE, IndexerState.IDLE));
 
-    /* JANKY way to do it */
-    // manualController
-    // .rightTrigger()
-    // .whileTrue(
-    // (flywheel
-    // .runVelocityCommandRPM(() -> tuneFlywheelRPM.get())
-    // .alongWith(hood.moveToAngle(tuneHoodDeg::get)))
-    // .until(() -> hood.atGoal() && flywheel.atGoal())
-    // .andThen(
-    // robotState
-    // .seek(SpindexerState.INDEXING, IndexerState.INDEXING)
-    // .alongWith(
-    // flywheel.runVelocityCommandRPM(() -> tuneFlywheelRPM.get()))))
-    // .onFalse(
-    // robotState
-    // .seek(SpindexerState.IDLE, IndexerState.IDLE)
-    // .alongWith(flywheel.stopCommand()));
+    manualController
+        .x()
+        .whileTrue(
+            new ParallelCommandGroup(
+                robotState.seekIndefinite(HoodState.SEEK_GOAL, FlywheelState.SEEK_GOAL),
+                new SequentialCommandGroup(
+                    Commands.waitUntil(() -> hood.atGoal() && flywheel.atGoal()),
+                    robotState.seekIndefinite(SpindexerState.INDEXING, IndexerState.INDEXING))))
+        .onFalse(
+            robotState
+                .seekIndefinite(SpindexerState.IDLE, IndexerState.IDLE)
+                .alongWith(robotState.seek(HoodState.SEEK_GOAL, FlywheelState.SEEK_GOAL)));
+
+    manualController
+        .y()
+        .whileTrue(
+            DriveCommands.joystickDriveAtAngle(
+                drive,
+                () -> manualController.getLeftY() * 0.55,
+                () -> manualController.getLeftX() * 0.55,
+                () -> {
+                  drive.updateAimbotHeading(FieldConstants.Hub.topCenterPoint.toTranslation2d());
+                  return drive.getCachedAimbotHeading();
+                }));
 
     // for debugging hood + flywheels
     manualController
@@ -392,7 +399,8 @@ public class RobotContainer {
         .onFalse(flywheel.stopCommand());
     manualController.povLeft().onTrue(hood.moveToAngle(tuneHoodDeg::get));
 
-    // zero hood angle please do this before updating code (limit switch doesn't work)
+    // zero hood angle please do this before updating code (limit switch doesn't
+    // work)
     manualController.a().onTrue(hood.moveToAngle(() -> 10));
 
     // zero the gyro

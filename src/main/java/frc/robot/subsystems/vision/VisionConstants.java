@@ -16,7 +16,7 @@ import edu.wpi.first.math.util.Units;
 public class VisionConstants {
   // AprilTag layout
   public static AprilTagFieldLayout aprilTagLayout =
-      AprilTagFieldLayout.loadField(AprilTagFields.kDefaultField);
+      AprilTagFieldLayout.loadField(AprilTagFields.k2026RebuiltAndymark);
 
   // Camera names, must match names configured on coprocessor
   public static String camera0Name = "camera_0";
@@ -26,7 +26,7 @@ public class VisionConstants {
   /* two front facing cameras */
   public static Transform3d robotToCamera0 =
       new Transform3d(
-          -0.343, 0.153988, 0.212343, new Rotation3d(0.0, Units.degreesToRadians(-20.0), 0));
+          0.343, 0.153988, 0.212343, new Rotation3d(0.0, Units.degreesToRadians(-20.0), 0));
   public static Transform3d robotToCamera1 =
       new Transform3d(
           0.000,
