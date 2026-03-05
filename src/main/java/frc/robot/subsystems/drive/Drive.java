@@ -209,6 +209,15 @@ public class Drive extends SubsystemBase {
             new Rotation2d()));
 
     Logger.recordOutput(
+        "Field/PassingTargetA",
+        new Pose2d(new Translation2d(AllianceFlipUtil.applyX(.5), .5), new Rotation2d()));
+    Logger.recordOutput(
+        "Field/PassingTargetB",
+        new Pose2d(
+            new Translation2d(AllianceFlipUtil.applyX(.5), FieldConstants.fieldWidth - .5),
+            new Rotation2d()));
+
+    Logger.recordOutput(
         "Vision/Camera0Pose", new Pose3d(getPose()).transformBy(VisionConstants.robotToCamera0));
     Logger.recordOutput(
         "Vision/Camera1Pose", new Pose3d(getPose()).transformBy(VisionConstants.robotToCamera1));
@@ -405,6 +414,7 @@ public class Drive extends SubsystemBase {
   public void updateAimbotHeading(Translation2d target) {
     AimbotHeading = ShotCalculator.calculate(getPose(), getFieldVelocity(), target).robotHeading();
   }
+
   // returns cached aimbot heading
   public Rotation2d getCachedAimbotHeading() {
     return AimbotHeading;
@@ -434,16 +444,19 @@ public class Drive extends SubsystemBase {
   }
 
   // get the closest target for passing
-  public Translation2d getBestGoalTarget() {
+  public Translation2d getBestPassingTarget() {
     Pose2d robotPose = getPose();
-    Translation2d leftGoal = FieldConstants.Depot.depotCenter.toTranslation2d();
-    Translation2d rightGoal = FieldConstants.Outpost.centerPoint;
+    double offset = 0.5;
 
-    double distToLeft = robotPose.getTranslation().getDistance(leftGoal);
+    Translation2d cornerA = new Translation2d(offset, offset);
+    Translation2d cornerB = new Translation2d(offset, FieldConstants.fieldWidth - offset);
 
-    double distToRight = robotPose.getTranslation().getDistance(rightGoal);
+    double dA = robotPose.getTranslation().getDistance(cornerA);
+    double dB = robotPose.getTranslation().getDistance(cornerB);
 
-    return distToLeft < distToRight ? leftGoal : rightGoal;
+    Translation2d desired = dA < dB ? cornerA : cornerB;
+
+    return AllianceFlipUtil.passingTargetFlip(desired);
   }
 
   // enables trench protect mode

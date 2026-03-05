@@ -67,6 +67,7 @@ import frc.robot.subsystems.vision.VisionIO;
 import frc.robot.subsystems.vision.VisionIOPhotonVision;
 import frc.robot.subsystems.vision.VisionIOPhotonVisionSim;
 import frc.robot.util.LoggedTunableNumber;
+import org.littletonrobotics.junction.Logger;
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 
 /**
@@ -374,10 +375,11 @@ public class RobotContainer {
             new ParallelCommandGroup(
                 DriveCommands.joystickDriveAtAngle(
                     drive,
-                    () -> -controller.getLeftY() * 0.55,
-                    () -> -controller.getLeftX() * 0.55,
+                    () -> -controller.getLeftY() * 0.8,
+                    () -> -controller.getLeftX() * 0.8,
                     () -> {
-                      drive.updateAimbotHeading(drive.getBestGoalTarget());
+                      drive.updateAimbotHeading(drive.getBestPassingTarget());
+                      Logger.recordOutput("test/targetPose", drive.getBestPassingTarget()); // debug
                       return drive
                           .getCachedAimbotHeading()
                           .minus(new Rotation2d(DriveConstants.aimbotOffset));
@@ -385,8 +387,7 @@ public class RobotContainer {
                 robotState.seekIndefinite(FlywheelState.PASS_BALL, HoodState.PASS_BALL),
                 // feed when flywheel ready
                 new SequentialCommandGroup(
-                    Commands.waitUntil(
-                        () -> hood.atGoal() && drive.atCachedAimbotHeading() && flywheel.atGoal()),
+                    Commands.waitUntil(() -> hood.atGoal() && flywheel.atGoal()),
                     robotState.seekIndefinite(
                         SpindexerState.INDEXING,
                         IndexerState.INDEXING,
