@@ -13,11 +13,18 @@ import static frc.robot.subsystems.drive.DriveConstants.maxSpeedMetersPerSec;
 import static frc.robot.subsystems.drive.DriveConstants.moduleTranslations;
 import static frc.robot.subsystems.drive.DriveConstants.ppConfig;
 
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
+
+import org.littletonrobotics.junction.AutoLogOutput;
+import org.littletonrobotics.junction.Logger;
+
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.config.PIDConstants;
 import com.pathplanner.lib.controllers.PPHolonomicDriveController;
 import com.pathplanner.lib.pathfinding.Pathfinding;
 import com.pathplanner.lib.util.PathPlannerLogging;
+
 import edu.wpi.first.hal.FRCNetComm.tInstances;
 import edu.wpi.first.hal.FRCNetComm.tResourceType;
 import edu.wpi.first.hal.HAL;
@@ -51,10 +58,6 @@ import frc.robot.subsystems.shooter.ShotCalculator;
 import frc.robot.subsystems.vision.VisionConstants;
 import frc.robot.util.LocalADStarAK;
 import frc.robot.util.geometry.AllianceFlipUtil;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantLock;
-import org.littletonrobotics.junction.AutoLogOutput;
-import org.littletonrobotics.junction.Logger;
 
 public class Drive extends SubsystemBase {
   static final Lock odometryLock = new ReentrantLock();
@@ -415,9 +418,12 @@ public class Drive extends SubsystemBase {
     Rotation2d error = AimbotHeading.minus(getRotation());
     double omega = gyroInputs.yawVelocityRadPerSec;
 
-    Logger.recordOutput("Aimbot/HeadingErrorRad", Units.radiansToDegrees(error.getRadians()));
+    Logger.recordOutput(
+        "Aimbot/HeadingErrorRad",
+        Units.radiansToDegrees(error.getRadians() - DriveConstants.aimbotOffset));
     Logger.recordOutput("Aimbot/OmegaRadPerSec", omega);
-    return Math.abs(error.getRadians()) < DriveConstants.kAimbotHeadingToleranceRad
+    return Math.abs(error.getRadians() - DriveConstants.aimbotOffset)
+            < DriveConstants.kAimbotHeadingToleranceRad
         && Math.abs(omega) < DriveConstants.kAimbotOmegaToleranceRadPerSec;
   }
 
@@ -429,6 +435,21 @@ public class Drive extends SubsystemBase {
 
     return targetRotation;
   }
+
+  // get the closest target for passing 
+  public Translation2d getBestGoalTarget() {
+    Pose2d robotPose = getPose();
+    Translation2d leftGoal = FieldConstants.Depot.depotCenter.toTranslation2d();
+    Translation2d rightGoal = FieldConstants.Outpost.centerPoint;
+
+    double distToLeft =
+        robotPose.getTranslation().getDistance(leftGoal);
+
+    double distToRight =
+        robotPose.getTranslation().getDistance(rightGoal);
+
+    return distToLeft < distToRight ? leftGoal : rightGoal;
+}
 
   // enables trench protect mode
   public void setTrenchProtection(boolean enabled) {

@@ -67,7 +67,7 @@ public class DriveConstants {
   public static final double driveKp = 0.0;
   public static final double driveKd = 0.0;
   public static final double driveKs = 0.15164;
-  public static final double driveKv = 0.09255;
+  public static final double driveKv = 0.09255; // 0.09255
   public static final double driveSimP = 0.05;
   public static final double driveSimD = 0.0;
   public static final double driveSimKs = 0.0;
@@ -97,7 +97,7 @@ public class DriveConstants {
   public static final double driveRotationToleranceRad = Math.toRadians(5);
 
   // PathPlanner configuration
-  public static final double robotMassKg = 74.088;
+  public static final double robotMassKg = 52.0;
   public static final double robotMOI = 6.883;
   public static final double wheelCOF = 1.2;
   public static final RobotConfig ppConfig =
@@ -114,6 +114,7 @@ public class DriveConstants {
           moduleTranslations);
 
   // aimbot stuff
-  public static final double kAimbotHeadingToleranceRad = Math.toRadians(2.0);
-  public static final double kAimbotOmegaToleranceRadPerSec = Math.toRadians(25.0);
+  public static final double kAimbotHeadingToleranceRad = Math.toRadians(4.0);
+  public static final double kAimbotOmegaToleranceRadPerSec = Math.toRadians(100.0);
+  public static final double aimbotOffset = Units.degreesToRadians(15);
 }

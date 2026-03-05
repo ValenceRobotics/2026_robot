@@ -2,7 +2,7 @@ package frc.robot.subsystems.indexer;
 
 public final class IndexerConstants {
   public static final double INDEXER_INDEX_VOLTS = 12;
-  public static final double INDEXER_REVERSE_VOLTS = -7;
+  public static final double INDEXER_REVERSE_VOLTS = -11;
   public static final int MOTOR_ID = 21;
 
   public static final double GEAR_RATIO = 2.3; // Placeholder value, update with actual ratio

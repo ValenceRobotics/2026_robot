@@ -29,7 +29,9 @@ public class RobotState {
 
   public enum IntakePivotState {
     UP,
-    DOWN
+    SHOOTING_POS,
+    DOWN, 
+    DRIVING_POS
   }
 
   public enum IntakeRollerState {
@@ -126,7 +128,7 @@ public class RobotState {
   public Command seekIndefinite(Enum<?>... states) {
     Command compound = Commands.none();
     for (Enum<?> state : states) {
-      if (state instanceof IntakePivotState s) {
+      if (state instanceof IntakePivotState s) {  
         compound = compound.alongWith(intakePivot.seekCommandIndefinite(s));
       } else if (state instanceof IntakeRollerState s) {
         compound = compound.alongWith(intakeRollers.seekCommandIndefinite(s));

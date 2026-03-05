@@ -1,0 +1,74 @@
+{
+  "version": "2025.0",
+  "command": {
+    "type": "sequential",
+    "data": {
+      "commands": [
+        {
+          "type": "path",
+          "data": {
+            "pathName": "right_trench_hp"
+          }
+        },
+        {
+          "type": "wait",
+          "data": {
+            "waitTime": 4.0
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "hp_shootr"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "autoalign"
+          }
+        },
+        {
+          "type": "parallel",
+          "data": {
+            "commands": [
+              {
+                "type": "named",
+                "data": {
+                  "name": "flywheelHoodGo"
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "indexerGo"
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "intake Rollers Inwards"
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "intakePivotUp"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "stopEverything"
+          }
+        }
+      ]
+    }
+  },
+  "resetOdom": true,
+  "folder": null,
+  "choreoAuto": false
+}

@@ -19,7 +19,7 @@ public class ShooterConstants {
     public static LoggedTunableNumber kDReal = new LoggedTunableNumber("Hood/kD", 0);
     public static LoggedTunableNumber kGReal = new LoggedTunableNumber("Hood/kG", 0);
     public static LoggedTunableNumber toleranceDeg =
-        new LoggedTunableNumber("Hood/ToleranceDeg", 0.2);
+        new LoggedTunableNumber("Hood/ToleranceDeg", 0.6);
 
     public static LoggedTunableNumber motorStopToleranceDeg =
         new LoggedTunableNumber("Hood/MotorStopToleranceDeg", 0.1);
@@ -42,7 +42,7 @@ public class ShooterConstants {
     public static LoggedTunableNumber kS = new LoggedTunableNumber("Flywheel/kS", 0.17831);
 
     public static LoggedTunableNumber tolerance =
-        new LoggedTunableNumber("Flywheel/Tolerance", 100.0);
+        new LoggedTunableNumber("Flywheel/Tolerance", 500.0);
 
     public static LoggedTunableNumber atGoalDebouncerTime =
         new LoggedTunableNumber("Flywheel/AtGoalDebounceTime", 0.15);
@@ -67,21 +67,17 @@ public class ShooterConstants {
   static {
 
     // pg constants change ltr
-    hoodAngleMap.put(1.34, Rotation2d.fromDegrees(12.6331849283));
-    hoodAngleMap.put(1.78, Rotation2d.fromDegrees(14.792398641));
-    hoodAngleMap.put(2.17, Rotation2d.fromDegrees(16.3097209383));
-    hoodAngleMap.put(2.81, Rotation2d.fromDegrees(18.2438637299));
-    hoodAngleMap.put(3.82, Rotation2d.fromDegrees(20.3956933844));
-    hoodAngleMap.put(4.09, Rotation2d.fromDegrees(20.8448082168));
-    hoodAngleMap.put(4.40, Rotation2d.fromDegrees(21.3116778872));
-    hoodAngleMap.put(4.77, Rotation2d.fromDegrees(21.8105546923));
-    hoodAngleMap.put(5.60, Rotation2d.fromDegrees(22.7460220738));
-    hoodAngleMap.put(6.138, Rotation2d.fromDegrees(22.8445734707));
+    hoodAngleMap.put(1.2192, Rotation2d.fromDegrees(12));
+    hoodAngleMap.put(1.524, Rotation2d.fromDegrees(17.0));
+    hoodAngleMap.put(1.98, Rotation2d.fromDegrees(19));
+    hoodAngleMap.put(2.4384, Rotation2d.fromDegrees(21));
+    hoodAngleMap.put(2.642, Rotation2d.fromDegrees(23));
 
-    flywheelMap.put(1.34, 2085.76546142);
-    flywheelMap.put(2.17, 2266.99766188);
-    flywheelMap.put(3.82, 2615.7114474);
-    flywheelMap.put(5.60, 2958.20454555);
+    flywheelMap.put(1.2192, 2000.0);
+    flywheelMap.put(1.524, 2100.0);
+    flywheelMap.put(1.9812, 2250.0);
+    flywheelMap.put(2.4384, 2300.0);
+    flywheelMap.put(2.642, 2400.0);
 
     timeOfFlightMap.put(1.5, 0.950496777883);
     timeOfFlightMap.put(3.0, 1.19735698926);

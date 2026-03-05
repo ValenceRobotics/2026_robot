@@ -41,6 +41,12 @@ public class IntakePivot extends FullSubsystem {
       case DOWN -> {
         goalPositionRad = IntakeConstants.GROUND_POS;
       }
+      case SHOOTING_POS -> {
+        goalPositionRad = IntakeConstants.SHOOTING_POS;
+      }
+      case DRIVING_POS -> {
+        goalPositionRad = IntakeConstants.DRIVING_POS;
+      }
     }
   }
 
