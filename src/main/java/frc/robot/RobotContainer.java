@@ -24,8 +24,8 @@ import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
+import edu.wpi.first.wpilibj2.command.ParallelDeadlineGroup;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
-import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandGenericHID;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
@@ -210,7 +210,35 @@ public class RobotContainer {
         NamedCommands.registerCommand(
                 "flywheelHoodGo",
                 robotState.seekIndefinite(HoodState.SEEK_GOAL, FlywheelState.SEEK_GOAL)
-                        .withTimeout(7));
+                        .withTimeout(5.5));
+        NamedCommands.registerCommand(
+                "flywheelHoodGoTerminates",
+                robotState.seek(HoodState.SEEK_GOAL, FlywheelState.SEEK_GOAL)
+                );
+        NamedCommands.registerCommand(
+                "shootWhenReady",
+                new SequentialCommandGroup(
+                        Commands.waitUntil(() -> hood.atGoal() && flywheel.atGoal() && drive.atCachedAimbotHeading()),
+                        robotState.seekIndefinite(SpindexerState.INDEXING, IndexerState.INDEXING).withTimeout(5.5)));
+        NamedCommands.registerCommand(
+                "intake",
+                robotState.seekIndefinite(IntakePivotState.DOWN, IntakeRollerState.INWARD)); // figure out logic for writing time stuff
+        NamedCommands.registerCommand(
+                "intakeShootingPosition",
+                robotState.seekIndefinite(IntakeRollerState.INWARD, IntakePivotState.SHOOTING_POS).withTimeout(5.5)); // kinda jank but whatever
+        NamedCommands.registerCommand(
+                "autoAlignPrepareToShoot",
+                new ParallelDeadlineGroup(
+                        DriveCommands.joystickDriveAtAngle(
+                        drive,
+                        () -> 0,
+                        () -> 0,
+                        () -> {
+                            drive.updateAimbotHeading(FieldConstants.Hub.topCenterPoint.toTranslation2d());
+                            return drive.getCachedAimbotHeading();
+                        }).until(drive::atCachedAimbotHeading).withTimeout(3),
+                        robotState.seekIndefinite(HoodState.SEEK_GOAL, FlywheelState.SEEK_GOAL)
+                        ));
         NamedCommands.registerCommand(
                 "stopEverything",
                 robotState.seekIndefinite(
@@ -218,31 +246,8 @@ public class RobotContainer {
                         FlywheelState.STOPPED,
                         SpindexerState.IDLE,
                         IndexerState.IDLE,
-                        IntakePivotState.DOWN));
-        NamedCommands.registerCommand(
-                "indexerGo",
-                new SequentialCommandGroup(
-                        Commands.waitUntil(() -> hood.atGoal() && flywheel.atGoal()),
-                        robotState.seekIndefinite(SpindexerState.INDEXING, IndexerState.INDEXING)).withTimeout(7));
-        NamedCommands.registerCommand(
-                "intake",
-                robotState.seekIndefinite(IntakePivotState.DOWN, IntakeRollerState.INWARD));
-        NamedCommands.registerCommand(
-                "intake Rollers Inwards",
-                robotState.seekIndefinite(IntakeRollerState.INWARD).withTimeout(7));
-        NamedCommands.registerCommand(
-                "intakePivotUp",
-                robotState.seekIndefinite(IntakePivotState.SHOOTING_POS).withTimeout(7));
-        NamedCommands.registerCommand(
-                "autoalign",
-                DriveCommands.joystickDriveAtAngle(
-                        drive,
-                        () -> 0,
-                        () -> 0,
-                        () -> {
-                            drive.updateAimbotHeading(FieldConstants.Hub.topCenterPoint.toTranslation2d());
-                            return drive.getCachedAimbotHeading();
-                        }).withTimeout(3));
+                        IntakePivotState.DOWN, 
+                        IntakeRollerState.STOPPED));
 
         // Set up auto routines
         autoChooser = new LoggedDashboardChooser<>("Auto Choices", AutoBuilder.buildAutoChooser());
@@ -297,9 +302,6 @@ public class RobotContainer {
         intakePivot.setDefaultCommand(robotState.seekIndefinite(IntakePivotState.DRIVING_POS).repeatedly());
         // hood.setDefaultCommand(robotState.seekIndefinite(HoodState.MANUAL).repeatedly());
         // flywheel.setDefaultCommand(robotState.seekIndefinite(FlywheelState.SEEK_GOAL).repeatedly());
-        // // for comp
-        flywheel.setDefaultCommand(
-                robotState.seekIndefinite(FlywheelState.STOPPED).repeatedly());
 
         /* COMP CONTROLS */
         // aimbot trigger
