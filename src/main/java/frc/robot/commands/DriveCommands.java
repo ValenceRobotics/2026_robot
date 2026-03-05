@@ -35,7 +35,7 @@ public class DriveCommands {
   private static final double DEADBAND = 0.1;
   private static final double ANGLE_KP = 4.0;
   private static final double ANGLE_KD = 0.01;
-  private static final double TOLERANCE = Units.degreesToRadians(4);
+  private static final double TOLERANCE = Units.degreesToRadians(3);
   private static final double ANGLE_MAX_VELOCITY = 9.0;
   private static final double ANGLE_MAX_ACCELERATION = 20.0;
   private static final double FF_START_DELAY = 2.0; // Secs
@@ -151,6 +151,39 @@ public class DriveCommands {
 
         // Reset PID controller when command starts
         .beforeStarting(() -> angleController.reset(drive.getRotation().getRadians()));
+  }
+
+  public static Command turnToHeadingAuto(Drive drive, Supplier<Rotation2d> headingSupplier) {
+    ProfiledPIDController angleController =
+        new ProfiledPIDController(
+            ANGLE_KP,
+            0.0,
+            ANGLE_KD,
+            new TrapezoidProfile.Constraints(ANGLE_MAX_VELOCITY, ANGLE_MAX_ACCELERATION));
+
+    angleController.enableContinuousInput(-Math.PI, Math.PI);
+    angleController.setTolerance(TOLERANCE);
+
+    return Commands.run(
+            () -> {
+              Rotation2d target = headingSupplier.get();
+
+              double omega =
+                  angleController.calculate(drive.getRotation().getRadians(), target.getRadians());
+
+              drive.runVelocity(
+                  ChassisSpeeds.fromFieldRelativeSpeeds(
+                      new ChassisSpeeds(0.0, 0.0, omega), drive.getRotation()));
+            },
+            drive)
+        .beforeStarting(
+            () -> {
+              angleController.reset(drive.getRotation().getRadians());
+              angleController.setGoal(headingSupplier.get().getRadians());
+            })
+        .alongWith(Commands.run(() -> angleController.setGoal(headingSupplier.get().getRadians())))
+        .until(angleController::atGoal)
+        .finallyDo(() -> drive.runVelocity(new ChassisSpeeds(0.0, 0.0, 0.0)));
   }
 
   // /**
