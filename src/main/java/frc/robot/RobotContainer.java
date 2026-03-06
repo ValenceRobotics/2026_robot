@@ -240,6 +240,9 @@ public class RobotContainer {
             IntakePivotState.DOWN,
             IntakeRollerState.STOPPED));
 
+    NamedCommands.registerCommand(
+        "stopIntake", robotState.seekIndefinite(IntakePivotState.DOWN, IntakeRollerState.STOPPED));
+
     // Set up auto routines
     autoChooser = new LoggedDashboardChooser<>("Auto Choices", AutoBuilder.buildAutoChooser());
 

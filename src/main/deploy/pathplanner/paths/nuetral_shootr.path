@@ -3,13 +3,13 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 7.883300791287807,
-        "y": 2.3850057227099195
+        "x": 8.185868375293888,
+        "y": 2.349368754898119
       },
       "prevControl": null,
       "nextControl": {
-        "x": 8.09734528635341,
-        "y": 2.514175975214556
+        "x": 8.39991287035949,
+        "y": 2.4785390074027553
       },
       "isLocked": false,
       "linkedName": "rnuetral_1"
@@ -48,12 +48,12 @@
     },
     {
       "anchor": {
-        "x": 1.0780510996277428,
-        "y": 1.0793977150274292
+        "x": 1.6494242260971785,
+        "y": 1.5669168789184948
       },
       "prevControl": {
-        "x": 1.9427538927479002,
-        "y": 1.5023410402051787
+        "x": 2.514127019217336,
+        "y": 1.9898602040962443
       },
       "nextControl": null,
       "isLocked": false,
@@ -76,30 +76,7 @@
   ],
   "constraintZones": [],
   "pointTowardsZones": [],
-  "eventMarkers": [
-    {
-      "name": "flywheelHoodGo",
-      "waypointRelativePos": 2.516802226027399,
-      "endWaypointRelativePos": null,
-      "command": {
-        "type": "named",
-        "data": {
-          "name": "flywheelHoodGo"
-        }
-      }
-    },
-    {
-      "name": "indexerGo",
-      "waypointRelativePos": 2.972870291095892,
-      "endWaypointRelativePos": null,
-      "command": {
-        "type": "named",
-        "data": {
-          "name": "indexerGo"
-        }
-      }
-    }
-  ],
+  "eventMarkers": [],
   "globalConstraints": {
     "maxVelocity": 5.0,
     "maxAcceleration": 5.5,

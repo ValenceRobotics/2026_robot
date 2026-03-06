@@ -35,12 +35,6 @@
               {
                 "type": "named",
                 "data": {
-                  "name": "flywheelHoodGo"
-                }
-              },
-              {
-                "type": "named",
-                "data": {
                   "name": "shootWhenReady"
                 }
               },

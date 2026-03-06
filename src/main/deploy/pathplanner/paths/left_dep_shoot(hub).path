@@ -8,8 +8,8 @@
       },
       "prevControl": null,
       "nextControl": {
-        "x": 0.6142503460511135,
-        "y": 6.154563282350551
+        "x": 0.838896077703525,
+        "y": 6.089922119125423
       },
       "isLocked": false,
       "linkedName": null
@@ -20,8 +20,8 @@
         "y": 5.567333984375
       },
       "prevControl": {
-        "x": 2.5552340859872507,
-        "y": 5.4508241362311525
+        "x": 2.636333501735572,
+        "y": 5.454483614411131
       },
       "nextControl": null,
       "isLocked": false,
@@ -42,19 +42,7 @@
       "name": "hub"
     }
   ],
-  "eventMarkers": [
-    {
-      "name": "flywheels+ hood start",
-      "waypointRelativePos": 0.0,
-      "endWaypointRelativePos": null,
-      "command": {
-        "type": "named",
-        "data": {
-          "name": "flywheelHoodGo"
-        }
-      }
-    }
-  ],
+  "eventMarkers": [],
   "globalConstraints": {
     "maxVelocity": 5.0,
     "maxAcceleration": 5.5,

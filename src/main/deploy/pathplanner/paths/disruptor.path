@@ -108,7 +108,7 @@
     {
       "name": "intake",
       "waypointRelativePos": 0.9776969178082198,
-      "endWaypointRelativePos": 1.7870612157534247,
+      "endWaypointRelativePos": null,
       "command": {
         "type": "named",
         "data": {
@@ -117,15 +117,10 @@
       }
     },
     {
-      "name": "flywheels+ hood start",
-      "waypointRelativePos": 2.8522688356164396,
+      "name": "stopIntake",
+      "waypointRelativePos": 1.6081810631229234,
       "endWaypointRelativePos": null,
-      "command": {
-        "type": "named",
-        "data": {
-          "name": "flywheelHoodGo"
-        }
-      }
+      "command": null
     }
   ],
   "globalConstraints": {

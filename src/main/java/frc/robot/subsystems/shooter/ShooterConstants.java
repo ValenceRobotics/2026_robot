@@ -74,7 +74,6 @@ public class ShooterConstants {
     hoodAngleMap.put(2.642, Rotation2d.fromDegrees(23));
     hoodAngleMap.put(5.0, Rotation2d.fromDegrees(32));
 
-
     flywheelMap.put(1.2192, 2000.0);
     flywheelMap.put(1.524, 2100.0);
     flywheelMap.put(1.9812, 2250.0);

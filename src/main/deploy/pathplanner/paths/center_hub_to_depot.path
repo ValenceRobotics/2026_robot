@@ -42,6 +42,17 @@
           "name": "intake"
         }
       }
+    },
+    {
+      "name": "stopIntake",
+      "waypointRelativePos": 0.9730066445182723,
+      "endWaypointRelativePos": null,
+      "command": {
+        "type": "named",
+        "data": {
+          "name": "stopIntake"
+        }
+      }
     }
   ],
   "globalConstraints": {
