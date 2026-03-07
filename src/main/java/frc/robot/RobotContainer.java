@@ -369,7 +369,7 @@ public class RobotContainer {
                         IntakeRollerState.INWARD,
                         IntakePivotState.SHOOTING_POS))))
         .onFalse(
-            robotState.seek(SpindexerState.IDLE, IndexerState.IDLE, IntakePivotState.DRIVING_POS));
+            robotState.seek(SpindexerState.IDLE, IndexerState.IDLE, IntakePivotState.DRIVING_POS, FlywheelState.STOPPED));
 
     // pass to target
     controller
