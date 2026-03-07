@@ -7,18 +7,6 @@
         {
           "type": "path",
           "data": {
-            "pathName": "left_dep"
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "left_dep_shoot(hub)"
-          }
-        },
-        {
-          "type": "path",
-          "data": {
             "pathName": "shoot_left_bar_nuetral"
           }
         },
