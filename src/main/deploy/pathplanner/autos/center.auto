@@ -7,19 +7,7 @@
         {
           "type": "path",
           "data": {
-            "pathName": "right_trench_hp"
-          }
-        },
-        {
-          "type": "wait",
-          "data": {
-            "waitTime": 2.0
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "hp_shootr"
+            "pathName": "center"
           }
         },
         {
@@ -45,12 +33,6 @@
                 }
               }
             ]
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "stopEverything"
           }
         }
       ]

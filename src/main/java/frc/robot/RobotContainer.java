@@ -232,13 +232,15 @@ public class RobotContainer {
 
     NamedCommands.registerCommand(
         "stopEverything",
-        robotState.seekIndefinite(
-            HoodState.FOLD_BACK,
-            FlywheelState.STOPPED,
-            SpindexerState.IDLE,
-            IndexerState.IDLE,
-            IntakePivotState.DOWN,
-            IntakeRollerState.STOPPED));
+        robotState
+            .seekIndefinite(
+                HoodState.FOLD_BACK,
+                FlywheelState.STOPPED,
+                SpindexerState.IDLE,
+                IndexerState.IDLE,
+                IntakePivotState.DOWN,
+                IntakeRollerState.STOPPED)
+            .withTimeout(1.5));
 
     NamedCommands.registerCommand(
         "stopIntake", robotState.seekIndefinite(IntakePivotState.DOWN, IntakeRollerState.STOPPED));
@@ -369,7 +371,11 @@ public class RobotContainer {
                         IntakeRollerState.INWARD,
                         IntakePivotState.SHOOTING_POS))))
         .onFalse(
-            robotState.seek(SpindexerState.IDLE, IndexerState.IDLE, IntakePivotState.DRIVING_POS, FlywheelState.STOPPED));
+            robotState.seek(
+                SpindexerState.IDLE,
+                IndexerState.IDLE,
+                IntakePivotState.DRIVING_POS,
+                FlywheelState.STOPPED));
 
     // pass to target
     controller
@@ -397,7 +403,11 @@ public class RobotContainer {
                         IntakeRollerState.INWARD,
                         IntakePivotState.SHOOTING_POS))))
         .onFalse(
-            robotState.seek(SpindexerState.IDLE, IndexerState.IDLE, IntakePivotState.DRIVING_POS));
+            robotState.seek(
+                SpindexerState.IDLE,
+                IndexerState.IDLE,
+                IntakePivotState.DRIVING_POS,
+                FlywheelState.STOPPED));
 
     /* CONTROLLER 2 FOR TESTING */
     // intake testing ; should be the same as the other
