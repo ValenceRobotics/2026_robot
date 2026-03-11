@@ -218,11 +218,11 @@ public class Drive extends SubsystemBase {
             new Rotation2d()));
 
     Logger.recordOutput(
-        "Vision/Camera0Pose", new Pose3d(getPose()).transformBy(VisionConstants.robotToCamera0));
+        "Vision/camera_f", new Pose3d(getPose()).transformBy(VisionConstants.robotToCamera0));
     Logger.recordOutput(
-        "Vision/Camera1Pose", new Pose3d(getPose()).transformBy(VisionConstants.robotToCamera1));
+        "Vision/camera_l", new Pose3d(getPose()).transformBy(VisionConstants.robotToCamera1));
     Logger.recordOutput(
-        "Vision/Camera2Pose", new Pose3d(getPose()).transformBy(VisionConstants.robotToCamera2));
+        "Vision/camera_r", new Pose3d(getPose()).transformBy(VisionConstants.robotToCamera2));
   }
 
   /**
@@ -434,6 +434,20 @@ public class Drive extends SubsystemBase {
         && Math.abs(omega) < DriveConstants.kAimbotOmegaToleranceRadPerSec;
   }
 
+  @AutoLogOutput(key = "Aimbot/AtHeadingPass")
+  public boolean atCachedAimbotHeadingForPassing() {
+    Rotation2d error = AimbotHeading.minus(getRotation());
+    double omega = gyroInputs.yawVelocityRadPerSec;
+
+    Logger.recordOutput(
+        "Aimbot/HeadingErrorRadPass",
+        Units.radiansToDegrees(error.getRadians() - DriveConstants.aimbotOffset));
+    Logger.recordOutput("Aimbot/OmegaRadPerSecPass", omega);
+    return Math.abs(error.getRadians() - DriveConstants.aimbotOffset)
+            < DriveConstants.kAimbotHeadingPassingToleranceRad
+        && Math.abs(omega) < DriveConstants.kAimbotOmegaToleranceRadPerSec;
+  }
+
   // get aimbot heading without using cache
   public Rotation2d getAimbotHeading(Translation2d targetTranslation2d) {
 
@@ -444,9 +458,10 @@ public class Drive extends SubsystemBase {
   }
 
   // get the closest target for passing
+  @AutoLogOutput(key = "Drive/bestPassingTarget")
   public Translation2d getBestPassingTarget() {
     Pose2d robotPose = getPose();
-    double offset = 0.5;
+    double offset = 1.5;
 
     Translation2d cornerA = new Translation2d(offset, offset);
     Translation2d cornerB = new Translation2d(offset, FieldConstants.fieldWidth - offset);

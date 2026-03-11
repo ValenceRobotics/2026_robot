@@ -25,7 +25,7 @@ public class ShooterConstants {
         new LoggedTunableNumber("Hood/MotorStopToleranceDeg", 0.1);
 
     public static final double MIN_ANGLE = Units.degreesToRadians(10);
-    public static final double MAX_ANGLE = Units.degreesToRadians(34.5);
+    public static final double MAX_ANGLE = Units.degreesToRadians(33);
 
     public static final double gearRatio = 465.0;
   }
@@ -76,7 +76,7 @@ public class ShooterConstants {
 
     flywheelMap.put(1.2192, 2000.0);
     flywheelMap.put(1.524, 2100.0);
-    flywheelMap.put(1.9812, 2250.0);
+    flywheelMap.put(1.9812, 2300.0);
     flywheelMap.put(2.4384, 2300.0);
     flywheelMap.put(2.642, 2400.0);
     flywheelMap.put(5.0, 2700.0);

@@ -295,7 +295,7 @@ public class RobotContainer {
     // () -> -manualController.getLeftX(),
     // () -> -manualController.getRightX()));
 
-    hood.setDefaultCommand(robotState.seekIndefinite(HoodState.SEEK_GOAL).repeatedly());
+    hood.setDefaultCommand(robotState.seekIndefinite(HoodState.FOLD_BACK).repeatedly());
     intakeRollers.setDefaultCommand(
         robotState.seekIndefinite(IntakeRollerState.STOPPED).repeatedly());
     intakePivot.setDefaultCommand(
@@ -400,7 +400,11 @@ public class RobotContainer {
                 robotState.seekIndefinite(FlywheelState.PASS_BALL, HoodState.PASS_BALL),
                 // feed when flywheel ready
                 new SequentialCommandGroup(
-                    Commands.waitUntil(() -> hood.atGoal() && flywheel.atGoal()),
+                    Commands.waitUntil(
+                        () ->
+                            hood.atGoal()
+                                && drive.atCachedAimbotHeadingForPassing()
+                                && flywheel.atGoal()),
                     robotState.seekIndefinite(
                         SpindexerState.INDEXING,
                         IndexerState.INDEXING,
@@ -442,9 +446,19 @@ public class RobotContainer {
                 hood.moveToAngle(tuneHoodDeg::get),
                 new SequentialCommandGroup(
                     Commands.waitUntil(
-                        () -> hood.atGoal() && drive.atCachedAimbotHeading() && flywheel.atGoal()),
-                    robotState.seekIndefinite(SpindexerState.INDEXING, IndexerState.INDEXING))))
-        .onFalse(robotState.seekIndefinite(SpindexerState.IDLE, IndexerState.IDLE));
+                        // () -> hood.atGoal() &&
+                        () -> drive.atCachedAimbotHeading() && flywheel.atGoal()),
+                    robotState.seekIndefinite(
+                        SpindexerState.INDEXING,
+                        IndexerState.INDEXING,
+                        IntakeRollerState.INWARD,
+                        IntakePivotState.SHOOTING_POS))))
+        .onFalse(
+            robotState.seekIndefinite(
+                SpindexerState.IDLE,
+                IndexerState.IDLE,
+                IntakePivotState.DOWN,
+                IntakeRollerState.INWARD));
 
     manualController
         .b()

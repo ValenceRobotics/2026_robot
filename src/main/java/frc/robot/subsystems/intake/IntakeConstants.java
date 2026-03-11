@@ -41,7 +41,7 @@ public final class IntakeConstants {
   public static final double STOWED_POS = Units.degreesToRadians(0);
   public static final double GROUND_POS = Units.degreesToRadians(124);
   public static final double DRIVING_POS = Units.degreesToRadians(119);
-  public static final double SHOOTING_POS = Units.degreesToRadians(100);
+  public static final double SHOOTING_POS = Units.degreesToRadians(80);
 
   // Extremes
   public static final double MIN_ANGLE = Units.degreesToRadians(0);
