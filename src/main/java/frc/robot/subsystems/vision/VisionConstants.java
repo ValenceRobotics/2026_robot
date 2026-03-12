@@ -33,14 +33,14 @@ public class VisionConstants {
           -0.343,
           0.196850,
           new Rotation3d(
-              0, Units.degreesToRadians(-15), Units.degreesToRadians(-55))); // left of shooter
+              0, Units.degreesToRadians(-15), Units.degreesToRadians(55))); // left of shooter
   public static Transform3d robotToCameraR =
       new Transform3d(
           0.000,
           0.343,
           0.196850,
           new Rotation3d(
-              0, Units.degreesToRadians(-15), Units.degreesToRadians(55))); // right of shooter
+              0, Units.degreesToRadians(-15), Units.degreesToRadians(-55))); // right of shooter
 
   // Basic filtering thresholds
   public static double maxAmbiguity = 0.3;

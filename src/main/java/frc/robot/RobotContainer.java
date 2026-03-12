@@ -284,9 +284,9 @@ public class RobotContainer {
     drive.setDefaultCommand(
         DriveCommands.joystickDrive(
             drive,
-            () -> -manualController.getLeftY(),
-            () -> -manualController.getLeftX(),
-            () -> -manualController.getRightX()));
+            () -> -controller.getLeftY(),
+            () -> -controller.getLeftX(),
+            () -> -controller.getRightX()));
 
     // drive.setDefaultCommand(
     // DriveCommands.joystickDrive(
@@ -297,13 +297,13 @@ public class RobotContainer {
 
     // hood.setDefaultCommand(robotState.seekIndefinite(HoodState.FOLD_BACK).repeatedly()); // comp
     // code
-    hood.setDefaultCommand(robotState.seekIndefinite(HoodState.MANUAL).repeatedly());
+    hood.setDefaultCommand(robotState.seekIndefinite(HoodState.FOLD_BACK).repeatedly());
     intakeRollers.setDefaultCommand(
         robotState.seekIndefinite(IntakeRollerState.STOPPED).repeatedly());
     intakePivot.setDefaultCommand(
         robotState.seekIndefinite(IntakePivotState.DRIVING_POS).repeatedly());
     // hood.setDefaultCommand(robotState.seekIndefinite(HoodState.MANUAL).repeatedly());
-    flywheel.setDefaultCommand(robotState.seekIndefinite(FlywheelState.MANUAL).repeatedly());
+    flywheel.setDefaultCommand(robotState.seekIndefinite(FlywheelState.STOPPED).repeatedly());
 
     /* COMP CONTROLS */
     // aimbot trigger
@@ -375,7 +375,7 @@ public class RobotContainer {
                         SpindexerState.INDEXING,
                         IndexerState.INDEXING,
                         IntakeRollerState.INWARD,
-                        IntakePivotState.SHOOTING_POS))))
+                        IntakePivotState.DOWN))))
         .onFalse(
             robotState.seek(
                 SpindexerState.IDLE,
