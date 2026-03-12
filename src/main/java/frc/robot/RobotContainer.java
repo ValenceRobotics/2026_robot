@@ -7,12 +7,12 @@
 
 package frc.robot;
 
-import static frc.robot.subsystems.vision.VisionConstants.camera0Name;
-import static frc.robot.subsystems.vision.VisionConstants.camera1Name;
-import static frc.robot.subsystems.vision.VisionConstants.camera2Name;
-import static frc.robot.subsystems.vision.VisionConstants.robotToCamera0;
-import static frc.robot.subsystems.vision.VisionConstants.robotToCamera1;
-import static frc.robot.subsystems.vision.VisionConstants.robotToCamera2;
+import static frc.robot.subsystems.vision.VisionConstants.cameraFName;
+import static frc.robot.subsystems.vision.VisionConstants.cameraLName;
+import static frc.robot.subsystems.vision.VisionConstants.cameraRName;
+import static frc.robot.subsystems.vision.VisionConstants.robotToCameraF;
+import static frc.robot.subsystems.vision.VisionConstants.robotToCameraL;
+import static frc.robot.subsystems.vision.VisionConstants.robotToCameraR;
 
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
@@ -127,9 +127,9 @@ public class RobotContainer {
         vision =
             new Vision(
                 drive::addVisionMeasurement,
-                new VisionIOPhotonVision(camera0Name, robotToCamera0),
-                new VisionIOPhotonVision(camera1Name, robotToCamera1),
-                new VisionIOPhotonVision(camera2Name, robotToCamera2));
+                new VisionIOPhotonVision(cameraFName, robotToCameraF),
+                new VisionIOPhotonVision(cameraLName, robotToCameraL),
+                new VisionIOPhotonVision(cameraRName, robotToCameraR));
 
         this.hood = new Hood(new HoodIOReal(), drive::getPose, drive::getFieldVelocity);
         this.indexer = new Indexer(new IndexerIOReal());
@@ -156,9 +156,9 @@ public class RobotContainer {
         vision =
             new Vision(
                 drive::addVisionMeasurement,
-                new VisionIOPhotonVisionSim(camera0Name, robotToCamera0, drive::getPose),
-                new VisionIOPhotonVisionSim(camera1Name, robotToCamera1, drive::getPose),
-                new VisionIOPhotonVisionSim(camera2Name, robotToCamera2, drive::getPose));
+                new VisionIOPhotonVisionSim(cameraFName, robotToCameraF, drive::getPose),
+                new VisionIOPhotonVisionSim(cameraLName, robotToCameraL, drive::getPose),
+                new VisionIOPhotonVisionSim(cameraRName, robotToCameraR, drive::getPose));
 
         hood = new Hood(new HoodIOSim(), drive::getPose, drive::getFieldVelocity);
         intakePivot = new IntakePivot(new IntakePivotIOSim());
@@ -284,9 +284,9 @@ public class RobotContainer {
     drive.setDefaultCommand(
         DriveCommands.joystickDrive(
             drive,
-            () -> -controller.getLeftY(),
-            () -> -controller.getLeftX(),
-            () -> -controller.getRightX()));
+            () -> -manualController.getLeftY(),
+            () -> -manualController.getLeftX(),
+            () -> -manualController.getRightX()));
 
     // drive.setDefaultCommand(
     // DriveCommands.joystickDrive(
@@ -295,13 +295,15 @@ public class RobotContainer {
     // () -> -manualController.getLeftX(),
     // () -> -manualController.getRightX()));
 
-    hood.setDefaultCommand(robotState.seekIndefinite(HoodState.FOLD_BACK).repeatedly());
+    // hood.setDefaultCommand(robotState.seekIndefinite(HoodState.FOLD_BACK).repeatedly()); // comp
+    // code
+    hood.setDefaultCommand(robotState.seekIndefinite(HoodState.MANUAL).repeatedly());
     intakeRollers.setDefaultCommand(
         robotState.seekIndefinite(IntakeRollerState.STOPPED).repeatedly());
     intakePivot.setDefaultCommand(
         robotState.seekIndefinite(IntakePivotState.DRIVING_POS).repeatedly());
     // hood.setDefaultCommand(robotState.seekIndefinite(HoodState.MANUAL).repeatedly());
-    // flywheel.setDefaultCommand(robotState.seekIndefinite(FlywheelState.SEEK_GOAL).repeatedly());
+    flywheel.setDefaultCommand(robotState.seekIndefinite(FlywheelState.MANUAL).repeatedly());
 
     /* COMP CONTROLS */
     // aimbot trigger
@@ -435,8 +437,8 @@ public class RobotContainer {
             new ParallelCommandGroup(
                 DriveCommands.joystickDriveAtAngle(
                     drive,
-                    () -> manualController.getLeftY() * 0.55,
-                    () -> manualController.getLeftX() * 0.55,
+                    () -> -manualController.getLeftY() * 0.55,
+                    () -> -manualController.getLeftX() * 0.55,
                     () -> {
                       drive.updateAimbotHeading(
                           FieldConstants.Hub.topCenterPoint.toTranslation2d());

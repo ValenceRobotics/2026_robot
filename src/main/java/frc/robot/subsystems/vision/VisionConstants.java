@@ -19,22 +19,22 @@ public class VisionConstants {
       AprilTagFieldLayout.loadField(AprilTagFields.k2026RebuiltAndymark);
 
   // Camera names, must match names configured on coprocessor
-  public static String camera0Name = "camera_f";
-  public static String camera1Name = "camera_l";
-  public static String camera2Name = "camera_r";
+  public static String cameraFName = "camera_f";
+  public static String cameraLName = "camera_l";
+  public static String cameraRName = "camera_r";
 
   /* two front facing cameras */
-  public static Transform3d robotToCamera0 =
+  public static Transform3d robotToCameraF =
       new Transform3d(
           0.343, 0.153988, 0.212343, new Rotation3d(0.0, Units.degreesToRadians(-20.0), 0));
-  public static Transform3d robotToCamera1 =
+  public static Transform3d robotToCameraL =
       new Transform3d(
           0.000,
           -0.343,
           0.196850,
           new Rotation3d(
               0, Units.degreesToRadians(-15), Units.degreesToRadians(-55))); // left of shooter
-  public static Transform3d robotToCamera2 =
+  public static Transform3d robotToCameraR =
       new Transform3d(
           0.000,
           0.343,

@@ -218,11 +218,11 @@ public class Drive extends SubsystemBase {
             new Rotation2d()));
 
     Logger.recordOutput(
-        "Vision/camera_f", new Pose3d(getPose()).transformBy(VisionConstants.robotToCamera0));
+        "Vision/camera_f", new Pose3d(getPose()).transformBy(VisionConstants.robotToCameraF));
     Logger.recordOutput(
-        "Vision/camera_l", new Pose3d(getPose()).transformBy(VisionConstants.robotToCamera1));
+        "Vision/camera_l", new Pose3d(getPose()).transformBy(VisionConstants.robotToCameraL));
     Logger.recordOutput(
-        "Vision/camera_r", new Pose3d(getPose()).transformBy(VisionConstants.robotToCamera2));
+        "Vision/camera_r", new Pose3d(getPose()).transformBy(VisionConstants.robotToCameraR));
   }
 
   /**
