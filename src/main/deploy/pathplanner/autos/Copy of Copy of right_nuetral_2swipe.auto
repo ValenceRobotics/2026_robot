@@ -13,7 +13,7 @@
         {
           "type": "wait",
           "data": {
-            "waitTime": 0.4
+            "waitTime": 0.9
           }
         },
         {
@@ -25,7 +25,13 @@
         {
           "type": "path",
           "data": {
-            "pathName": "nuetral_shootr_2"
+            "pathName": "nuetral_trench"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "trench_shoot"
           }
         },
         {
@@ -54,9 +60,9 @@
           }
         },
         {
-          "type": "named",
+          "type": "wait",
           "data": {
-            "name": "stopEverything"
+            "waitTime": 4.5
           }
         },
         {
@@ -97,9 +103,9 @@
           }
         },
         {
-          "type": "named",
+          "type": "wait",
           "data": {
-            "name": "stopEverything"
+            "waitTime": 4.5
           }
         }
       ]

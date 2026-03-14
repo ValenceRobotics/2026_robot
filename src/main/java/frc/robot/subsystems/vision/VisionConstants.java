@@ -30,14 +30,14 @@ public class VisionConstants {
   public static Transform3d robotToCameraL =
       new Transform3d(
           0.000,
-          -0.343,
+          0.343,
           0.196850,
           new Rotation3d(
               0, Units.degreesToRadians(-15), Units.degreesToRadians(55))); // left of shooter
   public static Transform3d robotToCameraR =
       new Transform3d(
           0.000,
-          0.343,
+          -0.343,
           0.196850,
           new Rotation3d(
               0, Units.degreesToRadians(-15), Units.degreesToRadians(-55))); // right of shooter

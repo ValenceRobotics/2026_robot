@@ -198,6 +198,8 @@ public class RobotContainer {
 
     // Start of Named Commands for auto:
     NamedCommands.registerCommand(
+        "intakedown", robotState.seekIndefinite(IntakePivotState.DOWN).withTimeout(1));
+    NamedCommands.registerCommand(
         "flywheelHoodGo",
         robotState.seekIndefinite(HoodState.SEEK_GOAL, FlywheelState.SEEK_GOAL).withTimeout(5.5));
     NamedCommands.registerCommand(
@@ -207,17 +209,17 @@ public class RobotContainer {
                 .withTimeout(3), // hood.atGoal() &&
             robotState
                 .seekIndefinite(SpindexerState.INDEXING, IndexerState.INDEXING)
-                .withTimeout(5.5)));
+                .withTimeout(3)));
     NamedCommands.registerCommand(
         "intake",
-        robotState.seekIndefinite(
-            IntakePivotState.DOWN,
-            IntakeRollerState.INWARD)); // figure out logic for writing time stuff
+        robotState
+            .seekIndefinite(IntakePivotState.DOWN, IntakeRollerState.INWARD)
+            .withTimeout(2)); // figure out logic for writing time stuff
     NamedCommands.registerCommand(
         "intakeShootingPosition",
         robotState
             .seekIndefinite(IntakeRollerState.INWARD, IntakePivotState.SHOOTING_POS)
-            .withTimeout(5.5)); // kinda jank but whatever
+            .withTimeout(3)); // kinda jank but whatever
 
     NamedCommands.registerCommand(
         "autoAlignPrepareToShoot",
@@ -244,10 +246,13 @@ public class RobotContainer {
                 IndexerState.IDLE,
                 IntakePivotState.DOWN,
                 IntakeRollerState.STOPPED)
-            .withTimeout(.01));
+            .withTimeout(.5));
 
     NamedCommands.registerCommand(
-        "stopIntake", robotState.seekIndefinite(IntakePivotState.DOWN, IntakeRollerState.STOPPED));
+        "stopIntake",
+        robotState
+            .seekIndefinite(IntakePivotState.DOWN, IntakeRollerState.STOPPED)
+            .withTimeout(.2));
 
     // Set up auto routines
     autoChooser = new LoggedDashboardChooser<>("Auto Choices", AutoBuilder.buildAutoChooser());
@@ -309,20 +314,20 @@ public class RobotContainer {
     // aimbot trigger
     Trigger aimbotHeld = controller.rightTrigger();
 
-    robotState
-        .getTrenchWarningTrigger()
-        .and(aimbotHeld.negate())
-        .whileTrue(robotState.seekIndefinite(HoodState.FOLD_BACK));
+    // robotState
+    //     .getTrenchWarningTrigger()
+    //     .and(aimbotHeld.negate())
+    //     .whileTrue(robotState.seekIndefinite(HoodState.FOLD_BACK));
 
-    robotState
-        .getTrenchHardTrigger()
-        .and(
-            new Trigger(
-                () ->
-                    hood.getMeasuredAngleRad()
-                        > FieldConstants.TrenchSafetyConstants.HOOD_SAFE_ANGLE_RAD))
-        .onTrue(Commands.runOnce(() -> drive.setTrenchProtection(true)))
-        .onFalse(Commands.runOnce(() -> drive.setTrenchProtection(false)));
+    // robotState
+    //     .getTrenchHardTrigger()
+    //     .and(
+    //         new Trigger(
+    //             () ->
+    //                 hood.getMeasuredAngleRad()
+    //                     > FieldConstants.TrenchSafetyConstants.HOOD_SAFE_ANGLE_RAD))
+    //     .onTrue(Commands.runOnce(() -> drive.setTrenchProtection(true)))
+    //     .onFalse(Commands.runOnce(() -> drive.setTrenchProtection(false)));
 
     // Switch to X pattern when X button is pressed
     controller.x().onTrue(Commands.runOnce(drive::stopWithX, drive));

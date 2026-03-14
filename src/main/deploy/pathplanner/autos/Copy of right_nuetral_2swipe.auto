@@ -5,18 +5,6 @@
     "data": {
       "commands": [
         {
-          "type": "named",
-          "data": {
-            "name": "intakedown"
-          }
-        },
-        {
-          "type": "wait",
-          "data": {
-            "waitTime": 0.4
-          }
-        },
-        {
           "type": "path",
           "data": {
             "pathName": "shootr_nuetral_2"
@@ -54,21 +42,21 @@
           }
         },
         {
-          "type": "named",
+          "type": "wait",
           "data": {
-            "name": "stopEverything"
+            "waitTime": 4.5
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "shootr_nuetral"
+            "pathName": "shootL_nuetral"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "nuetral_shootr"
+            "pathName": "nuetral_shootL"
           }
         },
         {
@@ -97,9 +85,9 @@
           }
         },
         {
-          "type": "named",
+          "type": "wait",
           "data": {
-            "name": "stopEverything"
+            "waitTime": 4.5
           }
         }
       ]
