@@ -7,19 +7,13 @@
         {
           "type": "path",
           "data": {
-            "pathName": "right_trench_hp"
-          }
-        },
-        {
-          "type": "wait",
-          "data": {
-            "waitTime": 3.5
+            "pathName": "shootr_nuetral_2"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "hp_shootr"
+            "pathName": "nuetral_shootr_2"
           }
         },
         {
@@ -48,9 +42,52 @@
           }
         },
         {
+          "type": "wait",
+          "data": {
+            "waitTime": 4.5
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "shootr_nuetral"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "nuetral_shootr"
+          }
+        },
+        {
           "type": "named",
           "data": {
-            "name": "stopEverything"
+            "name": "autoAlignPrepareToShoot"
+          }
+        },
+        {
+          "type": "parallel",
+          "data": {
+            "commands": [
+              {
+                "type": "named",
+                "data": {
+                  "name": "shootWhenReady"
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "intakeShootingPosition"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "type": "wait",
+          "data": {
+            "waitTime": 4.5
           }
         }
       ]

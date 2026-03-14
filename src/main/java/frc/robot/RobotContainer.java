@@ -237,14 +237,14 @@ public class RobotContainer {
     NamedCommands.registerCommand(
         "stopEverything",
         robotState
-            .seekIndefinite(
+            .seek(
                 HoodState.FOLD_BACK,
                 FlywheelState.STOPPED,
                 SpindexerState.IDLE,
                 IndexerState.IDLE,
                 IntakePivotState.DOWN,
                 IntakeRollerState.STOPPED)
-            .withTimeout(1.5));
+            .withTimeout(.01));
 
     NamedCommands.registerCommand(
         "stopIntake", robotState.seekIndefinite(IntakePivotState.DOWN, IntakeRollerState.STOPPED));
