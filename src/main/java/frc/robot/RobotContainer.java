@@ -201,7 +201,7 @@ public class RobotContainer {
         "intakedown", robotState.seekIndefinite(IntakePivotState.DOWN).withTimeout(1));
     NamedCommands.registerCommand(
         "flywheelHoodGo",
-        robotState.seekIndefinite(HoodState.SEEK_GOAL, FlywheelState.SEEK_GOAL).withTimeout(5.5));
+        robotState.seekIndefinite(HoodState.SEEK_GOAL, FlywheelState.SEEK_GOAL));
     NamedCommands.registerCommand(
         "shootWhenReady",
         new SequentialCommandGroup(

@@ -74,13 +74,13 @@
   "pointTowardsZones": [],
   "eventMarkers": [
     {
-      "name": "autoAlignPrepareToShoot",
-      "waypointRelativePos": 2.674122431506849,
+      "name": "flywheelHoodGo",
+      "waypointRelativePos": 1.9372859589041087,
       "endWaypointRelativePos": null,
       "command": {
         "type": "named",
         "data": {
-          "name": "autoAlignPrepareToShoot"
+          "name": "flywheelHoodGo"
         }
       }
     }
