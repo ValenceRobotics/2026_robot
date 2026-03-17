@@ -7,13 +7,13 @@
         {
           "type": "path",
           "data": {
-            "pathName": "shootr_nuetral_2"
+            "pathName": "shootL_nuetral_2"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "nuetral_shootr_2"
+            "pathName": "nuetral_shootL_2"
           }
         },
         {
@@ -42,9 +42,9 @@
           }
         },
         {
-          "type": "wait",
+          "type": "named",
           "data": {
-            "waitTime": 4.5
+            "name": "stopEverything"
           }
         },
         {
@@ -85,9 +85,9 @@
           }
         },
         {
-          "type": "wait",
+          "type": "named",
           "data": {
-            "waitTime": 4.5
+            "name": "stopEverything"
           }
         }
       ]

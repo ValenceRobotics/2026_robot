@@ -3,13 +3,13 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 7.721281138790035,
-        "y": 4.234045077105574
+        "x": 6.432876298001568,
+        "y": 4.416563295944357
       },
       "prevControl": null,
       "nextControl": {
-        "x": 5.84288525297435,
-        "y": 5.8426474036172324
+        "x": 5.98429264349082,
+        "y": 6.746181215167871
       },
       "isLocked": false,
       "linkedName": null
@@ -20,12 +20,12 @@
         "y": 7.3434519572953745
       },
       "prevControl": {
-        "x": 6.798672357226826,
-        "y": 6.89049053148201
+        "x": 6.313254365144604,
+        "y": 7.0137114615226785
       },
       "nextControl": {
-        "x": 5.452651051119698,
-        "y": 7.587942045754823
+        "x": 5.581204338009972,
+        "y": 7.63462786163379
       },
       "isLocked": false,
       "linkedName": null
@@ -36,12 +36,12 @@
         "y": 7.504839857651245
       },
       "prevControl": {
-        "x": 4.195421722058496,
-        "y": 7.5753240115771225
+        "x": 4.307556263852393,
+        "y": 7.5999501519384305
       },
       "nextControl": {
-        "x": 3.715705205580887,
-        "y": 7.434355703725367
+        "x": 3.6306043534429553,
+        "y": 7.417034207602828
       },
       "isLocked": false,
       "linkedName": null
@@ -52,8 +52,8 @@
         "y": 7.19282325029656
       },
       "prevControl": {
-        "x": 4.089697350686088,
-        "y": 7.559689351794221
+        "x": 4.055685314984302,
+        "y": 7.64523636183612
       },
       "nextControl": null,
       "isLocked": false,
@@ -62,21 +62,29 @@
   ],
   "rotationTargets": [
     {
-      "waypointRelativePos": 0.6138883023648652,
-      "rotationDegrees": 0.0
-    },
-    {
       "waypointRelativePos": 1.0,
       "rotationDegrees": 0.0
     },
     {
-      "waypointRelativePos": 2.45,
+      "waypointRelativePos": 1.9151974239864864,
       "rotationDegrees": 0.0
     }
   ],
   "constraintZones": [],
   "pointTowardsZones": [],
-  "eventMarkers": [],
+  "eventMarkers": [
+    {
+      "name": "autoAlignPrepareToShoot",
+      "waypointRelativePos": 2.674122431506849,
+      "endWaypointRelativePos": null,
+      "command": {
+        "type": "named",
+        "data": {
+          "name": "autoAlignPrepareToShoot"
+        }
+      }
+    }
+  ],
   "globalConstraints": {
     "maxVelocity": 5.0,
     "maxAcceleration": 5.0,
