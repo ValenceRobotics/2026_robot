@@ -85,8 +85,8 @@ public class ShooterConstants {
     flywheelMap.put(4.0, 2600.0);
     flywheelMap.put(5.0, 2700.0);
 
-    timeOfFlightMap.put(1.5, 0.950496777883);
-    timeOfFlightMap.put(3.0, 1.19735698926);
-    timeOfFlightMap.put(5.5, 1.52228878711);
+    timeOfFlightMap.put(1.5, 0.950496777883 * .8);
+    timeOfFlightMap.put(3.0, 1.19735698926 * .8);
+    timeOfFlightMap.put(5.5, 1.52228878711 * .8);
   }
 }

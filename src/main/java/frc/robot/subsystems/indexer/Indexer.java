@@ -37,6 +37,7 @@ public class Indexer extends FullSubsystem {
     Logger.recordOutput("Indexer/SupplyCurrentAmps", inputs.supplyCurrentAmps);
     Logger.recordOutput("Indexer/StatorCurrentAmps", inputs.statorCurrentAmps);
     Logger.recordOutput("Indexer/Voltage", inputs.appliedVoltage);
+    Logger.recordOutput("Indexer/hasFuel", inputs.hasFuel);
   }
 
   @Override
@@ -63,6 +64,11 @@ public class Indexer extends FullSubsystem {
   @AutoLogOutput(key = "Indexer/MeasuredVoltage")
   public double getAppliedVoltage() {
     return inputs.appliedVoltage;
+  }
+
+  @AutoLogOutput(key = "Indexer/HasFuel")
+  public boolean getFuelState() {
+    return inputs.hasFuel;
   }
 
   public Command seekCommand(IndexerState state) {

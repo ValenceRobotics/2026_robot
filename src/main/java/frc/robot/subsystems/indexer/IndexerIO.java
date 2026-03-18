@@ -9,6 +9,7 @@ public interface IndexerIO {
     public boolean connected;
     public double velocityRadsPerSec;
     public double appliedVoltage;
+    public boolean hasFuel = false;
     public double supplyCurrentAmps;
     public double statorCurrentAmps;
     public double tempCelsius;

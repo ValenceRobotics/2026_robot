@@ -461,7 +461,7 @@ public class Drive extends SubsystemBase {
   @AutoLogOutput(key = "Drive/bestPassingTarget")
   public Translation2d getBestPassingTarget() {
     Pose2d robotPose = getPose();
-    double offset = 1.5;
+    double offset = .75;
 
     Translation2d cornerA = new Translation2d(offset, offset);
     Translation2d cornerB = new Translation2d(offset, FieldConstants.fieldWidth - offset);

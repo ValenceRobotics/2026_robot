@@ -362,8 +362,8 @@ public class RobotContainer {
             new ParallelCommandGroup(
                 DriveCommands.joystickDriveAtAngle(
                     drive,
-                    () -> -controller.getLeftY() * 0.55,
-                    () -> -controller.getLeftX() * 0.55,
+                    () -> -controller.getLeftY() * 0.40,
+                    () -> -controller.getLeftX() * 0.40,
                     () -> {
                       drive.updateAimbotHeading(
                           FieldConstants.Hub.topCenterPoint.toTranslation2d());
