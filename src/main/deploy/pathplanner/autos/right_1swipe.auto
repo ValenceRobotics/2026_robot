@@ -23,46 +23,9 @@
           }
         },
         {
-          "type": "named",
-          "data": {
-            "name": "autoAlignPrepareToShoot"
-          }
-        },
-        {
-          "type": "parallel",
-          "data": {
-            "commands": [
-              {
-                "type": "named",
-                "data": {
-                  "name": "shootWhenReady"
-                }
-              },
-              {
-                "type": "named",
-                "data": {
-                  "name": "intakeShootingPosition"
-                }
-              }
-            ]
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "stopEverything"
-          }
-        },
-        {
           "type": "path",
           "data": {
-            "pathName": "shootr_nuetral"
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "nuetral_shootr"
+            "pathName": "nuetral_trench_shoot_right"
           }
         },
         {

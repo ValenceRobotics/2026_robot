@@ -198,10 +198,9 @@ public class RobotContainer {
 
     // Start of Named Commands for auto:
     NamedCommands.registerCommand(
-        "intakedown", robotState.seekIndefinite(IntakePivotState.DOWN).withTimeout(1));
+        "intakedown", robotState.seek(IntakePivotState.DOWN).withTimeout(.01));
     NamedCommands.registerCommand(
-        "flywheelHoodGo",
-        robotState.seekIndefinite(HoodState.SEEK_GOAL, FlywheelState.SEEK_GOAL));
+        "flywheelHoodGo", robotState.seekIndefinite(FlywheelState.SEEK_GOAL));
     NamedCommands.registerCommand(
         "shootWhenReady",
         new SequentialCommandGroup(
@@ -209,6 +208,7 @@ public class RobotContainer {
                 .withTimeout(3), // hood.atGoal() &&
             robotState
                 .seekIndefinite(SpindexerState.INDEXING, IndexerState.INDEXING)
+                .until(indexer::doneShooting)
                 .withTimeout(3)));
     NamedCommands.registerCommand(
         "intake",
@@ -234,7 +234,11 @@ public class RobotContainer {
                           .minus(new Rotation2d(DriveConstants.aimbotOffset));
                     })
                 .withTimeout(3),
-            robotState.seekIndefinite(HoodState.SEEK_GOAL, FlywheelState.SEEK_GOAL)));
+            robotState.seekIndefinite(
+                HoodState.SEEK_GOAL,
+                FlywheelState.SEEK_GOAL,
+                SpindexerState.REVERSE,
+                IndexerState.REVERSE)));
 
     NamedCommands.registerCommand(
         "stopEverything",
@@ -375,7 +379,11 @@ public class RobotContainer {
                 // feed when flywheel ready
                 new SequentialCommandGroup(
                     Commands.waitUntil(
-                        () -> hood.atGoal() && drive.atCachedAimbotHeading() && flywheel.atGoal()),
+                            () ->
+                                hood.atGoal() && drive.atCachedAimbotHeading() && flywheel.atGoal())
+                        .alongWith(
+                            robotState.seekIndefinite(
+                                SpindexerState.REVERSE, IndexerState.REVERSE)),
                     robotState.seekIndefinite(
                         SpindexerState.INDEXING,
                         IndexerState.INDEXING,

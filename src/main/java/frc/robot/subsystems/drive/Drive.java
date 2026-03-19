@@ -209,15 +209,6 @@ public class Drive extends SubsystemBase {
             new Rotation2d()));
 
     Logger.recordOutput(
-        "Field/PassingTargetA",
-        new Pose2d(new Translation2d(AllianceFlipUtil.applyX(.5), .5), new Rotation2d()));
-    Logger.recordOutput(
-        "Field/PassingTargetB",
-        new Pose2d(
-            new Translation2d(AllianceFlipUtil.applyX(.5), FieldConstants.fieldWidth - .5),
-            new Rotation2d()));
-
-    Logger.recordOutput(
         "Vision/camera_f", new Pose3d(getPose()).transformBy(VisionConstants.robotToCameraF));
     Logger.recordOutput(
         "Vision/camera_l", new Pose3d(getPose()).transformBy(VisionConstants.robotToCameraL));

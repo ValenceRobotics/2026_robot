@@ -71,6 +71,10 @@ public class Indexer extends FullSubsystem {
     return inputs.hasFuel;
   }
 
+  public boolean doneShooting() {
+    return !inputs.hasFuel;
+  }
+
   public Command seekCommand(IndexerState state) {
     return this.runOnce(() -> setState(state));
   }

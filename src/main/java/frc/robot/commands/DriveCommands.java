@@ -186,57 +186,6 @@ public class DriveCommands {
         .finallyDo(() -> drive.runVelocity(new ChassisSpeeds(0.0, 0.0, 0.0)));
   }
 
-  // /**
-  //  * Drives around the hub on a circle of radius rSetMeters.
-  //  * leftX controls tangential speed (CW/CCW). leftY optionally can scale speed too if you want.
-  //  * kR is radial P-gain in (m/s)/m.
-  //  */
-  // public static Command orbitHub(
-  //     Drive drive,
-  //     DoubleSupplier rSetMeters,
-  //     DoubleSupplier leftX,          // tangential direction + speed
-  //     DoubleSupplier maxTangentialMps,
-  //     double kR) {
-
-  //   return drive.run(() -> {
-  //     Translation2d hub =
-  //         AllianceFlipUtil.apply(FieldConstants.Hub.topCenterPoint.toTranslation2d());
-
-  //     Translation2d pos = drive.getPose().getTranslation();
-  //     Translation2d d = pos.minus(hub);
-
-  //     double dist = d.getNorm();
-  //     if (dist < 1e-6) {
-  //       drive.stop();
-  //       return;
-  //     }
-
-  //     Translation2d rHat = d.div(dist);
-  //     // CCW tangent: rotate radial by +90deg => ( -y, x )
-  //     Translation2d tHat = new Translation2d(-rHat.getY(), rHat.getX());
-
-  //     double rSet = rSetMeters.getAsDouble();
-  //     double error = dist - rSet;
-
-  //     // driver tangential speed
-  //     double vAround =
-  //         MathUtil.clamp(leftX.getAsDouble(), -1.0, 1.0) * maxTangentialMps.getAsDouble();
-
-  //     // radial correction (negative pulls inward if dist > rSet)
-  //     double vRad = -kR * error;
-
-  //     Translation2d vField = tHat.times(vAround).plus(rHat.times(vRad));
-
-  //     ChassisSpeeds speeds =
-  //         ChassisSpeeds.fromFieldRelativeSpeeds(
-  //             vField.getX(),
-  //             vField.getY(),
-  //             0.0, // keep omega 0 OR replace with an aim-at-hub controller
-  //             drive.getRotation());
-
-  //     drive.runVelocity(speeds);
-  //   });
-  // }
   /**
    * Measures the velocity feedforward constants for the drive motors.
    *
