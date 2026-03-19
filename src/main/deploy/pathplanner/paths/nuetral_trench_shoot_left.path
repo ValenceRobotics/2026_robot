@@ -3,41 +3,41 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 6.56504347080721,
-        "y": 3.5238240228252353
+        "x": 6.718,
+        "y": 7.482
       },
       "prevControl": null,
       "nextControl": {
-        "x": 6.554764548680388,
-        "y": 3.7736126209635623
+        "x": 7.0952124460107555,
+        "y": 7.415574610753729
       },
       "isLocked": false,
       "linkedName": null
     },
     {
       "anchor": {
-        "x": 5.889977936921297,
-        "y": 0.7423354311342598
+        "x": 4.067566666666667,
+        "y": 7.482
       },
       "prevControl": {
-        "x": 6.621195656553557,
-        "y": 1.3066842812355108
+        "x": 4.432112778260914,
+        "y": 7.571586265419634
       },
       "nextControl": {
-        "x": 5.250620646952806,
-        "y": 0.24888383428423766
+        "x": 2.661447977879819,
+        "y": 7.136449963780239
       },
       "isLocked": false,
       "linkedName": null
     },
     {
       "anchor": {
-        "x": 2.9892444444444446,
-        "y": 0.7423354311342598
+        "x": 2.938855555555555,
+        "y": 7.189344444444445
       },
       "prevControl": {
-        "x": 4.557107333923087,
-        "y": 0.7945400902478876
+        "x": 3.9604780814162828,
+        "y": 7.429110339595301
       },
       "nextControl": null,
       "isLocked": false,
@@ -46,19 +46,7 @@
   ],
   "rotationTargets": [
     {
-      "waypointRelativePos": 0.6138883023648652,
-      "rotationDegrees": 0.0
-    },
-    {
-      "waypointRelativePos": 1.0,
-      "rotationDegrees": 0.0
-    },
-    {
-      "waypointRelativePos": 1.7603524229074798,
-      "rotationDegrees": 0.0
-    },
-    {
-      "waypointRelativePos": 2.0,
+      "waypointRelativePos": 1.0105263157894722,
       "rotationDegrees": 0.0
     }
   ],
@@ -67,14 +55,9 @@
   "eventMarkers": [
     {
       "name": "flywheelHoodGo",
-      "waypointRelativePos": 1.6144691780821914,
+      "waypointRelativePos": 1.2535991140642309,
       "endWaypointRelativePos": null,
-      "command": {
-        "type": "named",
-        "data": {
-          "name": "flywheelHoodGo"
-        }
-      }
+      "command": null
     }
   ],
   "globalConstraints": {
@@ -87,13 +70,13 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": 1.8164150309250153
+    "rotation": 0.0
   },
   "reversed": false,
   "folder": null,
   "idealStartingState": {
     "velocity": 0,
-    "rotation": -90.0
+    "rotation": 0.0
   },
   "useDefaultConstraints": true
 }

@@ -8,8 +8,8 @@
       },
       "prevControl": null,
       "nextControl": {
-        "x": 4.935433257554604,
-        "y": 7.532905295728655
+        "x": 4.939799507895637,
+        "y": 7.480590966002682
       },
       "isLocked": false,
       "linkedName": null
@@ -20,12 +20,12 @@
         "y": 7.528711488538402
       },
       "prevControl": {
-        "x": 3.6131415105342577,
-        "y": 7.557143022222011
+        "x": 3.7093129285896147,
+        "y": 7.633612761754093
       },
       "nextControl": {
-        "x": 6.661344670128764,
-        "y": 7.520282332591481
+        "x": 6.611170503098588,
+        "y": 7.498618903136356
       },
       "isLocked": false,
       "linkedName": null
@@ -36,24 +36,24 @@
         "y": 7.216063932699843
       },
       "prevControl": {
-        "x": 7.344497708369196,
-        "y": 7.747975017916769
+        "x": 7.705436614429609,
+        "y": 7.527913061982657
       },
       "nextControl": {
-        "x": 8.743134068452902,
-        "y": 6.318992669247507
+        "x": 8.851315824288562,
+        "y": 5.2900039207456135
       },
       "isLocked": false,
       "linkedName": null
     },
     {
       "anchor": {
-        "x": 8.199455555555556,
-        "y": 4.357488888888889
+        "x": 8.199,
+        "y": 4.448188888888889
       },
       "prevControl": {
-        "x": 8.102407122970947,
-        "y": 4.057424599098883
+        "x": 8.070496219753025,
+        "y": 4.233743608077589
       },
       "nextControl": null,
       "isLocked": false,
@@ -73,10 +73,10 @@
   "constraintZones": [
     {
       "name": "Constraints Zone",
-      "minWaypointRelativePos": 1.7209302325581302,
+      "minWaypointRelativePos": 2.1794019933554827,
       "maxWaypointRelativePos": 3.0,
       "constraints": {
-        "maxVelocity": 2.0,
+        "maxVelocity": 1.75,
         "maxAcceleration": 2.0,
         "maxAngularVelocity": 540.0,
         "maxAngularAcceleration": 720.0,
@@ -97,12 +97,6 @@
           "name": "intake"
         }
       }
-    },
-    {
-      "name": "stopIntake",
-      "waypointRelativePos": 2.9471812707641183,
-      "endWaypointRelativePos": null,
-      "command": null
     }
   ],
   "globalConstraints": {
@@ -111,11 +105,11 @@
     "maxAngularVelocity": 540.0,
     "maxAngularAcceleration": 720.0,
     "nominalVoltage": 12.0,
-    "unlimited": false
+    "unlimited": true
   },
   "goalEndState": {
     "velocity": 0.0,
-    "rotation": 105.00000000000001
+    "rotation": 75.0
   },
   "reversed": false,
   "folder": null,

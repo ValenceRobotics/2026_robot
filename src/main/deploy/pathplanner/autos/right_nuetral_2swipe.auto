@@ -23,6 +23,12 @@
           }
         },
         {
+          "type": "path",
+          "data": {
+            "pathName": "nuetral_trench_shoot_right"
+          }
+        },
+        {
           "type": "named",
           "data": {
             "name": "autoAlignPrepareToShoot"
