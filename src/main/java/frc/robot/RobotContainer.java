@@ -205,11 +205,14 @@ public class RobotContainer {
         "shootWhenReady",
         new SequentialCommandGroup(
             Commands.waitUntil(() -> flywheel.atGoal() && drive.atCachedAimbotHeading())
-                .withTimeout(3), // hood.atGoal() &&
+                .withTimeout(3),
             robotState
                 .seekIndefinite(SpindexerState.INDEXING, IndexerState.INDEXING)
-                .until(indexer::doneShooting)
-                .withTimeout(3)));
+                .withTimeout(10.0)
+                .andThen(
+                    robotState
+                        .seekIndefinite(SpindexerState.INDEXING, IndexerState.INDEXING)
+                        .until(indexer::doneShooting))));
     NamedCommands.registerCommand(
         "intake",
         robotState
@@ -234,11 +237,7 @@ public class RobotContainer {
                           .minus(new Rotation2d(DriveConstants.aimbotOffset));
                     })
                 .withTimeout(3),
-            robotState.seekIndefinite(
-                HoodState.SEEK_GOAL,
-                FlywheelState.SEEK_GOAL,
-                SpindexerState.REVERSE,
-                IndexerState.REVERSE)));
+            robotState.seekIndefinite(HoodState.SEEK_GOAL, FlywheelState.SEEK_GOAL)));
 
     NamedCommands.registerCommand(
         "stopEverything",
@@ -379,11 +378,7 @@ public class RobotContainer {
                 // feed when flywheel ready
                 new SequentialCommandGroup(
                     Commands.waitUntil(
-                            () ->
-                                hood.atGoal() && drive.atCachedAimbotHeading() && flywheel.atGoal())
-                        .alongWith(
-                            robotState.seekIndefinite(
-                                SpindexerState.REVERSE, IndexerState.REVERSE)),
+                        () -> hood.atGoal() && drive.atCachedAimbotHeading() && flywheel.atGoal()),
                     robotState.seekIndefinite(
                         SpindexerState.INDEXING,
                         IndexerState.INDEXING,

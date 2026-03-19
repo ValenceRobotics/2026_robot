@@ -104,8 +104,8 @@ public class Flywheel extends FullSubsystem {
     boolean inTolerance =
         running
             && Math.abs(
-                    (inputs.velocityRadsPerSec * (60 / 2 * Math.PI))
-                        - (goalVelocity * (60 / 2 * Math.PI)))
+                    (inputs.velocityRadsPerSec * 60 / (2.0 * Math.PI))
+                        - (goalVelocity * 60.0 / (2. * Math.PI)))
                 < tolerance.get();
     atGoal = atGoalDebouncer.calculate(inTolerance);
   }
