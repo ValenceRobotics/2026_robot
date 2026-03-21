@@ -305,13 +305,13 @@ public class RobotContainer {
 
     // hood.setDefaultCommand(robotState.seekIndefinite(HoodState.FOLD_BACK).repeatedly()); // comp
     // code
-    hood.setDefaultCommand(robotState.seekIndefinite(HoodState.FOLD_BACK).repeatedly());
+    hood.setDefaultCommand(robotState.seekIndefinite(HoodState.MANUAL).repeatedly());
     intakeRollers.setDefaultCommand(
         robotState.seekIndefinite(IntakeRollerState.STOPPED).repeatedly());
     intakePivot.setDefaultCommand(
         robotState.seekIndefinite(IntakePivotState.DRIVING_POS).repeatedly());
     // hood.setDefaultCommand(robotState.seekIndefinite(HoodState.MANUAL).repeatedly());
-    flywheel.setDefaultCommand(robotState.seekIndefinite(FlywheelState.STOPPED).repeatedly());
+    flywheel.setDefaultCommand(robotState.seekIndefinite(FlywheelState.MANUAL).repeatedly());
 
     /* COMP CONTROLS */
     // aimbot trigger
