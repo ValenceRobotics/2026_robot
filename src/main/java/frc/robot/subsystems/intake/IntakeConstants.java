@@ -11,7 +11,7 @@ public final class IntakeConstants {
 
     public static final boolean inverted = false;
 
-    public static final double statorLimitA = 40.0; // safe-ish start
+    public static final double statorLimitA = 50.0;
     public static final double peakForwardTorqueA = 60.0; // allow brief bursts
     public static final double peakReverseTorqueA = -60.0;
 
@@ -40,11 +40,12 @@ public final class IntakeConstants {
 
   // Positions
   public static final double STOWED_POS = Units.degreesToRadians(0);
-  public static final double GROUND_POS = Units.degreesToRadians(124);
-  public static final double DRIVING_POS = Units.degreesToRadians(119);
+  public static final double GROUND_POS = Units.degreesToRadians(140.0 + 5); // Added 5 due to
+  public static final double DRIVING_POS = Units.degreesToRadians(130);
+
   public static final double SHOOTING_POS = Units.degreesToRadians(80);
 
   // Extremes
   public static final double MIN_ANGLE = Units.degreesToRadians(0);
-  public static final double MAX_ANGLE = Units.degreesToRadians(131);
+  public static final double MAX_ANGLE = Units.degreesToRadians(145);
 }

@@ -8,5 +8,5 @@ public final class IndexerConstants {
   public static final double GEAR_RATIO = 2.3; // Placeholder value, update with actual ratio
 
   public static final boolean INVERTED = true;
-  public static final int CURRENT_LIMIT_AMPS = 30;
+  public static final int CURRENT_LIMIT_AMPS = 60;
 }

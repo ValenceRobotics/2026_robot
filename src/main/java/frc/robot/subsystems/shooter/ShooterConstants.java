@@ -76,17 +76,17 @@ public class ShooterConstants {
     hoodAngleMap.put(4.0, Rotation2d.fromDegrees(27));
     hoodAngleMap.put(5.0, Rotation2d.fromDegrees(32));
 
-    flywheelMap.put(1.2192, 2000.0);
-    flywheelMap.put(1.524, 2100.0);
-    flywheelMap.put(1.9812, 2300.0);
-    flywheelMap.put(2.4384, 2300.0);
-    flywheelMap.put(2.642, 2400.0);
-    flywheelMap.put(3.31, 2450.0);
-    flywheelMap.put(4.0, 2600.0);
-    flywheelMap.put(5.0, 2700.0);
+    flywheelMap.put(1.2192, 2000.0 + 100.0);
+    flywheelMap.put(1.524, 2100.0 + 100.0);
+    flywheelMap.put(1.9812, 2300.0 + 100.0);
+    flywheelMap.put(2.4384, 2300.0 + 100.0);
+    flywheelMap.put(2.642, 2400.0 + 100.0);
+    flywheelMap.put(3.31, 2450.0 + 100.0);
+    flywheelMap.put(4.0, 2600.0 + 100.0);
+    flywheelMap.put(5.0, 2700.0 + 100.0);
 
-    timeOfFlightMap.put(1.5, 0.950496777883 * .8);
-    timeOfFlightMap.put(3.0, 1.19735698926 * .8);
-    timeOfFlightMap.put(5.5, 1.52228878711 * .8);
+    timeOfFlightMap.put(1.5, 0.950496777883 * .9);
+    timeOfFlightMap.put(3.0, 1.19735698926 * .9);
+    timeOfFlightMap.put(5.5, 1.52228878711 * .9);
   }
 }

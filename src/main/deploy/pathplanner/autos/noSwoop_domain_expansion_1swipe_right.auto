@@ -19,7 +19,7 @@
         {
           "type": "path",
           "data": {
-            "pathName": "nuetral_turnaround_2"
+            "pathName": "nuetral_back"
           }
         },
         {
@@ -32,38 +32,6 @@
           "type": "named",
           "data": {
             "name": "autoAlignPrepareToShoot"
-          }
-        },
-        {
-          "type": "parallel",
-          "data": {
-            "commands": [
-              {
-                "type": "named",
-                "data": {
-                  "name": "shootWhenReady"
-                }
-              },
-              {
-                "type": "sequential",
-                "data": {
-                  "commands": [
-                    {
-                      "type": "wait",
-                      "data": {
-                        "waitTime": 4.5
-                      }
-                    },
-                    {
-                      "type": "named",
-                      "data": {
-                        "name": "intakeShootingPosition"
-                      }
-                    }
-                  ]
-                }
-              }
-            ]
           }
         },
         {

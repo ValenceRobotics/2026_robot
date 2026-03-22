@@ -221,7 +221,7 @@ public class RobotContainer {
     NamedCommands.registerCommand(
         "intakeShootingPosition",
         robotState
-            .seekIndefinite(IntakeRollerState.INWARD, IntakePivotState.SHOOTING_POS)
+            .seekIndefinite(IntakeRollerState.INWARD, IntakePivotState.UP)
             .withTimeout(3)); // kinda jank but whatever
 
     NamedCommands.registerCommand(
