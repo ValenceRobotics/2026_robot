@@ -65,6 +65,10 @@ public class Spindexer extends FullSubsystem {
     return inputs.appliedVoltage;
   }
 
+  public double getCurrent() {
+    return inputs.supplyCurrentAmps;
+  }
+
   public Command seekCommand(SpindexerState state) {
     return this.runOnce(() -> setState(state)); // TODO: ADD UNTIL CONDITION BASED OFF (VOLTAGE?)
   }

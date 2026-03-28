@@ -19,6 +19,7 @@ import com.pathplanner.lib.auto.NamedCommands;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.GenericHID;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
@@ -88,6 +89,9 @@ public class RobotContainer {
   final Flywheel flywheel;
   final Spindexer spindexer;
   final Indexer indexer;
+
+  private double lastJamTime = -1.0; // for jam detection in testing, negative so it doesn't trigger on first run
+
   // final LED led;
 
   // Robot state
@@ -471,14 +475,31 @@ public class RobotContainer {
                 IntakeRollerState.INWARD));
 
     manualController
+        // .b()
+        // .whileTrue(
+        //     new ParallelCommandGroup(
+        //         flywheel.runVelocityCommandRPM(tuneFlywheelRPM::get),
+        //         hood.moveToAngle(tuneHoodDeg::get),
+        //         new SequentialCommandGroup(
+        //             Commands.waitUntil(() -> hood.atGoal() && flywheel.atGoal()),
+        //             robotState.seekIndefinite(SpindexerState.INDEXING, IndexerState.INDEXING))))
+        // .onFalse(robotState.seekIndefinite(SpindexerState.IDLE, IndexerState.IDLE));
+
         .b()
         .whileTrue(
             new ParallelCommandGroup(
                 flywheel.runVelocityCommandRPM(tuneFlywheelRPM::get),
                 hood.moveToAngle(tuneHoodDeg::get),
-                new SequentialCommandGroup(
-                    Commands.waitUntil(() -> hood.atGoal() && flywheel.atGoal()),
-                    robotState.seekIndefinite(SpindexerState.INDEXING, IndexerState.INDEXING))))
+                Commands.run(() -> {
+                    if (spindexer.getCurrent() > 40) {
+                        lastJamTime = Timer.getFPGATimestamp();
+                    }
+                    if (Timer.getFPGATimestamp() - lastJamTime < 0.5) {
+                        robotState.seekIndefinite(SpindexerState.REVERSE, IndexerState.REVERSE);
+                    } else {
+                        robotState.seekIndefinite(SpindexerState.INDEXING, IndexerState.INDEXING);
+                    }
+                })))
         .onFalse(robotState.seekIndefinite(SpindexerState.IDLE, IndexerState.IDLE));
 
     manualController
