@@ -18,6 +18,7 @@ import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -29,6 +30,7 @@ import edu.wpi.first.wpilibj2.command.button.CommandGenericHID;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
+import frc.robot.FieldConstants.TrenchAlignConstants;
 import frc.robot.RobotState.FlywheelState;
 import frc.robot.RobotState.HoodState;
 import frc.robot.RobotState.IndexerState;
@@ -166,6 +168,10 @@ public class RobotContainer {
         flywheel = new Flywheel(new FlywheelIO() {}, drive::getPose, drive::getFieldVelocity);
         spindexer = new Spindexer(new SpindexerIOSim() {});
         this.indexer = new Indexer(new IndexerIO() {});
+
+        drive.setPose(
+            new Pose2d(
+                7.0, TrenchAlignConstants.rightTrenchCenterY + 1, Rotation2d.fromDegrees(10)));
         // led = new LED();
 
         break;
@@ -279,7 +285,6 @@ public class RobotContainer {
     // Configure the button bindings
     configureButtonBindings();
   }
-
   /**
    * Use this method to define your button->command mappings. Buttons can be created by
    * instantiating a {@link GenericHID} or one of its subclasses ({@link
@@ -316,6 +321,7 @@ public class RobotContainer {
     /* COMP CONTROLS */
     // aimbot trigger
     Trigger aimbotHeld = controller.rightTrigger();
+    Trigger trenchAlignHeld = controller.leftBumper().and(controller.rightBumper());
 
     // robotState
     //     .getTrenchWarningTrigger()
@@ -390,6 +396,23 @@ public class RobotContainer {
                 IndexerState.IDLE,
                 IntakePivotState.DRIVING_POS,
                 FlywheelState.STOPPED));
+
+    trenchAlignHeld
+        .onTrue(Commands.runOnce(() -> drive.updateTrenchAlignment(drive.isCloserToLeftTrench())))
+        .whileTrue(
+            new ParallelCommandGroup(
+                Commands.run(
+                    () -> {
+                      double fieldVY = drive.getTrenchAlignVY();
+                      double omega = drive.getTrenchHeadingCorrection();
+
+                      drive.runVelocity(
+                          ChassisSpeeds.fromFieldRelativeSpeeds(
+                              new ChassisSpeeds(0.0, fieldVY, omega), drive.getRotation()));
+                    },
+                    drive),
+                robotState.seekIndefinite(HoodState.FOLD_BACK, FlywheelState.STOPPED)))
+        .onFalse(Commands.runOnce(() -> drive.stop(), drive));
 
     // pass to target
     controller
@@ -531,7 +554,6 @@ public class RobotContainer {
                     drive)
                 .ignoringDisable(true));
   }
-
   /**
    * Use this to pass the autonomous command to the main {@link Robot} class.
    *

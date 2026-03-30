@@ -23,6 +23,7 @@ import edu.wpi.first.hal.FRCNetComm.tResourceType;
 import edu.wpi.first.hal.HAL;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.Matrix;
+import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
@@ -47,9 +48,11 @@ import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.Constants;
 import frc.robot.Constants.Mode;
 import frc.robot.FieldConstants;
+import frc.robot.FieldConstants.TrenchAlignConstants;
 import frc.robot.subsystems.shooter.ShotCalculator;
 import frc.robot.subsystems.vision.VisionConstants;
 import frc.robot.util.LocalADStarAK;
+import frc.robot.util.LoggedTunableNumber;
 import frc.robot.util.geometry.AllianceFlipUtil;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
@@ -80,6 +83,18 @@ public class Drive extends SubsystemBase {
   // TODO: Delete this
   private Rotation2d AimbotHeading = Rotation2d.kZero;
   private boolean trenchProtectionEnabled = false;
+
+  // PID controller for trench alignment
+  // In Drive.java or RobotContainer
+  private static final LoggedTunableNumber trenchYKp =
+      new LoggedTunableNumber("TrenchAlign/YKp", 0.3);
+  private final PIDController trenchYController = new PIDController(trenchYKp.get(), 0.0, 0.0);
+  private static final LoggedTunableNumber trenchHeadingKp =
+      new LoggedTunableNumber("TrenchAlign/HeadingKp", 0.5);
+  private final PIDController trenchHeadingController =
+      new PIDController(trenchHeadingKp.get(), 0.0, 0.0);
+  private double trenchTargetY = 0.0;
+  private Rotation2d lockedTrenchHeading;
 
   public Drive(
       GyroIO gyroIO,
@@ -446,6 +461,79 @@ public class Drive extends SubsystemBase {
         ShotCalculator.calculate(getPose(), getFieldVelocity(), targetTranslation2d).robotHeading();
 
     return targetRotation;
+  }
+
+  public void updateTrenchAlignment(boolean isLeftTrench) {
+    // Snapshot heading at call time to avoid 0/±180 boundary oscillation
+    lockedTrenchHeading = getRotation();
+
+    // Reset both controllers so there's no leftover state from a previous run
+    trenchYController.reset();
+    trenchHeadingController.reset();
+
+    // Set tolerances
+    trenchYController.setTolerance(TrenchAlignConstants.alignmentYToleranceMeters);
+    trenchHeadingController.setTolerance(
+        Units.degreesToRadians(TrenchAlignConstants.alignmentHeadingToleranceDegrees));
+
+    // Ensure continuous input is set (safe to call every time)
+    trenchHeadingController.enableContinuousInput(-Math.PI, Math.PI);
+
+    // Select target Y based on alliance and side
+    trenchTargetY =
+        AllianceFlipUtil.shouldFlip()
+            ? (isLeftTrench
+                ? TrenchAlignConstants.oppLeftTrenchCenterY
+                : TrenchAlignConstants.oppRightTrenchCenterY)
+            : (isLeftTrench
+                ? TrenchAlignConstants.leftTrenchCenterY
+                : TrenchAlignConstants.rightTrenchCenterY);
+
+    Logger.recordOutput("TrenchAlign/TargetY", trenchTargetY);
+    Logger.recordOutput("TrenchAlign/LockedHeading", lockedTrenchHeading.getDegrees());
+  }
+
+  public double getTrenchHeadingCorrection() {
+    double omega =
+        MathUtil.clamp(
+            trenchHeadingController.calculate(
+                getRotation().getRadians(), Rotation2d.fromDegrees(0.0).getRadians()),
+            -Units.degreesToRadians(90.0),
+            Units.degreesToRadians(90.0));
+    Logger.recordOutput("TrenchAlign/OmegaRadPerSec", omega);
+    return omega;
+  }
+
+  public Rotation2d getLockedTrenchHeading() {
+    return lockedTrenchHeading;
+  }
+
+  @AutoLogOutput(key = "TrenchAlign/AtY")
+  public boolean atTrenchAlignment() {
+    return trenchYController.atSetpoint();
+  }
+
+  @AutoLogOutput(key = "TrenchAlign/IsCloserToLeft")
+  public boolean isCloserToLeftTrench() {
+    double currentY = getPose().getY();
+    double leftTarget =
+        AllianceFlipUtil.shouldFlip()
+            ? TrenchAlignConstants.oppLeftTrenchCenterY
+            : TrenchAlignConstants.leftTrenchCenterY;
+    double rightTarget =
+        AllianceFlipUtil.shouldFlip()
+            ? TrenchAlignConstants.oppRightTrenchCenterY
+            : TrenchAlignConstants.rightTrenchCenterY;
+    return Math.abs(currentY - leftTarget) < Math.abs(currentY - rightTarget);
+  }
+
+  @AutoLogOutput(key = "TrenchAlign/CorrectionVY")
+  public double getTrenchAlignVY() {
+    double correction =
+        MathUtil.clamp(trenchYController.calculate(getPose().getY(), trenchTargetY), -1.5, 1.5);
+    Logger.recordOutput("TrenchAlign/CurrentY", getPose().getY());
+    Logger.recordOutput("TrenchAlign/YError", trenchTargetY - getPose().getY());
+    return correction;
   }
 
   // get the closest target for passing
