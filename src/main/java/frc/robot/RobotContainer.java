@@ -16,6 +16,7 @@ import static frc.robot.subsystems.vision.VisionConstants.robotToCameraR;
 
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
@@ -400,19 +401,21 @@ public class RobotContainer {
     trenchAlignHeld
         .onTrue(Commands.runOnce(() -> drive.updateTrenchAlignment(drive.isCloserToLeftTrench())))
         .whileTrue(
-            new ParallelCommandGroup(
-                Commands.run(
-                    () -> {
-                      double fieldVY = drive.getTrenchAlignVY();
-                      double omega = drive.getTrenchHeadingCorrection();
+            Commands.run(
+                () -> {
+                  double x = MathUtil.applyDeadband(-controller.getLeftY(), 0.1);
+                  x = Math.copySign(x * x, x);
 
-                      drive.runVelocity(
-                          ChassisSpeeds.fromFieldRelativeSpeeds(
-                              new ChassisSpeeds(0.0, fieldVY, omega), drive.getRotation()));
-                    },
-                    drive),
-                robotState.seekIndefinite(HoodState.FOLD_BACK, FlywheelState.STOPPED)))
-        .onFalse(Commands.runOnce(() -> drive.stop(), drive));
+                  double fieldVY = drive.getTrenchAlignVY();
+                  double omega = drive.getTrenchHeadingCorrection();
+
+                  drive.runVelocity(
+                      ChassisSpeeds.fromFieldRelativeSpeeds(
+                          new ChassisSpeeds(
+                              x * drive.getMaxLinearSpeedMetersPerSec(), fieldVY, omega),
+                          drive.getRotation()));
+                },
+                drive));
 
     // pass to target
     controller
