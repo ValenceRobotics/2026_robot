@@ -87,10 +87,13 @@ public class Drive extends SubsystemBase {
   // PID controller for trench alignment
   // In Drive.java or RobotContainer
   private static final LoggedTunableNumber trenchYKp =
-      new LoggedTunableNumber("TrenchAlign/YKp", 0.3);
-  private final PIDController trenchYController = new PIDController(trenchYKp.get(), 0.0, 0.0);
+      new LoggedTunableNumber("TrenchAlign/YKp", 1.5);
+  private static final LoggedTunableNumber trenchYKd =
+      new LoggedTunableNumber("TrenchAlign/YKd", 0.001);
+  private final PIDController trenchYController =
+      new PIDController(trenchYKp.get(), 0.0, trenchYKd.get());
   private static final LoggedTunableNumber trenchHeadingKp =
-      new LoggedTunableNumber("TrenchAlign/HeadingKp", 0.5);
+      new LoggedTunableNumber("TrenchAlign/HeadingKp", 2.0);
   private final PIDController trenchHeadingController =
       new PIDController(trenchHeadingKp.get(), 0.0, 0.0);
   private double trenchTargetY = 0.0;

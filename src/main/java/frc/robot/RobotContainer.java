@@ -16,10 +16,8 @@ import static frc.robot.subsystems.vision.VisionConstants.robotToCameraR;
 
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
-import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -31,7 +29,6 @@ import edu.wpi.first.wpilibj2.command.button.CommandGenericHID;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
-import frc.robot.FieldConstants.TrenchAlignConstants;
 import frc.robot.RobotState.FlywheelState;
 import frc.robot.RobotState.HoodState;
 import frc.robot.RobotState.IndexerState;
@@ -171,8 +168,7 @@ public class RobotContainer {
         this.indexer = new Indexer(new IndexerIO() {});
 
         drive.setPose(
-            new Pose2d(
-                7.0, TrenchAlignConstants.rightTrenchCenterY + 1, Rotation2d.fromDegrees(10)));
+            new Pose2d(7.0, FieldConstants.LinesHorizontal.center, Rotation2d.fromDegrees(10)));
         // led = new LED();
 
         break;
@@ -302,6 +298,10 @@ public class RobotContainer {
             () -> -controller.getLeftX(),
             () -> -controller.getRightX()));
 
+    // Trench align testing without controller        
+    // drive.updateTrenchAlignment(drive.isCloserToLeftTrench());
+    // drive.setDefaultCommand(DriveCommands.trenchAlign(drive, () -> -keyboard.getRawAxis(1)));
+
     // drive.setDefaultCommand(
     // DriveCommands.joystickDrive(
     // drive,
@@ -400,22 +400,7 @@ public class RobotContainer {
 
     trenchAlignHeld
         .onTrue(Commands.runOnce(() -> drive.updateTrenchAlignment(drive.isCloserToLeftTrench())))
-        .whileTrue(
-            Commands.run(
-                () -> {
-                  double x = MathUtil.applyDeadband(-controller.getLeftY(), 0.1);
-                  x = Math.copySign(x * x, x);
-
-                  double fieldVY = drive.getTrenchAlignVY();
-                  double omega = drive.getTrenchHeadingCorrection();
-
-                  drive.runVelocity(
-                      ChassisSpeeds.fromFieldRelativeSpeeds(
-                          new ChassisSpeeds(
-                              x * drive.getMaxLinearSpeedMetersPerSec(), fieldVY, omega),
-                          drive.getRotation()));
-                },
-                drive));
+        .whileTrue(DriveCommands.trenchAlign(drive, () -> -controller.getLeftX()));
 
     // pass to target
     controller

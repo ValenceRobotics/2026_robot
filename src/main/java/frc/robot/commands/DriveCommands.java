@@ -98,6 +98,23 @@ public class DriveCommands {
         drive);
   }
 
+  public static Command trenchAlign(Drive drive, DoubleSupplier xSupplier) {
+    return Commands.run(
+        () -> {
+          double x = MathUtil.applyDeadband(xSupplier.getAsDouble(), 0.1);
+          x = Math.copySign(x * x, x);
+
+          double fieldVY = drive.getTrenchAlignVY();
+          double omega = drive.getTrenchHeadingCorrection();
+
+          drive.runVelocity(
+              ChassisSpeeds.fromFieldRelativeSpeeds(
+                  new ChassisSpeeds(x * drive.getMaxLinearSpeedMetersPerSec(), fieldVY, omega),
+                  drive.getRotation()));
+        },
+        drive);
+  }
+
   /**
    * Field relative drive command using joystick for linear control and PID for angular control.
    * Possible use cases include snapping to an angle, aiming at a vision target, or controlling
