@@ -293,16 +293,16 @@ public class RobotContainer {
   private void configureButtonBindings() {
 
     // Default command, normal field-relative drive
-    // drive.setDefaultCommand(
-    //     DriveCommands.joystickDrive(
-    //         drive,
-    //         () -> -controller.getLeftY(),
-    //         () -> -controller.getLeftX(),
-    //         () -> -controller.getRightX()));
+    drive.setDefaultCommand(
+        DriveCommands.joystickDrive(
+            drive,
+            () -> -controller.getLeftY(),
+            () -> -controller.getLeftX(),
+            () -> -controller.getRightX()));
 
     // Trench align testing without controller
-    drive.updateTrenchAlignment(drive.isCloserToLeftTrench());
-    drive.setDefaultCommand(DriveCommands.trenchAlign(drive, () -> -keyboard.getRawAxis(1)));
+    // drive.updateTrenchAlignment(drive.isCloserToLeftTrench());
+    // drive.setDefaultCommand(DriveCommands.trenchAlign(drive, () -> -keyboard.getRawAxis(1)));
 
     // drive.setDefaultCommand(
     // DriveCommands.joystickDrive(
