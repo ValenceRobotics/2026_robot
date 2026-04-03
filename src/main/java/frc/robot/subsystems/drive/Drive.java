@@ -498,7 +498,7 @@ public class Drive extends SubsystemBase {
 
   public double getTrenchHeadingCorrection() {
     Rotation2d entryHeadingSetpoint =
-        getPose().getX() > TrenchAlignConstants.alignmentX
+        Math.abs(getRotation().getDegrees()) < 90.0
             ? Rotation2d.fromDegrees(0.0)
             : Rotation2d.fromDegrees(180.0);
 
