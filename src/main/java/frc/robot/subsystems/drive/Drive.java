@@ -497,10 +497,15 @@ public class Drive extends SubsystemBase {
   }
 
   public double getTrenchHeadingCorrection() {
+    Rotation2d entryHeadingSetpoint =
+        getPose().getX() > TrenchAlignConstants.alignmentX
+            ? Rotation2d.fromDegrees(0.0)
+            : Rotation2d.fromDegrees(180.0);
+
     double omega =
         MathUtil.clamp(
             trenchHeadingController.calculate(
-                getRotation().getRadians(), Rotation2d.fromDegrees(0.0).getRadians()),
+                getRotation().getRadians(), entryHeadingSetpoint.getRadians()),
             -Units.degreesToRadians(90.0),
             Units.degreesToRadians(90.0));
     Logger.recordOutput("TrenchAlign/OmegaRadPerSec", omega);

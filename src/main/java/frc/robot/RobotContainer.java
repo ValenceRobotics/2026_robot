@@ -29,6 +29,7 @@ import edu.wpi.first.wpilibj2.command.button.CommandGenericHID;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
+import frc.robot.FieldConstants.TrenchAlignConstants;
 import frc.robot.RobotState.FlywheelState;
 import frc.robot.RobotState.HoodState;
 import frc.robot.RobotState.IndexerState;
@@ -168,7 +169,8 @@ public class RobotContainer {
         this.indexer = new Indexer(new IndexerIO() {});
 
         drive.setPose(
-            new Pose2d(7.0, FieldConstants.LinesHorizontal.center, Rotation2d.fromDegrees(10)));
+            new Pose2d(
+                3.0, TrenchAlignConstants.leftTrenchCenterY - 1, Rotation2d.fromDegrees(280)));
         // led = new LED();
 
         break;
@@ -291,16 +293,16 @@ public class RobotContainer {
   private void configureButtonBindings() {
 
     // Default command, normal field-relative drive
-    drive.setDefaultCommand(
-        DriveCommands.joystickDrive(
-            drive,
-            () -> -controller.getLeftY(),
-            () -> -controller.getLeftX(),
-            () -> -controller.getRightX()));
+    // drive.setDefaultCommand(
+    //     DriveCommands.joystickDrive(
+    //         drive,
+    //         () -> -controller.getLeftY(),
+    //         () -> -controller.getLeftX(),
+    //         () -> -controller.getRightX()));
 
-    // Trench align testing without controller        
-    // drive.updateTrenchAlignment(drive.isCloserToLeftTrench());
-    // drive.setDefaultCommand(DriveCommands.trenchAlign(drive, () -> -keyboard.getRawAxis(1)));
+    // Trench align testing without controller
+    drive.updateTrenchAlignment(drive.isCloserToLeftTrench());
+    drive.setDefaultCommand(DriveCommands.trenchAlign(drive, () -> -keyboard.getRawAxis(1)));
 
     // drive.setDefaultCommand(
     // DriveCommands.joystickDrive(
@@ -400,7 +402,7 @@ public class RobotContainer {
 
     trenchAlignHeld
         .onTrue(Commands.runOnce(() -> drive.updateTrenchAlignment(drive.isCloserToLeftTrench())))
-        .whileTrue(DriveCommands.trenchAlign(drive, () -> -controller.getLeftX()));
+        .whileTrue(DriveCommands.trenchAlign(drive, () -> -controller.getLeftY()));
 
     // pass to target
     controller
