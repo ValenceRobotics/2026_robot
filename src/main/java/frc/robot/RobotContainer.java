@@ -324,7 +324,7 @@ public class RobotContainer {
     /* COMP CONTROLS */
     // aimbot trigger
     Trigger aimbotHeld = controller.rightTrigger();
-    Trigger trenchAlignHeld = controller.a();
+    Trigger trenchAlignHeld = controller.b();
 
     // robotState
     //     .getTrenchWarningTrigger()
