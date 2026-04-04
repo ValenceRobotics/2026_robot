@@ -388,11 +388,25 @@ public class RobotContainer {
                 new SequentialCommandGroup(
                     Commands.waitUntil(
                         () -> hood.atGoal() && drive.atCachedAimbotHeading() && flywheel.atGoal()),
-                    robotState.seekIndefinite(
-                        SpindexerState.INDEXING,
-                        IndexerState.INDEXING,
-                        IntakeRollerState.INWARD,
-                        IntakePivotState.DOWN))))
+                    Commands.repeatingSequence(
+                        Commands.race(
+                            robotState.seekIndefinite(
+                                SpindexerState.INDEXING,
+                                IndexerState.INDEXING,
+                                IntakeRollerState.INWARD,
+                                IntakePivotState.DOWN),
+                            Commands.sequence(
+                                // Wait for spindexer to spin up before watching for jams
+                                Commands.waitUntil(() -> spindexer.getVelocityRadsPerSec() >= 5),
+                                Commands.waitUntil(() -> spindexer.getVelocityRadsPerSec() < 5)
+                            )
+                        ),
+                        Commands.sequence(
+                            Commands.runOnce(() -> robotState.seekIndefinite(SpindexerState.REVERSE), spindexer),
+                            Commands.parallel(
+                                Commands.waitSeconds(0.3), // Timeout of .3s min to ensure enough reversal to clear jam
+                                Commands.waitUntil(() -> spindexer.getVelocityRadsPerSec() >= 5)
+                            ).withTimeout(1)))))) // Maximum timeout to prevent indefinite reversal
         .onFalse(
             robotState.seek(
                 SpindexerState.IDLE,
