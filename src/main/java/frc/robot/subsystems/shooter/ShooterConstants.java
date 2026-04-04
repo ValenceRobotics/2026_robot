@@ -67,21 +67,25 @@ public class ShooterConstants {
   static {
 
     // pg constants change ltr
-    hoodAngleMap.put(1.2192, Rotation2d.fromDegrees(12));
-    hoodAngleMap.put(1.524, Rotation2d.fromDegrees(17.0));
-    hoodAngleMap.put(1.98, Rotation2d.fromDegrees(19));
+    hoodAngleMap.put(1.2192, Rotation2d.fromDegrees(11.5));
+    hoodAngleMap.put(1.524, Rotation2d.fromDegrees(16.5));
+    hoodAngleMap.put(1.98, Rotation2d.fromDegrees(18));
+    hoodAngleMap.put(2.198, Rotation2d.fromDegrees(18));
     hoodAngleMap.put(2.4384, Rotation2d.fromDegrees(21));
     hoodAngleMap.put(2.642, Rotation2d.fromDegrees(23));
     hoodAngleMap.put(3.31, Rotation2d.fromDegrees(25));
+    hoodAngleMap.put(3.753, Rotation2d.fromDegrees(25.8));
     hoodAngleMap.put(4.0, Rotation2d.fromDegrees(27));
     hoodAngleMap.put(5.0, Rotation2d.fromDegrees(32));
 
     flywheelMap.put(1.2192, 2000.0 + 100.0);
     flywheelMap.put(1.524, 2100.0 + 100.0);
-    flywheelMap.put(1.9812, 2300.0 + 100.0);
+    flywheelMap.put(1.9812, 2250.0 + 100.0);
+    flywheelMap.put(2.19812, 2250.0 + 100.0);
     flywheelMap.put(2.4384, 2300.0 + 100.0);
     flywheelMap.put(2.642, 2400.0 + 100.0);
     flywheelMap.put(3.31, 2450.0 + 100.0);
+    flywheelMap.put(3.753, 2530.0 + 100.0);
     flywheelMap.put(4.0, 2600.0 + 100.0);
     flywheelMap.put(5.0, 2700.0 + 100.0);
 
