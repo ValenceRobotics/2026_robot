@@ -117,5 +117,5 @@ public class DriveConstants {
   public static final double kAimbotHeadingToleranceRad = Math.toRadians(4.0);
   public static final double kAimbotHeadingPassingToleranceRad = Math.toRadians(12.0);
   public static final double kAimbotOmegaToleranceRadPerSec = Math.toRadians(100.0);
-  public static final double aimbotOffset = Units.degreesToRadians(6.0);
+  public static final double aimbotOffset = Units.degreesToRadians(3.0);
 }

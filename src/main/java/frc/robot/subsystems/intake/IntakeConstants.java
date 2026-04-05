@@ -40,8 +40,8 @@ public final class IntakeConstants {
 
   // Positions
   public static final double STOWED_POS = Units.degreesToRadians(0);
-  public static final double GROUND_POS = Units.degreesToRadians(140.0 + 5); // Added 5 due to
-  public static final double DRIVING_POS = Units.degreesToRadians(130);
+  public static final double GROUND_POS = Units.degreesToRadians(139.0); // Added 5 due to
+  public static final double DRIVING_POS = Units.degreesToRadians(125);
 
   public static final double SHOOTING_POS = Units.degreesToRadians(80);
 
