@@ -24,6 +24,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.drive.DriveConstants;
+import frc.robot.util.geometry.AllianceFlipUtil;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.util.LinkedList;
@@ -101,7 +102,10 @@ public class DriveCommands {
   public static Command trenchAlign(Drive drive, DoubleSupplier xSupplier) {
     return Commands.run(
         () -> {
-          double x = MathUtil.applyDeadband(xSupplier.getAsDouble(), 0.1);
+          double x =
+              AllianceFlipUtil.shouldFlip()
+                  ? -MathUtil.applyDeadband(xSupplier.getAsDouble(), 0.1)
+                  : MathUtil.applyDeadband(xSupplier.getAsDouble(), 0.1);
           x = Math.copySign(x * x, x);
 
           double fieldVY = drive.getTrenchAlignVY();

@@ -291,18 +291,29 @@ public class RobotContainer {
    * edu.wpi.first.wpilibj2.command.button.JoystickButton}.
    */
   private void configureButtonBindings() {
+    String keyboardOnly = !controller.isConnected() ? "keyboard" : "controller";
 
-    // Default command, normal field-relative drive
-    drive.setDefaultCommand(
-        DriveCommands.joystickDrive(
-            drive,
-            () -> -controller.getLeftY(),
-            () -> -controller.getLeftX(),
-            () -> -controller.getRightX()));
+    switch (keyboardOnly) {
+      case "keyboard" -> {
+        // SIMULATION ONLY: Keyboard drive for testing without controller
+        drive.setDefaultCommand(
+            DriveCommands.joystickDrive(
+                drive,
+                () -> keyboard.getRawAxis(1),
+                () -> keyboard.getRawAxis(0),
+                () -> keyboard.getRawAxis(2)));
+      }
 
-    // Trench align testing without controller
-    // drive.updateTrenchAlignment(drive.isCloserToLeftTrench());
-    // drive.setDefaultCommand(DriveCommands.trenchAlign(drive, () -> -keyboard.getRawAxis(1)));
+      case "controller" -> {
+        // Default command, normal field-relative drive
+        drive.setDefaultCommand(
+            DriveCommands.joystickDrive(
+                drive,
+                () -> -controller.getLeftY(),
+                () -> -controller.getLeftX(),
+                () -> -controller.getRightX()));
+      }
+    }
 
     // drive.setDefaultCommand(
     // DriveCommands.joystickDrive(
@@ -324,7 +335,8 @@ public class RobotContainer {
     /* COMP CONTROLS */
     // aimbot trigger
     Trigger aimbotHeld = controller.rightTrigger();
-    Trigger trenchAlignHeld = controller.b();
+    Trigger trenchAlignHeld =
+        controller.b().or(keyboard.button(1)); // Also hold z on keyboard for sim
 
     // robotState
     //     .getTrenchWarningTrigger()
@@ -402,11 +414,18 @@ public class RobotContainer {
 
     trenchAlignHeld
         .onTrue(Commands.runOnce(() -> drive.updateTrenchAlignment(drive.isCloserToLeftTrench())))
-        .whileTrue(DriveCommands.trenchAlign(drive, () -> -controller.getLeftY()));
+        .whileTrue(
+            DriveCommands.trenchAlign(
+                drive,
+                () ->
+                    (keyboardOnly == "controller")
+                        ? -controller.getLeftY()
+                        : keyboard.getRawAxis(1)));
 
     // pass to target
     controller
         .rightBumper()
+        .or(keyboard.button(2)) // also hold x on keyboard for sim
         .whileTrue(
             new ParallelCommandGroup(
                 DriveCommands.joystickDriveAtAngle(

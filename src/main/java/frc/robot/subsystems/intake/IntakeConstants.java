@@ -32,7 +32,7 @@ public final class IntakeConstants {
     public static final double GEAR_RATIO = 3.0; // Placeholder value, update with actual ratio
 
     public static final int motorId = 42;
-    public static final double INTAKE_VOLTS = 11.0;
+    public static final double INTAKE_VOLTS = 12.0;
     public static final double OUTTAKE_VOLTS = -7.2;
   }
 
