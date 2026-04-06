@@ -63,7 +63,7 @@ public class ShooterConstants {
   public static final InterpolatingDoubleTreeMap flywheelMap = new InterpolatingDoubleTreeMap();
 
   public static final InterpolatingDoubleTreeMap timeOfFlightMap = new InterpolatingDoubleTreeMap();
-
+  
   static {
 
     // pg constants change ltr

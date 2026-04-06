@@ -338,6 +338,8 @@ public class RobotContainer {
     Trigger trenchAlignHeld =
         controller.b().or(keyboard.button(1)); // Also hold z on keyboard for sim
 
+
+    // trench protection code
     // robotState
     //     .getTrenchWarningTrigger()
     //     .and(aimbotHeld.negate())
@@ -451,7 +453,7 @@ public class RobotContainer {
                         SpindexerState.INDEXING,
                         IndexerState.INDEXING,
                         IntakeRollerState.INWARD,
-                        IntakePivotState.SHOOTING_POS))))
+                        IntakePivotState.DOWN))))
         .onFalse(
             robotState.seek(
                 SpindexerState.IDLE,
