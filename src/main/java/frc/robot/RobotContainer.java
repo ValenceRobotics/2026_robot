@@ -252,7 +252,7 @@ public class RobotContainer {
                 IndexerState.IDLE,
                 IntakePivotState.DOWN,
                 IntakeRollerState.STOPPED)
-            .withTimeout(.5));
+            .withTimeout(.01));
 
     NamedCommands.registerCommand(
         "stopIntake",
