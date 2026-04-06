@@ -1,17 +1,25 @@
 package frc.robot.subsystems.indexer;
 
+import org.littletonrobotics.junction.AutoLogOutput;
+import org.littletonrobotics.junction.Logger;
+
+import edu.wpi.first.math.filter.Debouncer;
+import edu.wpi.first.math.filter.Debouncer.DebounceType;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.RobotState.IndexerState;
 import frc.robot.subsystems.indexer.IndexerIO.IndexerIOMode;
 import frc.robot.subsystems.indexer.IndexerIO.IndexerIOOutputs;
 import frc.robot.util.FullSubsystem;
-import org.littletonrobotics.junction.AutoLogOutput;
-import org.littletonrobotics.junction.Logger;
+
+
 
 public class Indexer extends FullSubsystem {
   private final IndexerIO io;
   private final IndexerIOInputsAutoLogged inputs = new IndexerIOInputsAutoLogged();
   private final IndexerIOOutputs outputs = new IndexerIOOutputs();
+  private final Debouncer doneShootingDebouncer = new Debouncer(1.5, DebounceType.kRising);
+
+
 
   private double goalVolts = 0.0;
   @AutoLogOutput private IndexerState state = IndexerState.IDLE;
@@ -72,8 +80,8 @@ public class Indexer extends FullSubsystem {
   }
 
   public boolean doneShooting() {
-    return !inputs.hasFuel;
-  }
+    return doneShootingDebouncer.calculate(!inputs.hasFuel);
+}
 
   public Command seekCommand(IndexerState state) {
     return this.runOnce(() -> setState(state));

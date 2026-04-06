@@ -213,11 +213,9 @@ public class RobotContainer {
                 .withTimeout(3),
             robotState
                 .seekIndefinite(SpindexerState.INDEXING, IndexerState.INDEXING)
-                .withTimeout(10.0)
-                .andThen(
-                    robotState
-                        .seekIndefinite(SpindexerState.INDEXING, IndexerState.INDEXING)
-                        .until(indexer::doneShooting))));
+                .until(indexer::doneShooting)
+                .withTimeout(13.0)
+                ));
     NamedCommands.registerCommand(
         "intake",
         robotState
