@@ -56,8 +56,8 @@
       "minWaypointRelativePos": 0.6910299003322268,
       "maxWaypointRelativePos": 2.0,
       "constraints": {
-        "maxVelocity": 1.75,
-        "maxAcceleration": 2.5,
+        "maxVelocity": 2.15,
+        "maxAcceleration": 2.6,
         "maxAngularVelocity": 540.0,
         "maxAngularAcceleration": 720.0,
         "nominalVoltage": 12.0,
@@ -70,7 +70,7 @@
     {
       "name": "intake",
       "waypointRelativePos": 0.9214469178082189,
-      "endWaypointRelativePos": null,
+      "endWaypointRelativePos": 2.0,
       "command": {
         "type": "named",
         "data": {

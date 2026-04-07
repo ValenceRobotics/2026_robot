@@ -9,7 +9,7 @@
       "prevControl": null,
       "nextControl": {
         "x": 6.819808694812201,
-        "y": 0.7601049483828367
+        "y": 0.7601049483828368
       },
       "isLocked": false,
       "linkedName": null
@@ -52,7 +52,14 @@
   ],
   "constraintZones": [],
   "pointTowardsZones": [],
-  "eventMarkers": [],
+  "eventMarkers": [
+    {
+      "name": "intake",
+      "waypointRelativePos": 0,
+      "endWaypointRelativePos": 1.060070671378093,
+      "command": null
+    }
+  ],
   "globalConstraints": {
     "maxVelocity": 4.7,
     "maxAcceleration": 5.5,

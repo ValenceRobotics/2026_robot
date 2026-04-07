@@ -213,11 +213,9 @@ public class RobotContainer {
                 .withTimeout(3),
             robotState
                 .seekIndefinite(SpindexerState.INDEXING, IndexerState.INDEXING)
-                .withTimeout(10.0)
-                .andThen(
-                    robotState
-                        .seekIndefinite(SpindexerState.INDEXING, IndexerState.INDEXING)
-                        .until(indexer::doneShooting))));
+                .until(indexer::doneShooting)
+                .withTimeout(13.0)
+                ));
     NamedCommands.registerCommand(
         "intake",
         robotState
@@ -254,7 +252,7 @@ public class RobotContainer {
                 IndexerState.IDLE,
                 IntakePivotState.DOWN,
                 IntakeRollerState.STOPPED)
-            .withTimeout(.5));
+            .withTimeout(.01));
 
     NamedCommands.registerCommand(
         "stopIntake",
@@ -338,6 +336,8 @@ public class RobotContainer {
     Trigger trenchAlignHeld =
         controller.b().or(keyboard.button(1)); // Also hold z on keyboard for sim
 
+
+    // trench protection code
     // robotState
     //     .getTrenchWarningTrigger()
     //     .and(aimbotHeld.negate())
@@ -451,7 +451,7 @@ public class RobotContainer {
                         SpindexerState.INDEXING,
                         IndexerState.INDEXING,
                         IntakeRollerState.INWARD,
-                        IntakePivotState.SHOOTING_POS))))
+                        IntakePivotState.DOWN))))
         .onFalse(
             robotState.seek(
                 SpindexerState.IDLE,

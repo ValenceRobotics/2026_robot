@@ -88,10 +88,10 @@
       "minWaypointRelativePos": 0.0,
       "maxWaypointRelativePos": 3.0,
       "constraints": {
-        "maxVelocity": 1.5,
-        "maxAcceleration": 2.4,
-        "maxAngularVelocity": 300.0,
-        "maxAngularAcceleration": 450.0,
+        "maxVelocity": 2.0,
+        "maxAcceleration": 3.0,
+        "maxAngularVelocity": 375.0,
+        "maxAngularAcceleration": 475.0,
         "nominalVoltage": 12.0,
         "unlimited": false
       }
@@ -101,8 +101,8 @@
   "eventMarkers": [
     {
       "name": "intake",
-      "waypointRelativePos": 0,
-      "endWaypointRelativePos": null,
+      "waypointRelativePos": 0.0,
+      "endWaypointRelativePos": 3.0,
       "command": null
     }
   ],
