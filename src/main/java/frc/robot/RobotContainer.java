@@ -214,8 +214,7 @@ public class RobotContainer {
             robotState
                 .seekIndefinite(SpindexerState.INDEXING, IndexerState.INDEXING)
                 .until(indexer::doneShooting)
-                .withTimeout(13.0)
-                ));
+                .withTimeout(13.0)));
     NamedCommands.registerCommand(
         "intake",
         robotState
@@ -335,7 +334,6 @@ public class RobotContainer {
     Trigger aimbotHeld = controller.rightTrigger();
     Trigger trenchAlignHeld =
         controller.b().or(keyboard.button(1)); // Also hold z on keyboard for sim
-
 
     // trench protection code
     // robotState

@@ -38,8 +38,8 @@ public class HubShiftUtil {
   // ===== SIMPLIFIED TIMING OFFSETS =====
   // Tune these at comp
   private static final double shootEarlyOffset = -2.0; // start shooting early
-  private static final double shootLateOffset = 0.0;  // stop shooting
-  
+  private static final double shootLateOffset = 0.0; // stop shooting
+
   public static final double autoEndTime = 20.0;
   public static final double teleopDuration = 140.0;
 
@@ -137,13 +137,13 @@ public class HubShiftUtil {
       stateTimeRemaining = shiftEndTimes[currentShiftIndex] - currentTime;
 
       // Combine adjacent shifts if same state
-      if (currentShiftIndex > 0 &&
-          currentSchedule[currentShiftIndex] == currentSchedule[currentShiftIndex - 1]) {
+      if (currentShiftIndex > 0
+          && currentSchedule[currentShiftIndex] == currentSchedule[currentShiftIndex - 1]) {
         stateTimeElapsed = currentTime - shiftStartTimes[currentShiftIndex - 1];
       }
 
-      if (currentShiftIndex < shiftEndTimes.length - 1 &&
-          currentSchedule[currentShiftIndex] == currentSchedule[currentShiftIndex + 1]) {
+      if (currentShiftIndex < shiftEndTimes.length - 1
+          && currentSchedule[currentShiftIndex] == currentSchedule[currentShiftIndex + 1]) {
         stateTimeRemaining = shiftEndTimes[currentShiftIndex + 1] - currentTime;
       }
 
