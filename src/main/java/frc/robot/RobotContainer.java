@@ -222,9 +222,7 @@ public class RobotContainer {
             .withTimeout(2)); // figure out logic for writing time stuff
     NamedCommands.registerCommand(
         "intakeShootingPosition",
-        robotState
-            .seekIndefinite(IntakeRollerState.INWARD, IntakePivotState.UP)
-            .withTimeout(3)); // kinda jank but whatever
+        robotState.seek(IntakeRollerState.INWARD, IntakePivotState.UP)); // kinda jank but whatever
 
     NamedCommands.registerCommand(
         "autoAlignPrepareToShoot",
@@ -288,46 +286,29 @@ public class RobotContainer {
    * edu.wpi.first.wpilibj2.command.button.JoystickButton}.
    */
   private void configureButtonBindings() {
-    String keyboardOnly = !controller.isConnected() ? "keyboard" : "controller";
-
-    switch (keyboardOnly) {
-      case "keyboard" -> {
-        // SIMULATION ONLY: Keyboard drive for testing without controller
-        drive.setDefaultCommand(
-            DriveCommands.joystickDrive(
-                drive,
-                () -> keyboard.getRawAxis(1),
-                () -> keyboard.getRawAxis(0),
-                () -> keyboard.getRawAxis(2)));
-      }
-
-      case "controller" -> {
-        // Default command, normal field-relative drive
-        drive.setDefaultCommand(
-            DriveCommands.joystickDrive(
-                drive,
-                () -> -controller.getLeftY(),
-                () -> -controller.getLeftX(),
-                () -> -controller.getRightX()));
-      }
-    }
+    drive.setDefaultCommand(
+        DriveCommands.joystickDrive(
+            drive,
+            () -> -controller.getLeftY(),
+            () -> -controller.getLeftX(),
+            () -> -controller.getRightX()));
 
     // drive.setDefaultCommand(
     // DriveCommands.joystickDrive(
     // drive,
-    // () -> -manualController.getLeftY(),
+    // () -> -manualController.getLeftY(),de
     // () -> -manualController.getLeftX(),
     // () -> -manualController.getRightX()));
 
     // hood.setDefaultCommand(robotState.seekIndefinite(HoodState.FOLD_BACK).repeatedly()); // comp
     // code
-    hood.setDefaultCommand(robotState.seekIndefinite(HoodState.FOLD_BACK).repeatedly());
+    hood.setDefaultCommand(robotState.seekIndefinite(HoodState.MANUAL).repeatedly());
     intakeRollers.setDefaultCommand(
         robotState.seekIndefinite(IntakeRollerState.STOPPED).repeatedly());
     intakePivot.setDefaultCommand(
         robotState.seekIndefinite(IntakePivotState.DRIVING_POS).repeatedly());
     // hood.setDefaultCommand(robotState.seekIndefinite(HoodState.MANUAL).repeatedly());
-    flywheel.setDefaultCommand(robotState.seekIndefinite(FlywheelState.STOPPED).repeatedly());
+    flywheel.setDefaultCommand(robotState.seekIndefinite(FlywheelState.MANUAL).repeatedly());
 
     /* COMP CONTROLS */
     // aimbot trigger
@@ -412,13 +393,7 @@ public class RobotContainer {
 
     trenchAlignHeld
         .onTrue(Commands.runOnce(() -> drive.updateTrenchAlignment(drive.isCloserToLeftTrench())))
-        .whileTrue(
-            DriveCommands.trenchAlign(
-                drive,
-                () ->
-                    (keyboardOnly == "controller")
-                        ? -controller.getLeftY()
-                        : keyboard.getRawAxis(1)));
+        .whileTrue(DriveCommands.trenchAlign(drive, () -> -controller.getLeftY()));
 
     // pass to target
     controller

@@ -3,59 +3,60 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 6.516466666666666,
-        "y": 7.482
+        "x": 5.952111111111111,
+        "y": 5.0327
       },
       "prevControl": null,
       "nextControl": {
-        "x": 6.893679112677422,
-        "y": 7.415574610753729
+        "x": 6.466077777777778,
+        "y": 6.221877777777778
       },
       "isLocked": false,
       "linkedName": null
     },
     {
       "anchor": {
-        "x": 4.067566666666667,
-        "y": 7.482
+        "x": 6.3854555555555566,
+        "y": 7.531988888888888
       },
       "prevControl": {
-        "x": 4.432112778260914,
-        "y": 7.571586265419634
-      },
-      "nextControl": {
-        "x": 2.661447977879819,
-        "y": 7.136449963780239
-      },
-      "isLocked": false,
-      "linkedName": null
-    },
-    {
-      "anchor": {
-        "x": 2.938855555555555,
-        "y": 7.189344444444445
-      },
-      "prevControl": {
-        "x": 3.9604780814162828,
-        "y": 7.429110339595301
+        "x": 6.476155555555556,
+        "y": 6.4234333333333336
       },
       "nextControl": null,
       "isLocked": false,
       "linkedName": null
     }
   ],
-  "rotationTargets": [
-    {
-      "waypointRelativePos": 1.0105263157894722,
-      "rotationDegrees": 0.0
-    }
-  ],
+  "rotationTargets": [],
   "constraintZones": [],
   "pointTowardsZones": [],
   "eventMarkers": [
     {
+      "name": "intake",
+      "waypointRelativePos": 0,
+      "endWaypointRelativePos": null,
+      "command": {
+        "type": "named",
+        "data": {
+          "name": "intake"
+        }
+      }
+    },
+    {
+      "name": "stopIntake",
+      "waypointRelativePos": 0.9,
+      "endWaypointRelativePos": null,
+      "command": {
+        "type": "named",
+        "data": {
+          "name": "stopIntake"
+        }
+      }
+    },
+    {
       "name": "flywheelHoodGo",
-      "waypointRelativePos": 1.2535991140642309,
+      "waypointRelativePos": 1.0,
       "endWaypointRelativePos": null,
       "command": null
     }
@@ -76,7 +77,7 @@
   "folder": null,
   "idealStartingState": {
     "velocity": 0,
-    "rotation": 0.0
+    "rotation": 75.0
   },
   "useDefaultConstraints": true
 }

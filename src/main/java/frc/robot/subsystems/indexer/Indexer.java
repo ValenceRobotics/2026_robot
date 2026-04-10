@@ -14,7 +14,7 @@ public class Indexer extends FullSubsystem {
   private final IndexerIO io;
   private final IndexerIOInputsAutoLogged inputs = new IndexerIOInputsAutoLogged();
   private final IndexerIOOutputs outputs = new IndexerIOOutputs();
-  private final Debouncer doneShootingDebouncer = new Debouncer(1.5, DebounceType.kRising);
+  private final Debouncer doneShootingDebouncer = new Debouncer(3, DebounceType.kRising);
 
   private double goalVolts = 0.0;
   @AutoLogOutput private IndexerState state = IndexerState.IDLE;

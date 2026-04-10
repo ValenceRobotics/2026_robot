@@ -3,41 +3,25 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 6.56504347080721,
-        "y": 3.5238240228252353
+        "x": 5.851333333333333,
+        "y": 3.4202555555555545
       },
       "prevControl": null,
       "nextControl": {
-        "x": 6.554764548680388,
-        "y": 3.7736126209635623
+        "x": 6.0322793017496465,
+        "y": 3.638109770133296
       },
       "isLocked": false,
       "linkedName": null
     },
     {
       "anchor": {
-        "x": 5.889977936921297,
-        "y": 0.7423354311342598
+        "x": 6.052888888888889,
+        "y": 0.5380111111111103
       },
       "prevControl": {
-        "x": 6.621195656553557,
-        "y": 1.3066842812355108
-      },
-      "nextControl": {
-        "x": 5.250620646952806,
-        "y": 0.24888383428423766
-      },
-      "isLocked": false,
-      "linkedName": null
-    },
-    {
-      "anchor": {
-        "x": 2.9892444444444446,
-        "y": 0.7423354311342598
-      },
-      "prevControl": {
-        "x": 4.557107333923087,
-        "y": 0.7945400902478876
+        "x": 6.3854555555555566,
+        "y": 1.2232999999999992
       },
       "nextControl": null,
       "isLocked": false,
@@ -46,37 +30,13 @@
   ],
   "rotationTargets": [
     {
-      "waypointRelativePos": 0.6138883023648652,
-      "rotationDegrees": 0.0
-    },
-    {
       "waypointRelativePos": 1.0,
-      "rotationDegrees": 0.0
-    },
-    {
-      "waypointRelativePos": 1.7603524229074798,
-      "rotationDegrees": 0.0
-    },
-    {
-      "waypointRelativePos": 2.0,
       "rotationDegrees": 0.0
     }
   ],
   "constraintZones": [],
   "pointTowardsZones": [],
-  "eventMarkers": [
-    {
-      "name": "flywheelHoodGo",
-      "waypointRelativePos": 1.6144691780821914,
-      "endWaypointRelativePos": null,
-      "command": {
-        "type": "named",
-        "data": {
-          "name": "flywheelHoodGo"
-        }
-      }
-    }
-  ],
+  "eventMarkers": [],
   "globalConstraints": {
     "maxVelocity": 4.7,
     "maxAcceleration": 5.5,

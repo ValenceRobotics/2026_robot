@@ -19,7 +19,7 @@
         {
           "type": "path",
           "data": {
-            "pathName": "nuetral_turnaround_2_right"
+            "pathName": "nuetral_turnaround_2"
           }
         },
         {
@@ -64,6 +64,12 @@
                 }
               }
             ]
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "shootWhenReady"
           }
         },
         {
