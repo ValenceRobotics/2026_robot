@@ -71,62 +71,6 @@
           "data": {
             "pathName": "shootL_nuetral"
           }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "2nd_nuetral_shootL_2"
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "nuetral_trench_shoot_left"
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "autoAlignPrepareToShoot"
-          }
-        },
-        {
-          "type": "parallel",
-          "data": {
-            "commands": [
-              {
-                "type": "named",
-                "data": {
-                  "name": "shootWhenReady"
-                }
-              },
-              {
-                "type": "sequential",
-                "data": {
-                  "commands": [
-                    {
-                      "type": "wait",
-                      "data": {
-                        "waitTime": 1.5
-                      }
-                    },
-                    {
-                      "type": "named",
-                      "data": {
-                        "name": "intakeShootingPosition"
-                      }
-                    }
-                  ]
-                }
-              }
-            ]
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "stopEverything"
-          }
         }
       ]
     }

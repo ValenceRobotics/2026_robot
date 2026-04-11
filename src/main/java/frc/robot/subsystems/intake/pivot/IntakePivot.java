@@ -2,7 +2,6 @@ package frc.robot.subsystems.intake.pivot;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.util.Units;
-import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import frc.robot.RobotState.IntakePivotState;
@@ -88,9 +87,8 @@ public class IntakePivot extends FullSubsystem {
 
   @AutoLogOutput
   public boolean atGoal() {
-    return DriverStation.isEnabled()
-        && Math.abs(getMeasuredPositionRad() - goalPositionRad)
-            <= Math.toRadians(IntakeConstants.PivotConstants.toleranceDeg.get());
+    return Math.abs(getMeasuredPositionRad() - goalPositionRad)
+        <= Math.toRadians(IntakeConstants.PivotConstants.toleranceDeg.get());
   }
 
   // limit switch implementation; not done yet

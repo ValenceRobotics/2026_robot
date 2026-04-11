@@ -208,7 +208,7 @@ public class RobotContainer {
             robotState
                 .seekIndefinite(SpindexerState.INDEXING, IndexerState.INDEXING)
                 .until(indexer::doneShooting)
-                .withTimeout(6.0)));
+                .withTimeout(8)));
     NamedCommands.registerCommand(
         "intake",
         robotState
@@ -216,7 +216,16 @@ public class RobotContainer {
             .withTimeout(2)); // figure out logic for writing time stuff
     NamedCommands.registerCommand(
         "intakeShootingPosition",
-        robotState.seek(IntakeRollerState.INWARD, IntakePivotState.UP)); // da jank but whatever
+        new SequentialCommandGroup(
+                robotState
+                    .seekIndefinite(IntakeRollerState.INWARD, IntakePivotState.SHOOTING_POS)
+                    .withTimeout(.5),
+                robotState
+                    .seekIndefinite(IntakeRollerState.INWARD, IntakePivotState.DOWN)
+                    .withTimeout(.5))
+            .repeatedly()
+            .until(indexer::doneShooting)
+            .withTimeout(6.5));
 
     NamedCommands.registerCommand(
         "autoAlignPrepareToShoot",
@@ -296,13 +305,13 @@ public class RobotContainer {
 
     // hood.setDefaultCommand(robotState.seekIndefinite(HoodState.FOLD_BACK).repeatedly()); // comp
     // code
-    hood.setDefaultCommand(robotState.seekIndefinite(HoodState.MANUAL).repeatedly());
+    hood.setDefaultCommand(robotState.seekIndefinite(HoodState.FOLD_BACK).repeatedly());
     intakeRollers.setDefaultCommand(
         robotState.seekIndefinite(IntakeRollerState.STOPPED).repeatedly());
     intakePivot.setDefaultCommand(
         robotState.seekIndefinite(IntakePivotState.DRIVING_POS).repeatedly());
     // hood.setDefaultCommand(robotState.seekIndefinite(HoodState.MANUAL).repeatedly());
-    flywheel.setDefaultCommand(robotState.seekIndefinite(FlywheelState.MANUAL).repeatedly());
+    flywheel.setDefaultCommand(robotState.seekIndefinite(FlywheelState.STOPPED).repeatedly());
 
     /* COMP CONTROLS */
     // aimbot trigger
@@ -373,11 +382,17 @@ public class RobotContainer {
                 new SequentialCommandGroup(
                     Commands.waitUntil(
                         () -> hood.atGoal() && drive.atCachedAimbotHeading() && flywheel.atGoal()),
-                    robotState.seekIndefinite(
-                        SpindexerState.INDEXING,
-                        IndexerState.INDEXING,
-                        IntakeRollerState.INWARD,
-                        IntakePivotState.DOWN))))
+                    new ParallelCommandGroup(
+                        robotState.seekIndefinite(SpindexerState.INDEXING, IndexerState.INDEXING),
+                        new SequentialCommandGroup(
+                                robotState
+                                    .seekIndefinite(
+                                        IntakeRollerState.INWARD, IntakePivotState.SHOOTING_POS)
+                                    .withTimeout(.5),
+                                robotState
+                                    .seekIndefinite(IntakeRollerState.INWARD, IntakePivotState.DOWN)
+                                    .withTimeout(.5))
+                            .repeatedly()))))
         .onFalse(
             robotState.seek(
                 SpindexerState.IDLE,

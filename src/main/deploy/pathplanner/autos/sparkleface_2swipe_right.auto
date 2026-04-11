@@ -51,7 +51,7 @@
                     {
                       "type": "wait",
                       "data": {
-                        "waitTime": 2.0
+                        "waitTime": 1.5
                       }
                     },
                     {
@@ -64,12 +64,6 @@
                 }
               }
             ]
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "shootWhenReady"
           }
         },
         {
@@ -82,62 +76,6 @@
           "type": "path",
           "data": {
             "pathName": "shootr_nuetral"
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "nuetral_shootr"
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "go under trench"
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "autoAlignPrepareToShoot"
-          }
-        },
-        {
-          "type": "parallel",
-          "data": {
-            "commands": [
-              {
-                "type": "named",
-                "data": {
-                  "name": "shootWhenReady"
-                }
-              },
-              {
-                "type": "sequential",
-                "data": {
-                  "commands": [
-                    {
-                      "type": "wait",
-                      "data": {
-                        "waitTime": 2.67
-                      }
-                    },
-                    {
-                      "type": "named",
-                      "data": {
-                        "name": "intakeShootingPosition"
-                      }
-                    }
-                  ]
-                }
-              }
-            ]
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "stopEverything"
           }
         }
       ]
