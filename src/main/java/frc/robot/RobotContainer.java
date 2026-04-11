@@ -29,7 +29,6 @@ import edu.wpi.first.wpilibj2.command.button.CommandGenericHID;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
-import frc.robot.FieldConstants.TrenchAlignConstants;
 import frc.robot.RobotState.FlywheelState;
 import frc.robot.RobotState.HoodState;
 import frc.robot.RobotState.IndexerState;
@@ -168,11 +167,6 @@ public class RobotContainer {
         spindexer = new Spindexer(new SpindexerIOSim() {});
         this.indexer = new Indexer(new IndexerIO() {});
 
-        drive.setPose(
-            new Pose2d(
-                3.0, TrenchAlignConstants.leftTrenchCenterY - 1, Rotation2d.fromDegrees(280)));
-        // led = new LED();
-
         break;
 
       default:
@@ -214,7 +208,7 @@ public class RobotContainer {
             robotState
                 .seekIndefinite(SpindexerState.INDEXING, IndexerState.INDEXING)
                 .until(indexer::doneShooting)
-                .withTimeout(13.0)));
+                .withTimeout(6.0)));
     NamedCommands.registerCommand(
         "intake",
         robotState
@@ -222,7 +216,7 @@ public class RobotContainer {
             .withTimeout(2)); // figure out logic for writing time stuff
     NamedCommands.registerCommand(
         "intakeShootingPosition",
-        robotState.seek(IntakeRollerState.INWARD, IntakePivotState.UP)); // kinda jank but whatever
+        robotState.seek(IntakeRollerState.INWARD, IntakePivotState.UP)); // da jank but whatever
 
     NamedCommands.registerCommand(
         "autoAlignPrepareToShoot",

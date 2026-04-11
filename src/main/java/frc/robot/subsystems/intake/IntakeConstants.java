@@ -32,7 +32,7 @@ public final class IntakeConstants {
     public static final double GEAR_RATIO = 3.0; // Placeholder value, update with actual ratio
 
     public static final int motorId = 42;
-    public static final double INTAKE_VOLTS = 12.0;
+    public static final double INTAKE_VOLTS = 10.0;
     public static final double OUTTAKE_VOLTS = -7.2;
   }
 
@@ -40,12 +40,12 @@ public final class IntakeConstants {
 
   // Positions
   public static final double STOWED_POS = Units.degreesToRadians(0);
-  public static final double GROUND_POS = Units.degreesToRadians(139.0); // Added 5 due to
+  public static final double GROUND_POS = Units.degreesToRadians(138.0); // Added 5 due to
   public static final double DRIVING_POS = Units.degreesToRadians(125);
 
   public static final double SHOOTING_POS = Units.degreesToRadians(80);
 
   // Extremes
   public static final double MIN_ANGLE = Units.degreesToRadians(0);
-  public static final double MAX_ANGLE = Units.degreesToRadians(145);
+  public static final double MAX_ANGLE = Units.degreesToRadians(140);
 }
