@@ -45,12 +45,31 @@
                 }
               },
               {
-                "type": "named",
+                "type": "sequential",
                 "data": {
-                  "name": "intakeShootingPosition"
+                  "commands": [
+                    {
+                      "type": "wait",
+                      "data": {
+                        "waitTime": 2.0
+                      }
+                    },
+                    {
+                      "type": "named",
+                      "data": {
+                        "name": "intakeShootingPosition"
+                      }
+                    }
+                  ]
                 }
               }
             ]
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "shootWhenReady"
           }
         },
         {
@@ -72,6 +91,12 @@
           }
         },
         {
+          "type": "path",
+          "data": {
+            "pathName": "go under trench"
+          }
+        },
+        {
           "type": "named",
           "data": {
             "name": "autoAlignPrepareToShoot"
@@ -88,9 +113,22 @@
                 }
               },
               {
-                "type": "named",
+                "type": "sequential",
                 "data": {
-                  "name": "intakeShootingPosition"
+                  "commands": [
+                    {
+                      "type": "wait",
+                      "data": {
+                        "waitTime": 2.67
+                      }
+                    },
+                    {
+                      "type": "named",
+                      "data": {
+                        "name": "intakeShootingPosition"
+                      }
+                    }
+                  ]
                 }
               }
             ]
