@@ -1,6 +1,7 @@
 package frc.robot.subsystems.indexer;
 
-
+import com.ctre.phoenix6.configs.CANrangeConfiguration;
+import com.ctre.phoenix6.hardware.CANrange;
 import com.revrobotics.PersistMode;
 import com.revrobotics.ResetMode;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
@@ -8,13 +9,19 @@ import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 import com.revrobotics.spark.config.SparkMaxConfig;
 import frc.robot.util.SparkUtil;
+import org.littletonrobotics.junction.Logger;
 
 public class IndexerIOReal implements IndexerIO {
 
   private final SparkMax motor;
-  private IdleMode currentIdleMode = IdleMode.kCoast;
+  private IdleMode currentIdleMode = IdleMode.kBrake;
+  CANrange canRange = new CANrange(22);
 
   public IndexerIOReal() {
+
+    CANrangeConfiguration configs = new CANrangeConfiguration();
+
+    canRange.getConfigurator().apply(configs);
 
     motor = new SparkMax(IndexerConstants.MOTOR_ID, MotorType.kBrushless);
 
@@ -23,7 +30,7 @@ public class IndexerIOReal implements IndexerIO {
     config
         .smartCurrentLimit(IndexerConstants.CURRENT_LIMIT_AMPS)
         .inverted(IndexerConstants.INVERTED)
-        .idleMode(IdleMode.kCoast)
+        .idleMode(IdleMode.kBrake)
         .voltageCompensation(12.0);
 
     config
@@ -41,6 +48,15 @@ public class IndexerIOReal implements IndexerIO {
 
   @Override
   public void updateInputs(IndexerIOInputs inputs) {
+
+    Logger.recordOutput("Indexer/Proximity", canRange.getDistance().getValueAsDouble());
+    Logger.recordOutput("Kicker/Proximity Sensor Connected", canRange.isConnected());
+
+    if (canRange.getDistance().getValueAsDouble() <= .125) {
+      inputs.hasFuel = true;
+    } else {
+      inputs.hasFuel = false;
+    }
 
     inputs.connected = !motor.getFaults().can;
 

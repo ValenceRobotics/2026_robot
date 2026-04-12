@@ -6,6 +6,7 @@ import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.interpolation.InterpolatingDoubleTreeMap;
 import edu.wpi.first.math.interpolation.InterpolatingTreeMap;
 import edu.wpi.first.math.interpolation.InverseInterpolator;
+import edu.wpi.first.math.util.Units;
 import frc.robot.util.LoggedTunableNumber;
 
 public class ShooterConstants {
@@ -14,15 +15,19 @@ public class ShooterConstants {
     public static final int hoodMotorId = 31;
     public static final int currentLimit = 20;
 
-    public static LoggedTunableNumber kPReal = new LoggedTunableNumber("Hood/kP", 0.065);
-    public static LoggedTunableNumber kDReal = new LoggedTunableNumber("Hood/kD", 0.001);
-    public static LoggedTunableNumber kGReal = new LoggedTunableNumber("Hood/kG", 0.05);
+    public static LoggedTunableNumber kPReal = new LoggedTunableNumber("Hood/kP", 8.0);
+    public static LoggedTunableNumber kDReal = new LoggedTunableNumber("Hood/kD", 0);
+    public static LoggedTunableNumber kGReal = new LoggedTunableNumber("Hood/kG", 0);
+    public static LoggedTunableNumber toleranceDeg =
+        new LoggedTunableNumber("Hood/ToleranceDeg", 0.6);
 
-    public static final double cruiseVelocity = 10; //  m/ sec
-    public static final double maxAcceleration = 5; // m/ sec^2
-    public static final double allowedError = 0.5;
+    public static LoggedTunableNumber motorStopToleranceDeg =
+        new LoggedTunableNumber("Hood/MotorStopToleranceDeg", 0.1);
 
-    public static final double gearRatio = 850.0;
+    public static final double MIN_ANGLE = Units.degreesToRadians(10);
+    public static final double MAX_ANGLE = Units.degreesToRadians(33);
+
+    public static final double gearRatio = 465.0;
   }
 
   public class FlywheelConstants {
@@ -30,20 +35,27 @@ public class ShooterConstants {
     public static final int followerMotorId = 33;
     public static final int currentLimit = 20;
 
-    public static LoggedTunableNumber kP = new LoggedTunableNumber("Flywheel/kP", 0.7);
-    public static LoggedTunableNumber kD = new LoggedTunableNumber("Flywheel/kD", 0.2);
-    public static LoggedTunableNumber kG = new LoggedTunableNumber("Flywheel/kG", 0.5);
-    public static LoggedTunableNumber kV = new LoggedTunableNumber("Flywheel/kV", 0.1);
-    public static LoggedTunableNumber kS = new LoggedTunableNumber("Flywheel/kS", 0.0);
+    public static LoggedTunableNumber kP = new LoggedTunableNumber("Flywheel/kP", 0.0);
+    public static LoggedTunableNumber kD = new LoggedTunableNumber("Flywheel/kD", 0.0);
+    public static LoggedTunableNumber kG = new LoggedTunableNumber("Flywheel/kG", 0.0);
+    public static LoggedTunableNumber kV = new LoggedTunableNumber("Flywheel/kV", 0.19424);
+    public static LoggedTunableNumber kS = new LoggedTunableNumber("Flywheel/kS", 0.17831);
 
-    public static final double cruiseVelocity = 10; //  m/ sec
-    public static final double maxAcceleration = 5; // m/ sec^2
-    public static final double allowedError = 0.5;
+    public static LoggedTunableNumber tolerance =
+        new LoggedTunableNumber("Flywheel/Tolerance", 500.0);
+
+    public static LoggedTunableNumber atGoalDebouncerTime =
+        new LoggedTunableNumber("Flywheel/AtGoalDebounceTime", 0.15);
 
     public static final double GEAR_RATIO = 1.66;
   }
 
-  public static Transform3d robotToShooter = new Transform3d(0.0, 0.0, 0.44, Rotation3d.kZero);
+  public static Transform3d robotToShooter =
+      new Transform3d(
+          0.19,
+          -.16,
+          0.49,
+          Rotation3d.kZero); // estimated ; might need to change y value to positive
 
   public static final InterpolatingTreeMap<Double, Rotation2d> hoodAngleMap =
       new InterpolatingTreeMap<>(InverseInterpolator.forDouble(), Rotation2d::interpolate);
@@ -55,24 +67,31 @@ public class ShooterConstants {
   static {
 
     // pg constants change ltr
-    hoodAngleMap.put(1.34, Rotation2d.fromDegrees(19.0));
-    hoodAngleMap.put(1.78, Rotation2d.fromDegrees(19.0));
-    hoodAngleMap.put(2.17, Rotation2d.fromDegrees(24.0));
-    hoodAngleMap.put(2.81, Rotation2d.fromDegrees(27.0));
-    hoodAngleMap.put(3.82, Rotation2d.fromDegrees(29.0));
-    hoodAngleMap.put(4.09, Rotation2d.fromDegrees(30.0));
-    hoodAngleMap.put(4.40, Rotation2d.fromDegrees(31.0));
-    hoodAngleMap.put(4.77, Rotation2d.fromDegrees(32.0));
-    hoodAngleMap.put(5.60, Rotation2d.fromDegrees(35.0));
-    hoodAngleMap.put(6.138, Rotation2d.fromDegrees(43.0));
+    hoodAngleMap.put(1.2192, Rotation2d.fromDegrees(11.5));
+    hoodAngleMap.put(1.524, Rotation2d.fromDegrees(16.5));
+    hoodAngleMap.put(1.98, Rotation2d.fromDegrees(18));
+    hoodAngleMap.put(2.198, Rotation2d.fromDegrees(18));
+    hoodAngleMap.put(2.4384, Rotation2d.fromDegrees(21));
+    hoodAngleMap.put(2.642, Rotation2d.fromDegrees(23));
+    hoodAngleMap.put(3.31, Rotation2d.fromDegrees(25));
+    hoodAngleMap.put(3.753, Rotation2d.fromDegrees(25.8));
+    hoodAngleMap.put(4.0, Rotation2d.fromDegrees(27));
+    hoodAngleMap.put(5.0, Rotation2d.fromDegrees(32));
 
-    flywheelMap.put(1.34, 2100.0);
-    flywheelMap.put(2.17, 2200.0);
-    flywheelMap.put(3.82, 2500.0);
-    flywheelMap.put(5.60, 2900.0);
+    flywheelMap.put(1.2192, 2000.0 + 100.0);
+    flywheelMap.put(1.524, 2100.0 + 100.0);
+    flywheelMap.put(1.9812, 2250.0 + 100.0);
+    flywheelMap.put(2.19812, 2250.0 + 100.0);
+    flywheelMap.put(2.4384, 2300.0 + 100.0);
+    flywheelMap.put(2.642, 2400.0 + 100.0);
+    flywheelMap.put(3.31, 2450.0 + 100.0);
+    flywheelMap.put(3.753, 2530.0 + 100.0);
+    flywheelMap.put(4.0, 2600.0 + 100.0);
+    flywheelMap.put(5.0, 2700.0 + 100.0);
+    flywheelMap.put(6.0, 3000.0 + 100.0);
 
-    timeOfFlightMap.put(1.5, 0.90);
-    timeOfFlightMap.put(3.0, 1.05);
-    timeOfFlightMap.put(5.5, 1.20);
+    timeOfFlightMap.put(1.5, 0.950496777883 * .9);
+    timeOfFlightMap.put(3.0, 1.19735698926 * .9);
+    timeOfFlightMap.put(5.5, 1.52228878711 * .9);
   }
 }

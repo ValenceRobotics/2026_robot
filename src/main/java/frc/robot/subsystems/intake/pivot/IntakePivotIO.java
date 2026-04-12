@@ -31,8 +31,6 @@ public interface IntakePivotIO {
     // Closed loop control
     public double positionRad = 0.0;
     public double velocityRadsPerSec = 0.0;
-    public double kP = 0.0;
-    public double kD = 0.0;
   }
 
   public default void updateInputs(IntakePivotIOInputs inputs) {}

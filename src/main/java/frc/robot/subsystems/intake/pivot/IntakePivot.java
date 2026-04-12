@@ -1,7 +1,7 @@
 package frc.robot.subsystems.intake.pivot;
 
 import edu.wpi.first.math.MathUtil;
-import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import frc.robot.RobotState.IntakePivotState;
@@ -9,7 +9,6 @@ import frc.robot.subsystems.intake.IntakeConstants;
 import frc.robot.subsystems.intake.pivot.IntakePivotIO.IntakePivotIOOutputMode;
 import frc.robot.subsystems.intake.pivot.IntakePivotIO.IntakePivotIOOutputs;
 import frc.robot.util.FullSubsystem;
-import frc.robot.util.LoggedTunableNumber;
 import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
 
@@ -21,21 +20,12 @@ public class IntakePivot extends FullSubsystem {
   private static final double minAngle = IntakeConstants.MIN_ANGLE;
   private static final double maxAngle = IntakeConstants.MAX_ANGLE;
 
-  private static final LoggedTunableNumber kP = new LoggedTunableNumber("IntakePivot/kP");
-  private static final LoggedTunableNumber kD = new LoggedTunableNumber("IntakePivot/kD");
-  private static final LoggedTunableNumber toleranceDeg =
-      new LoggedTunableNumber("IntakePivot/ToleranceDeg");
+  private double goalPositionRad = 0.0;
 
-  private double goalPositionRad = IntakeConstants.STOWED_POS;
-
-  @AutoLogOutput private IntakePivotState state = IntakePivotState.DOWN;
+  @AutoLogOutput private IntakePivotState state = IntakePivotState.DOWN; // need to change to down
 
   public IntakePivot(IntakePivotIO io) {
     this.io = io;
-
-    toleranceDeg.initDefault(15.0);
-    kP.initDefault(0.5);
-    kD.initDefault(0);
   }
 
   @Override
@@ -50,14 +40,17 @@ public class IntakePivot extends FullSubsystem {
       case DOWN -> {
         goalPositionRad = IntakeConstants.GROUND_POS;
       }
+      case SHOOTING_POS -> {
+        goalPositionRad = IntakeConstants.SHOOTING_POS;
+      }
+      case DRIVING_POS -> {
+        goalPositionRad = IntakeConstants.DRIVING_POS;
+      }
     }
   }
 
   @Override
   public void periodicAfterScheduler() {
-    outputs.kP = kP.get();
-    outputs.kD = kD.get();
-
     // set outputs
     outputs.mode = IntakePivotIOOutputMode.CLOSED_LOOP;
     outputs.positionRad = MathUtil.clamp(goalPositionRad, minAngle, maxAngle);
@@ -65,6 +58,7 @@ public class IntakePivot extends FullSubsystem {
     io.applyOutputs(outputs);
 
     Logger.recordOutput("IntakePivot/GoalPositionRad", goalPositionRad);
+    Logger.recordOutput("IntakePivot/GoalPositionDegrees", Units.radiansToDegrees(goalPositionRad));
     Logger.recordOutput("IntakePivot/Mode", outputs.mode.toString());
   }
 
@@ -81,6 +75,11 @@ public class IntakePivot extends FullSubsystem {
     return inputs.positionRad;
   }
 
+  @AutoLogOutput(key = "IntakePivot/MeasuredPositionDegrees")
+  public double getMeasuredPositionDegrees() {
+    return inputs.positionRad;
+  }
+
   @AutoLogOutput(key = "IntakePivot/MeasuredVelocity")
   public double getVelocity() {
     return inputs.velocityRadsPerSec;
@@ -88,15 +87,14 @@ public class IntakePivot extends FullSubsystem {
 
   @AutoLogOutput
   public boolean atGoal() {
-    return DriverStation.isEnabled()
-        && Math.abs(getMeasuredPositionRad() - goalPositionRad)
-            <= Math.toRadians(toleranceDeg.get());
+    return Math.abs(getMeasuredPositionRad() - goalPositionRad)
+        <= Math.toRadians(IntakeConstants.PivotConstants.toleranceDeg.get());
   }
 
   // limit switch implementation; not done yet
-  public boolean atForwardLimit() {
-    return inputs.forwardLimitSwitch;
-  }
+  // public boolean atForwardLimit() {
+  //   return inputs.forwardLimitSwitch;
+  // }
 
   public void zeroEncoder() {
     io.zeroToCurrentPos();

@@ -3,60 +3,37 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 0.4826100463867188,
-        "y": 0.6506898193359383
+        "x": 0.5018623962040341,
+        "y": 0.8341399762752064
       },
       "prevControl": null,
       "nextControl": {
-        "x": 0.7476775435102003,
-        "y": 0.7910936113602763
+        "x": 1.7364231125716862,
+        "y": 1.0689783806292223
       },
       "isLocked": false,
       "linkedName": null
     },
     {
       "anchor": {
-        "x": 2.494905578613281,
-        "y": 2.445037414550782
+        "x": 2.664460260972717,
+        "y": 1.0062870699881374
       },
       "prevControl": {
-        "x": 2.282345667211571,
-        "y": 2.234587689264452
+        "x": 1.88386862268037,
+        "y": 0.8852639241885312
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": "shoot_right"
+      "linkedName": null
     }
   ],
   "rotationTargets": [],
   "constraintZones": [],
-  "pointTowardsZones": [
-    {
-      "fieldPosition": {
-        "x": 4.625,
-        "y": 4.025
-      },
-      "rotationOffset": 0.0,
-      "minWaypointRelativePos": 0.3352097602739727,
-      "maxWaypointRelativePos": 1.0,
-      "name": "Point Towards Zone"
-    }
-  ],
-  "eventMarkers": [
-    {
-      "name": "flywheels+ hood start",
-      "waypointRelativePos": 0.5474850171232878,
-      "endWaypointRelativePos": null,
-      "command": {
-        "type": "named",
-        "data": {
-          "name": "flywheelHoodGo"
-        }
-      }
-    }
-  ],
+  "pointTowardsZones": [],
+  "eventMarkers": [],
   "globalConstraints": {
-    "maxVelocity": 5.0,
+    "maxVelocity": 4.7,
     "maxAcceleration": 5.5,
     "maxAngularVelocity": 540.0,
     "maxAngularAcceleration": 720.0,
@@ -65,13 +42,13 @@
   },
   "goalEndState": {
     "velocity": 0.0,
-    "rotation": 40.32993701484634
+    "rotation": 50.0
   },
   "reversed": false,
   "folder": null,
   "idealStartingState": {
-    "velocity": 0,
-    "rotation": 0.0
+    "velocity": 0.0,
+    "rotation": 90.0
   },
   "useDefaultConstraints": true
 }

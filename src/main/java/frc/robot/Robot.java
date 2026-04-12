@@ -8,9 +8,11 @@
 package frc.robot;
 
 import com.revrobotics.util.StatusLogger;
+import edu.wpi.first.cameraserver.CameraServer;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import frc.robot.util.FullSubsystem;
+import frc.robot.util.HubShiftUtil;
 import frc.robot.util.LoggedTracer;
 import org.littletonrobotics.junction.LogFileUtil;
 import org.littletonrobotics.junction.LoggedRobot;
@@ -75,6 +77,8 @@ public class Robot extends LoggedRobot {
     // Start AdvantageKit logger
     Logger.start();
 
+    CameraServer.startAutomaticCapture();
+
     // Instantiate our RobotContainer. This will perform all our button bindings,
     // and put our autonomous chooser on the dashboard.
     robotContainer = new RobotContainer();
@@ -97,6 +101,11 @@ public class Robot extends LoggedRobot {
     LoggedTracer.record("Commands");
     FullSubsystem.runAllPeriodicAfterScheduler();
     LoggedTracer.record("PeriodicAfterScheduler");
+
+    // alliance shift stuff
+    Logger.recordOutput("HubShift/Official", HubShiftUtil.getOfficialShiftInfo());
+    Logger.recordOutput("HubShift/Shifted", HubShiftUtil.getShiftedShiftInfo());
+    Logger.recordOutput("HubShift/CanShoot", HubShiftUtil.getShiftedShiftInfo().active());
 
     // Return to non-RT thread priority (do not modify the first argument)
     // Threads.setCurrentThreadPriority(false, 10);
@@ -135,6 +144,8 @@ public class Robot extends LoggedRobot {
     if (autonomousCommand != null) {
       autonomousCommand.cancel();
     }
+
+    HubShiftUtil.initialize();
   }
 
   /** This function is called periodically during operator control. */

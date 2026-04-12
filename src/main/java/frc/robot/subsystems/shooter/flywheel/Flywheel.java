@@ -1,13 +1,18 @@
 package frc.robot.subsystems.shooter.flywheel;
 
+import static edu.wpi.first.units.Units.Volts;
+
+import com.ctre.phoenix6.SignalLogger;
 import edu.wpi.first.math.filter.Debouncer;
 import edu.wpi.first.math.filter.Debouncer.DebounceType;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.FieldConstants;
 import frc.robot.RobotState.FlywheelState;
+import frc.robot.subsystems.shooter.ShooterConstants.FlywheelConstants;
 import frc.robot.subsystems.shooter.ShotCalculator;
 import frc.robot.subsystems.shooter.flywheel.FlywheelIO.FlywheelIOOutputMode;
 import frc.robot.subsystems.shooter.flywheel.FlywheelIO.FlywheelIOOutputs;
@@ -27,10 +32,9 @@ public class Flywheel extends FullSubsystem {
   private final Supplier<ChassisSpeeds> velocitySupplier;
 
   // tunable stuff
-  private static final LoggedTunableNumber tolerance =
-      new LoggedTunableNumber("Flywheel/Tolerance", 10.0);
+  private static final LoggedTunableNumber tolerance = FlywheelConstants.tolerance;
   private static final LoggedTunableNumber atGoalDebounceTime =
-      new LoggedTunableNumber("Flywheel/AtGoalDebounceTime", 0.15);
+      FlywheelConstants.atGoalDebouncerTime;
 
   @AutoLogOutput private boolean running = false;
   @AutoLogOutput private boolean atGoal = false;
@@ -39,6 +43,17 @@ public class Flywheel extends FullSubsystem {
   @AutoLogOutput private FlywheelState state = FlywheelState.STOPPED;
 
   private Debouncer atGoalDebouncer;
+
+  private final SysIdRoutine m_sysIdRoutine =
+      new SysIdRoutine(
+          new SysIdRoutine.Config(
+              null, // Use default ramp rate (1 V/s)
+              Volts.of(4), // Reduce dynamic step voltage to 4 to prevent brownout
+              null, // Use default timeout (10 s)
+              // Log state with Phoenix SignalLogger class
+              (state) -> SignalLogger.writeString("state", state.toString())),
+          new SysIdRoutine.Mechanism(
+              (voltage) -> runCharacterization(voltage.in(Volts)), null, this));
 
   public Flywheel(
       FlywheelIO io, Supplier<Pose2d> poseSupplier, Supplier<ChassisSpeeds> velocitySupplier) {
@@ -81,10 +96,17 @@ public class Flywheel extends FullSubsystem {
         goalVelocity = 0.0;
         running = false;
       }
+      case MANUAL -> {
+        // do not change goal velocity or running state, allow manual control to handle that
+      }
     }
 
     boolean inTolerance =
-        running && Math.abs(inputs.velocityRadsPerSec - goalVelocity) < tolerance.get();
+        running
+            && Math.abs(
+                    (inputs.velocityRadsPerSec * 60 / (2.0 * Math.PI))
+                        - (goalVelocity * 60.0 / (2. * Math.PI)))
+                < tolerance.get();
     atGoal = atGoalDebouncer.calculate(inTolerance);
   }
 
@@ -105,9 +127,27 @@ public class Flywheel extends FullSubsystem {
     io.applyOutputs(outputs);
   }
 
+  public Command sysIdQuasistatic(SysIdRoutine.Direction direction) {
+    return m_sysIdRoutine.quasistatic(direction);
+  }
+
+  public Command sysIdDynamic(SysIdRoutine.Direction direction) {
+    return m_sysIdRoutine.dynamic(direction);
+  }
+
+  public void runCharacterization(double output) {
+    io.setFlywheelOpenLoop(output);
+  }
+
   @AutoLogOutput(key = "Flywheel/MeasuredVelocity")
-  public double getMeasuredAngleRad() {
+  public double getMeasuredVelocityRadPerSec() {
     return inputs.velocityRadsPerSec;
+  }
+
+  @AutoLogOutput(key = "Flywheel/RPM error")
+  public double getMeasuredError() {
+    return Math.abs(
+        (inputs.velocityRadsPerSec * (60 / 2 * Math.PI)) - (goalVelocity * (60 / 2 * Math.PI)));
   }
 
   @AutoLogOutput(key = "Flywheel/MeasuredVelocityRPM")
@@ -130,13 +170,22 @@ public class Flywheel extends FullSubsystem {
     return inputs.velocityRadsPerSec;
   }
 
-  public void setGoalVelocity(double velocityRadsPerSec) {
+  public void setGoalVelocityRads(double velocityRadsPerSec) {
     this.goalVelocity = velocityRadsPerSec;
     this.running = true;
   }
 
+  public void setGoalVelocityRPM(double rpm) {
+    this.goalVelocity = rpm * 2.0 * Math.PI / 60.0; // rpm to rad rad/s
+    this.running = true;
+  }
+
   public Command runVelocityCommand(DoubleSupplier velocity) {
-    return this.runEnd(() -> setGoalVelocity(velocity.getAsDouble()), this::stop);
+    return this.runEnd(() -> setGoalVelocityRads(velocity.getAsDouble()), this::stop);
+  }
+
+  public Command runVelocityCommandRPM(DoubleSupplier rpm) {
+    return this.runEnd(() -> setGoalVelocityRPM(rpm.getAsDouble()), this::stop);
   }
 
   public Command stopCommand() {

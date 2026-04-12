@@ -13,7 +13,38 @@
         {
           "type": "named",
           "data": {
-            "name": "indexerGo"
+            "name": "autoAlignPrepareToShoot"
+          }
+        },
+        {
+          "type": "parallel",
+          "data": {
+            "commands": [
+              {
+                "type": "named",
+                "data": {
+                  "name": "shootWhenReady"
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "intakeShootingPosition"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "type": "wait",
+          "data": {
+            "waitTime": 5.0
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "stopEverything"
           }
         }
       ]

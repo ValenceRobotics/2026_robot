@@ -24,6 +24,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.drive.DriveConstants;
+import frc.robot.util.geometry.AllianceFlipUtil;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.util.LinkedList;
@@ -33,9 +34,10 @@ import java.util.function.Supplier;
 
 public class DriveCommands {
   private static final double DEADBAND = 0.1;
-  private static final double ANGLE_KP = 5.0;
-  private static final double ANGLE_KD = 0.4;
-  private static final double ANGLE_MAX_VELOCITY = 8.0;
+  private static final double ANGLE_KP = 4.0;
+  private static final double ANGLE_KD = 0.01;
+  private static final double TOLERANCE = Units.degreesToRadians(3);
+  private static final double ANGLE_MAX_VELOCITY = 9.0;
   private static final double ANGLE_MAX_ACCELERATION = 20.0;
   private static final double FF_START_DELAY = 2.0; // Secs
   private static final double FF_RAMP_RATE = 0.1; // Volts/Sec
@@ -97,6 +99,26 @@ public class DriveCommands {
         drive);
   }
 
+  public static Command trenchAlign(Drive drive, DoubleSupplier xSupplier) {
+    return Commands.run(
+        () -> {
+          double x =
+              AllianceFlipUtil.shouldFlip()
+                  ? -MathUtil.applyDeadband(xSupplier.getAsDouble(), 0.1)
+                  : MathUtil.applyDeadband(xSupplier.getAsDouble(), 0.1);
+          x = Math.copySign(x * x, x);
+
+          double fieldVY = drive.getTrenchAlignVY();
+          double omega = drive.getTrenchHeadingCorrection();
+
+          drive.runVelocity(
+              ChassisSpeeds.fromFieldRelativeSpeeds(
+                  new ChassisSpeeds(x * drive.getMaxLinearSpeedMetersPerSec(), fieldVY, omega),
+                  drive.getRotation()));
+        },
+        drive);
+  }
+
   /**
    * Field relative drive command using joystick for linear control and PID for angular control.
    * Possible use cases include snapping to an angle, aiming at a vision target, or controlling
@@ -116,6 +138,7 @@ public class DriveCommands {
             ANGLE_KD,
             new TrapezoidProfile.Constraints(ANGLE_MAX_VELOCITY, ANGLE_MAX_ACCELERATION));
     angleController.enableContinuousInput(-Math.PI, Math.PI);
+    angleController.setTolerance(TOLERANCE);
 
     // Construct command
     return Commands.run(
@@ -149,6 +172,39 @@ public class DriveCommands {
 
         // Reset PID controller when command starts
         .beforeStarting(() -> angleController.reset(drive.getRotation().getRadians()));
+  }
+
+  public static Command turnToHeadingAuto(Drive drive, Supplier<Rotation2d> headingSupplier) {
+    ProfiledPIDController angleController =
+        new ProfiledPIDController(
+            ANGLE_KP,
+            0.0,
+            ANGLE_KD,
+            new TrapezoidProfile.Constraints(ANGLE_MAX_VELOCITY, ANGLE_MAX_ACCELERATION));
+
+    angleController.enableContinuousInput(-Math.PI, Math.PI);
+    angleController.setTolerance(TOLERANCE);
+
+    return Commands.run(
+            () -> {
+              Rotation2d target = headingSupplier.get();
+
+              double omega =
+                  angleController.calculate(drive.getRotation().getRadians(), target.getRadians());
+
+              drive.runVelocity(
+                  ChassisSpeeds.fromFieldRelativeSpeeds(
+                      new ChassisSpeeds(0.0, 0.0, omega), drive.getRotation()));
+            },
+            drive)
+        .beforeStarting(
+            () -> {
+              angleController.reset(drive.getRotation().getRadians());
+              angleController.setGoal(headingSupplier.get().getRadians());
+            })
+        .alongWith(Commands.run(() -> angleController.setGoal(headingSupplier.get().getRadians())))
+        .until(angleController::atGoal)
+        .finallyDo(() -> drive.runVelocity(new ChassisSpeeds(0.0, 0.0, 0.0)));
   }
 
   /**

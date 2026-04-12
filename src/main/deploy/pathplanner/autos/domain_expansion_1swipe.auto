@@ -1,0 +1,105 @@
+W{
+  "version": "2025.0",
+  "command": {
+    "type": "sequential",
+    "data": {
+      "commands": [
+        {
+          "type": "path",
+          "data": {
+            "pathName": "shootL_nuetral_2"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "nuetral_shootL_2"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "nuetral_trench_shoot_left"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "autoAlignPrepareToShoot"
+          }
+        },
+        {
+          "type": "parallel",
+          "data": {
+            "commands": [
+              {
+                "type": "named",
+                "data": {
+                  "name": "shootWhenReady"
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "intakeShootingPosition"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "stopEverything"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "shootL_nuetral"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "2nd_nuetral_shootL_2"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "autoAlignPrepareToShoot"
+          }
+        },
+        {
+          "type": "parallel",
+          "data": {
+            "commands": [
+              {
+                "type": "named",
+                "data": {
+                  "name": "shootWhenReady"
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "intakeShootingPosition"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "stopEverything"
+          }
+        }
+      ]
+    }
+  },
+  "resetOdom": true,
+  "folder": null,
+  "choreoAuto": false
+}

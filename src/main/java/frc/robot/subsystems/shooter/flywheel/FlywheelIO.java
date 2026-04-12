@@ -28,4 +28,6 @@ public interface FlywheelIO {
   default void updateInputs(FlywheelIOInputs inputs) {}
 
   default void applyOutputs(FlywheelIOOutputs outputs) {}
+
+  public default void setFlywheelOpenLoop(double output) {}
 }

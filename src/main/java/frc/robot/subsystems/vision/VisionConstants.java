@@ -16,44 +16,31 @@ import edu.wpi.first.math.util.Units;
 public class VisionConstants {
   // AprilTag layout
   public static AprilTagFieldLayout aprilTagLayout =
-      AprilTagFieldLayout.loadField(AprilTagFields.kDefaultField);
-
-  // scuffed way to get april tag layout from pre-existing JSON - note: change loadField method when
-  // wpilib is updated
-  // public static final AprilTagFieldLayout aprilTagLayout;
-
-  // static {
-  //   try {
-  //     Path layoutPath =
-  //         Filesystem.getDeployDirectory().toPath().resolve("apriltags/2026-rebuilt-welded.json");
-
-  //     aprilTagLayout = new AprilTagFieldLayout(layoutPath.toString());
-  //     aprilTagLayout.setOrigin(AprilTagFieldLayout.OriginPosition.kBlueAllianceWallRightSide);
-
-  //   } catch (IOException e) {
-  //     throw new RuntimeException("Failed to load AprilTag field layout", e);
-  //   }
-  // }
+      AprilTagFieldLayout.loadField(AprilTagFields.k2026RebuiltAndymark);
 
   // Camera names, must match names configured on coprocessor
-  public static String camera0Name = "camera_0";
-  public static String camera1Name = "camera_1";
-
-  // Robot to camera transforms
-  // (Not used by Limelight, configure in web UI instead)
-  /* AK translations - front, back  */
-  // public static Transform3d robotToCamera0 =
-  //     new Transform3d(0.2, 0.0, 0.2, new Rotation3d(0.0, -0.4, 0.0));
-  // public static Transform3d robotToCamera1 =
-  //     new Transform3d(-0.2, 0.0, 0.2, new Rotation3d(0.0, -0.4, Math.PI));
+  public static String cameraFName = "camera_f";
+  public static String cameraLName = "camera_l";
+  public static String cameraRName = "camera_r";
 
   /* two front facing cameras */
-  public static Transform3d robotToCamera0 =
+  public static Transform3d robotToCameraF =
       new Transform3d(
-          -0.343, 0.153988, 0.212343, new Rotation3d(0.0, Units.degreesToRadians(-20.0), 0));
-  public static Transform3d robotToCamera1 =
+          0.343, 0.153988, 0.212343, new Rotation3d(0.0, Units.degreesToRadians(-20.0), 0));
+  public static Transform3d robotToCameraL =
       new Transform3d(
-          0.000, -0.343, 0.196850, new Rotation3d(0.0, -0.4, Units.degreesToRadians(-20.0)));
+          0.000,
+          0.343,
+          0.196850,
+          new Rotation3d(
+              0, Units.degreesToRadians(-15), Units.degreesToRadians(55))); // left of shooter
+  public static Transform3d robotToCameraR =
+      new Transform3d(
+          0.000,
+          -0.343,
+          0.196850,
+          new Rotation3d(
+              0, Units.degreesToRadians(-15), Units.degreesToRadians(-55))); // right of shooter
 
   // Basic filtering thresholds
   public static double maxAmbiguity = 0.3;

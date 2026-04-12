@@ -7,31 +7,37 @@
         {
           "type": "path",
           "data": {
-            "pathName": "left_dep"
+            "pathName": "shootL_nuetral_2"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "left_dep_shoot(hub)"
+            "pathName": "nuetral_shootL_2"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "shoot_left_bar_nuetral"
+            "pathName": "nuetral_trench_shoot_left"
           }
         },
         {
-          "type": "path",
+          "type": "named",
           "data": {
-            "pathName": "nuetralintake_shoot"
+            "name": "autoAlignPrepareToShoot"
           }
         },
         {
-          "type": "path",
+          "type": "named",
           "data": {
-            "pathName": "shoot_climb"
+            "name": "shootWhenReady"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "stopEverything"
           }
         }
       ]

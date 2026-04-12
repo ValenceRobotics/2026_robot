@@ -3,41 +3,41 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 3.4156735387731487,
-        "y": 5.695012080439815
+        "x": 6.516,
+        "y": 7.482
       },
       "prevControl": null,
       "nextControl": {
-        "x": 2.717023633804414,
-        "y": 5.750289518255874
-      },
-      "isLocked": false,
-      "linkedName": "left"
-    },
-    {
-      "anchor": {
-        "x": 0.515515805357806,
-        "y": 4.97185279224537
-      },
-      "prevControl": {
-        "x": 0.515793448307153,
-        "y": 4.588332439433145
-      },
-      "nextControl": {
-        "x": 0.5147738738234657,
-        "y": 5.996715280134501
+        "x": 6.804060130660118,
+        "y": 7.430312450465406
       },
       "isLocked": false,
       "linkedName": null
     },
     {
       "anchor": {
-        "x": 0.515515805357806,
-        "y": 6.879896265349491
+        "x": 4.067566666666667,
+        "y": 7.482
       },
       "prevControl": {
-        "x": 0.4843859149480615,
-        "y": 6.442615477623742
+        "x": 4.347525756431086,
+        "y": 7.589101119497858
+      },
+      "nextControl": {
+        "x": 2.9294491418059474,
+        "y": 7.04660188117026
+      },
+      "isLocked": false,
+      "linkedName": null
+    },
+    {
+      "anchor": {
+        "x": 2.137259786482248,
+        "y": 6.579549228949627
+      },
+      "prevControl": {
+        "x": 3.0575117142041703,
+        "y": 6.985336879524352
       },
       "nextControl": null,
       "isLocked": false,
@@ -46,27 +46,22 @@
   ],
   "rotationTargets": [
     {
-      "waypointRelativePos": 0.95,
-      "rotationDegrees": -90.0
+      "waypointRelativePos": 1.0105263157894722,
+      "rotationDegrees": 0.0
     }
   ],
   "constraintZones": [],
   "pointTowardsZones": [],
   "eventMarkers": [
     {
-      "name": "intake",
-      "waypointRelativePos": 0.95,
+      "name": "flywheelHoodGo",
+      "waypointRelativePos": 1.2535991140642309,
       "endWaypointRelativePos": null,
-      "command": {
-        "type": "named",
-        "data": {
-          "name": "intake"
-        }
-      }
+      "command": null
     }
   ],
   "globalConstraints": {
-    "maxVelocity": 5.0,
+    "maxVelocity": 4.7,
     "maxAcceleration": 5.5,
     "maxAngularVelocity": 540.0,
     "maxAngularAcceleration": 720.0,
@@ -75,13 +70,13 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": -90.0
+    "rotation": 0.0
   },
   "reversed": false,
   "folder": null,
   "idealStartingState": {
-    "velocity": 0,
-    "rotation": -45.0
+    "velocity": 0.9,
+    "rotation": 0.0
   },
   "useDefaultConstraints": true
 }

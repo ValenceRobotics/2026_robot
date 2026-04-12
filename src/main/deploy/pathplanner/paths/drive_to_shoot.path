@@ -3,13 +3,13 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 3.4156735387731487,
-        "y": 5.695012080439815
+        "x": 7.786,
+        "y": 4.578
       },
       "prevControl": null,
       "nextControl": {
-        "x": 2.364258073568685,
-        "y": 5.59840641535322
+        "x": 6.734584534795536,
+        "y": 4.481394334913405
       },
       "isLocked": false,
       "linkedName": "left"
@@ -28,7 +28,12 @@
       "linkedName": "shoot"
     }
   ],
-  "rotationTargets": [],
+  "rotationTargets": [
+    {
+      "waypointRelativePos": 0.5,
+      "rotationDegrees": 0.0
+    }
+  ],
   "constraintZones": [],
   "pointTowardsZones": [
     {
@@ -42,21 +47,9 @@
       "name": "hub"
     }
   ],
-  "eventMarkers": [
-    {
-      "name": "flywheels+ hood start",
-      "waypointRelativePos": 0,
-      "endWaypointRelativePos": null,
-      "command": {
-        "type": "named",
-        "data": {
-          "name": "flywheelHoodGo"
-        }
-      }
-    }
-  ],
+  "eventMarkers": [],
   "globalConstraints": {
-    "maxVelocity": 5.0,
+    "maxVelocity": 4.7,
     "maxAcceleration": 5.5,
     "maxAngularVelocity": 540.0,
     "maxAngularAcceleration": 720.0,
@@ -71,7 +64,7 @@
   "folder": null,
   "idealStartingState": {
     "velocity": 0,
-    "rotation": -45.0
+    "rotation": 90.0
   },
   "useDefaultConstraints": true
 }

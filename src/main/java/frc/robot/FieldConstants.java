@@ -363,6 +363,54 @@ public class FieldConstants {
     }
   }
 
+  public static class TrenchAlignConstants {
+    // Y centerlines of each trench opening (average of the two Y boundary points)
+    public static final double leftTrenchCenterY =
+        (LeftTrench.openingTopLeft.getY() + LeftTrench.openingTopRight.getY()) / 2.0;
+    public static final double rightTrenchCenterY =
+        (RightTrench.openingTopLeft.getY() + RightTrench.openingTopRight.getY()) / 2.0;
+
+    // Opposing side — names now correctly mirror alliance side
+    public static final double oppLeftTrenchCenterY =
+        (LeftTrench.oppOpeningTopLeft.getY() + LeftTrench.oppOpeningTopRight.getY()) / 2.0;
+    public static final double oppRightTrenchCenterY =
+        (RightTrench.oppOpeningTopLeft.getY() + RightTrench.oppOpeningTopRight.getY()) / 2.0;
+
+    // Safety margin subtracted from each side of the opening
+    // Robot is 23.5in wide, opening is 50.34in — leaves ~13in total, 4in margin per side
+    public static final double safetyMarginMeters = Units.inchesToMeters(4.0);
+
+    // Safe Y corridor bounds for each trench (robot must be within before entering)
+    public static final double leftTrenchSafeLowY =
+        leftTrenchCenterY - (LeftTrench.openingWidth / 2.0 - safetyMarginMeters);
+    public static final double leftTrenchSafeHighY =
+        leftTrenchCenterY + (LeftTrench.openingWidth / 2.0 - safetyMarginMeters);
+
+    public static final double rightTrenchSafeLowY =
+        rightTrenchCenterY - (RightTrench.openingWidth / 2.0 - safetyMarginMeters);
+    public static final double rightTrenchSafeHighY =
+        rightTrenchCenterY + (RightTrench.openingWidth / 2.0 - safetyMarginMeters);
+
+    // Opposing side safe corridors
+    public static final double oppLeftTrenchSafeLowY =
+        oppLeftTrenchCenterY - (LeftTrench.openingWidth / 2.0 - safetyMarginMeters);
+    public static final double oppLeftTrenchSafeHighY =
+        oppLeftTrenchCenterY + (LeftTrench.openingWidth / 2.0 - safetyMarginMeters);
+
+    public static final double oppRightTrenchSafeLowY =
+        oppRightTrenchCenterY - (RightTrench.openingWidth / 2.0 - safetyMarginMeters);
+    public static final double oppRightTrenchSafeHighY =
+        oppRightTrenchCenterY + (RightTrench.openingWidth / 2.0 - safetyMarginMeters);
+
+    // Alignment targets
+    public static final double alignmentX = LinesVertical.hubCenter;
+    public static final double oppAlignmentX = LinesVertical.oppHubCenter;
+
+    // Tolerances
+    public static final double alignmentYToleranceMeters = Units.inchesToMeters(2.0);
+    public static final double alignmentHeadingToleranceDegrees = 2.0;
+  }
+
   @RequiredArgsConstructor
   public enum FieldType {
     ANDYMARK("andymark"),

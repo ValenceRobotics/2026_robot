@@ -7,16 +7,15 @@
 
 package frc.robot;
 
-import static frc.robot.subsystems.vision.VisionConstants.camera0Name;
-import static frc.robot.subsystems.vision.VisionConstants.camera1Name;
-import static frc.robot.subsystems.vision.VisionConstants.robotToCamera0;
-import static frc.robot.subsystems.vision.VisionConstants.robotToCamera1;
-
-import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
+import static frc.robot.subsystems.vision.VisionConstants.cameraFName;
+import static frc.robot.subsystems.vision.VisionConstants.cameraLName;
+import static frc.robot.subsystems.vision.VisionConstants.cameraRName;
+import static frc.robot.subsystems.vision.VisionConstants.robotToCameraF;
+import static frc.robot.subsystems.vision.VisionConstants.robotToCameraL;
+import static frc.robot.subsystems.vision.VisionConstants.robotToCameraR;
 
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
-
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.GenericHID;
@@ -24,6 +23,8 @@ import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
+import edu.wpi.first.wpilibj2.command.ParallelDeadlineGroup;
+import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.button.CommandGenericHID;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
@@ -36,6 +37,7 @@ import frc.robot.RobotState.IntakeRollerState;
 import frc.robot.RobotState.SpindexerState;
 import frc.robot.commands.DriveCommands;
 import frc.robot.subsystems.drive.Drive;
+import frc.robot.subsystems.drive.DriveConstants;
 import frc.robot.subsystems.drive.GyroIO;
 import frc.robot.subsystems.drive.GyroIOPigeon2;
 import frc.robot.subsystems.drive.ModuleIO;
@@ -57,6 +59,7 @@ import frc.robot.subsystems.shooter.flywheel.FlywheelIO;
 import frc.robot.subsystems.shooter.flywheel.FlywheelIOTalonFX;
 import frc.robot.subsystems.shooter.hood.Hood;
 import frc.robot.subsystems.shooter.hood.HoodIO;
+import frc.robot.subsystems.shooter.hood.HoodIOReal;
 import frc.robot.subsystems.shooter.hood.HoodIOSim;
 import frc.robot.subsystems.spindexer.Spindexer;
 import frc.robot.subsystems.spindexer.SpindexerIOReal;
@@ -65,6 +68,9 @@ import frc.robot.subsystems.vision.Vision;
 import frc.robot.subsystems.vision.VisionIO;
 import frc.robot.subsystems.vision.VisionIOPhotonVision;
 import frc.robot.subsystems.vision.VisionIOPhotonVisionSim;
+import frc.robot.util.LoggedTunableNumber;
+import org.littletonrobotics.junction.Logger;
+import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 
 /**
  * This class is where the bulk of the robot should be declared. Since Command-based is a
@@ -82,7 +88,7 @@ public class RobotContainer {
   final Flywheel flywheel;
   final Spindexer spindexer;
   final Indexer indexer;
-//   final LED led;
+  // final LED led;
 
   // Robot state
   final RobotState robotState;
@@ -91,6 +97,11 @@ public class RobotContainer {
   private final CommandXboxController controller = new CommandXboxController(1);
   private final CommandXboxController manualController = new CommandXboxController(2);
   private final CommandGenericHID keyboard = new CommandGenericHID(0); // Keyboard 0 on port 0
+
+  private static LoggedTunableNumber tuneHoodDeg =
+      new LoggedTunableNumber("tuning/hood angle", 10.0);
+  private static LoggedTunableNumber tuneFlywheelRPM =
+      new LoggedTunableNumber("tuning/flywheel RPM", 1000.0);
 
   // Dashboard inputs
   private final LoggedDashboardChooser<Command> autoChooser;
@@ -109,22 +120,19 @@ public class RobotContainer {
                 new ModuleIOSpark(3));
 
         // vision =
-        //     new Vision(
-        //         drive::addVisionMeasurement,
-        //         new VisionIOLimelight(camera0Name, drive::getRotation),
-        //         new VisionIOLimelight(camera1Name, drive::getRotation));
+        // new Vision(
+        // drive::addVisionMeasurement,
+        // new VisionIOLimelight(camera0Name, drive::getRotation),
+        // new VisionIOLimelight(camera1Name, drive::getRotation));
         vision =
             new Vision(
                 drive::addVisionMeasurement,
-                new VisionIOPhotonVision(camera0Name, robotToCamera0),
-                new VisionIOPhotonVision(camera1Name, robotToCamera1));
+                new VisionIOPhotonVision(cameraFName, robotToCameraF),
+                new VisionIOPhotonVision(cameraLName, robotToCameraL),
+                new VisionIOPhotonVision(cameraRName, robotToCameraR));
 
-        this.hood =
-            new Hood(
-                new HoodIOSim(),
-                drive::getPose,
-                drive::getFieldVelocity); 
-        this.indexer = new Indexer (new IndexerIOReal());
+        this.hood = new Hood(new HoodIOReal(), drive::getPose, drive::getFieldVelocity);
+        this.indexer = new Indexer(new IndexerIOReal());
         this.intakePivot =
             new IntakePivot(
                 new IntakePivotIOTalonFX()); // if this breaks change it back to iosim here for now
@@ -148,16 +156,16 @@ public class RobotContainer {
         vision =
             new Vision(
                 drive::addVisionMeasurement,
-                new VisionIOPhotonVisionSim(camera0Name, robotToCamera0, drive::getPose),
-                new VisionIOPhotonVisionSim(camera1Name, robotToCamera1, drive::getPose));
+                new VisionIOPhotonVisionSim(cameraFName, robotToCameraF, drive::getPose),
+                new VisionIOPhotonVisionSim(cameraLName, robotToCameraL, drive::getPose),
+                new VisionIOPhotonVisionSim(cameraRName, robotToCameraR, drive::getPose));
 
         hood = new Hood(new HoodIOSim(), drive::getPose, drive::getFieldVelocity);
         intakePivot = new IntakePivot(new IntakePivotIOSim());
         intakeRollers = new IntakeRollers(new IntakeRollersIOSim());
         flywheel = new Flywheel(new FlywheelIO() {}, drive::getPose, drive::getFieldVelocity);
         spindexer = new Spindexer(new SpindexerIOSim() {});
-        this.indexer = new Indexer(new IndexerIO(){} );
-        // led = new LED();
+        this.indexer = new Indexer(new IndexerIO() {});
 
         break;
 
@@ -189,20 +197,68 @@ public class RobotContainer {
 
     // Start of Named Commands for auto:
     NamedCommands.registerCommand(
-        "flywheelHoodGo",
-        Commands.parallel(
-            robotState.seekIndefinite(HoodState.SEEK_GOAL),
-            robotState.seekIndefinite(FlywheelState.SEEK_GOAL)));
+        "intakedown", robotState.seek(IntakePivotState.DOWN).withTimeout(.01));
+    NamedCommands.registerCommand(
+        "flywheelHoodGo", robotState.seekIndefinite(FlywheelState.SEEK_GOAL));
+    NamedCommands.registerCommand(
+        "shootWhenReady",
+        new SequentialCommandGroup(
+            Commands.waitUntil(() -> flywheel.atGoal() && drive.atCachedAimbotHeading())
+                .withTimeout(3),
+            robotState
+                .seekIndefinite(SpindexerState.INDEXING, IndexerState.INDEXING)
+                .until(indexer::doneShooting)
+                .withTimeout(8.5)));
+    NamedCommands.registerCommand(
+        "intake",
+        robotState
+            .seekIndefinite(IntakePivotState.DOWN, IntakeRollerState.INWARD)
+            .withTimeout(2)); // figure out logic for writing time stuff
+    NamedCommands.registerCommand(
+        "intakeShootingPosition",
+        new SequentialCommandGroup(
+                robotState
+                    .seekIndefinite(IntakeRollerState.INWARD, IntakePivotState.SHOOTING_POS)
+                    .withTimeout(.5),
+                robotState
+                    .seekIndefinite(IntakeRollerState.INWARD, IntakePivotState.DOWN)
+                    .withTimeout(.5))
+            .repeatedly()
+            .until(indexer::doneShooting)
+            .withTimeout(7));
 
     NamedCommands.registerCommand(
-        "indexerGo",
-        Commands.either(
-            robotState.seekIndefinite(SpindexerState.INDEXING),
-            robotState.seekIndefinite(SpindexerState.IDLE),
-            () -> hood.atGoal() && flywheel.atGoal()));
+        "autoAlignPrepareToShoot",
+        new ParallelDeadlineGroup(
+            DriveCommands.turnToHeadingAuto(
+                    drive,
+                    () -> {
+                      drive.updateAimbotHeading(
+                          FieldConstants.Hub.topCenterPoint.toTranslation2d());
+                      return drive
+                          .getCachedAimbotHeading()
+                          .minus(new Rotation2d(DriveConstants.aimbotOffset));
+                    })
+                .withTimeout(3),
+            robotState.seekIndefinite(HoodState.SEEK_GOAL, FlywheelState.SEEK_GOAL)));
 
     NamedCommands.registerCommand(
-        "intake", robotState.seekIndefinite(IntakePivotState.DOWN, IntakeRollerState.INWARD));
+        "stopEverything",
+        robotState
+            .seek(
+                HoodState.FOLD_BACK,
+                FlywheelState.STOPPED,
+                SpindexerState.IDLE,
+                IndexerState.IDLE,
+                IntakePivotState.DOWN,
+                IntakeRollerState.STOPPED)
+            .withTimeout(.01));
+
+    NamedCommands.registerCommand(
+        "stopIntake",
+        robotState
+            .seekIndefinite(IntakePivotState.DOWN, IntakeRollerState.STOPPED)
+            .withTimeout(.2));
 
     // Set up auto routines
     autoChooser = new LoggedDashboardChooser<>("Auto Choices", AutoBuilder.buildAutoChooser());
@@ -226,7 +282,6 @@ public class RobotContainer {
     // Configure the button bindings
     configureButtonBindings();
   }
-
   /**
    * Use this method to define your button->command mappings. Buttons can be created by
    * instantiating a {@link GenericHID} or one of its subclasses ({@link
@@ -234,33 +289,51 @@ public class RobotContainer {
    * edu.wpi.first.wpilibj2.command.button.JoystickButton}.
    */
   private void configureButtonBindings() {
-    // Default command, normal field-relative drive
     drive.setDefaultCommand(
         DriveCommands.joystickDrive(
-            drive, () -> getDriveForward(), () -> getDriveLeft(), () -> getDriveRotation()));
+            drive,
+            () -> -controller.getLeftY(),
+            () -> -controller.getLeftX(),
+            () -> -controller.getRightX()));
+
+    // drive.setDefaultCommand(
+    // DriveCommands.joystickDrive(
+    // drive,
+    // () -> -manualController.getLeftY(),de
+    // () -> -manualController.getLeftX(),
+    // () -> -manualController.getRightX()));
+
+    // hood.setDefaultCommand(robotState.seekIndefinite(HoodState.FOLD_BACK).repeatedly()); // comp
+    // code
+    hood.setDefaultCommand(robotState.seekIndefinite(HoodState.FOLD_BACK).repeatedly());
     intakeRollers.setDefaultCommand(
         robotState.seekIndefinite(IntakeRollerState.STOPPED).repeatedly());
-    // intakePivot.setDefaultCommand(robotState.seekIndefinite(IntakePivotState.UP).repeatedly());
-    // hood.setDefaultCommand(robotState.seekIndefinite(HoodState.SEEK_GOAL).repeatedly());
-    spindexer.setDefaultCommand(robotState.seekIndefinite(SpindexerState.IDLE));
+    intakePivot.setDefaultCommand(
+        robotState.seekIndefinite(IntakePivotState.DRIVING_POS).repeatedly());
+    // hood.setDefaultCommand(robotState.seekIndefinite(HoodState.MANUAL).repeatedly());
+    flywheel.setDefaultCommand(robotState.seekIndefinite(FlywheelState.STOPPED).repeatedly());
 
+    /* COMP CONTROLS */
     // aimbot trigger
     Trigger aimbotHeld = controller.rightTrigger();
+    Trigger trenchAlignHeld =
+        controller.b().or(keyboard.button(1)); // Also hold z on keyboard for sim
 
-    robotState
-        .getTrenchWarningTrigger()
-        .and(aimbotHeld.negate())
-        .whileTrue(robotState.seekIndefinite(HoodState.FOLD_BACK));
+    // trench protection code
+    // robotState
+    //     .getTrenchWarningTrigger()
+    //     .and(aimbotHeld.negate())
+    //     .whileTrue(robotState.seekIndefinite(HoodState.FOLD_BACK));
 
-    robotState
-        .getTrenchHardTrigger()
-        .and(
-            new Trigger(
-                () ->
-                    hood.getMeasuredAngleRad()
-                        > FieldConstants.TrenchSafetyConstants.HOOD_SAFE_ANGLE_RAD))
-        .onTrue(Commands.runOnce(() -> drive.setTrenchProtection(true)))
-        .onFalse(Commands.runOnce(() -> drive.setTrenchProtection(false)));
+    // robotState
+    //     .getTrenchHardTrigger()
+    //     .and(
+    //         new Trigger(
+    //             () ->
+    //                 hood.getMeasuredAngleRad()
+    //                     > FieldConstants.TrenchSafetyConstants.HOOD_SAFE_ANGLE_RAD))
+    //     .onTrue(Commands.runOnce(() -> drive.setTrenchProtection(true)))
+    //     .onFalse(Commands.runOnce(() -> drive.setTrenchProtection(false)));
 
     // Switch to X pattern when X button is pressed
     controller.x().onTrue(Commands.runOnce(drive::stopWithX, drive));
@@ -278,89 +351,200 @@ public class RobotContainer {
 
     // set intake pivot down when left bumper held
     controller
-        .leftBumper()
+        .leftTrigger()
         .whileTrue(robotState.seekIndefinite(IntakePivotState.DOWN, IntakeRollerState.INWARD));
+    controller.leftBumper().whileTrue(robotState.seekIndefinite(IntakePivotState.UP));
+    controller.a().whileTrue(robotState.seekIndefinite(IntakeRollerState.OUTWARD));
+
+    // counter indexing
+    controller
+        .y()
+        .whileTrue(robotState.seekIndefinite(IndexerState.REVERSE, SpindexerState.REVERSE))
+        .onFalse(robotState.seek(IndexerState.IDLE, SpindexerState.IDLE));
 
     // aimbot at target while shooting
-    aimbotHeld.whileTrue(
-        new ParallelCommandGroup(
+    aimbotHeld
+        .whileTrue(
+            new ParallelCommandGroup(
+                DriveCommands.joystickDriveAtAngle(
+                    drive,
+                    () -> -controller.getLeftY() * 0.40,
+                    () -> -controller.getLeftX() * 0.40,
+                    () -> {
+                      drive.updateAimbotHeading(
+                          FieldConstants.Hub.topCenterPoint.toTranslation2d());
+                      return drive
+                          .getCachedAimbotHeading()
+                          .minus(new Rotation2d(DriveConstants.aimbotOffset));
+                    }),
+                robotState.seekIndefinite(FlywheelState.SEEK_GOAL, HoodState.SEEK_GOAL),
+                // feed when flywheel ready
+                new SequentialCommandGroup(
+                    Commands.waitUntil(
+                        () -> hood.atGoal() && drive.atCachedAimbotHeading() && flywheel.atGoal()),
+                    new ParallelCommandGroup(
+                        robotState.seekIndefinite(SpindexerState.INDEXING, IndexerState.INDEXING),
+                        new SequentialCommandGroup(
+                                robotState
+                                    .seekIndefinite(
+                                        IntakeRollerState.INWARD, IntakePivotState.SHOOTING_POS)
+                                    .withTimeout(.5),
+                                robotState
+                                    .seekIndefinite(IntakeRollerState.INWARD, IntakePivotState.DOWN)
+                                    .withTimeout(.5))
+                            .repeatedly()))))
+        .onFalse(
+            robotState.seek(
+                SpindexerState.IDLE,
+                IndexerState.IDLE,
+                IntakePivotState.DRIVING_POS,
+                FlywheelState.STOPPED));
+
+    trenchAlignHeld
+        .onTrue(Commands.runOnce(() -> drive.updateTrenchAlignment(drive.isCloserToLeftTrench())))
+        .whileTrue(DriveCommands.trenchAlign(drive, () -> -controller.getLeftY()));
+
+    // pass to target
+    controller
+        .rightBumper()
+        .or(keyboard.button(2)) // also hold x on keyboard for sim
+        .whileTrue(
+            new ParallelCommandGroup(
+                DriveCommands.joystickDriveAtAngle(
+                    drive,
+                    () -> -controller.getLeftY() * 0.8,
+                    () -> -controller.getLeftX() * 0.8,
+                    () -> {
+                      drive.updateAimbotHeading(drive.getBestPassingTarget());
+                      Logger.recordOutput("test/targetPose", drive.getBestPassingTarget()); // debug
+                      return drive
+                          .getCachedAimbotHeading()
+                          .minus(new Rotation2d(DriveConstants.aimbotOffset));
+                    }),
+                robotState.seekIndefinite(FlywheelState.PASS_BALL, HoodState.PASS_BALL),
+                // feed when flywheel ready
+                new SequentialCommandGroup(
+                    Commands.waitUntil(
+                        () ->
+                            hood.atGoal()
+                                && drive.atCachedAimbotHeadingForPassing()
+                                && flywheel.atGoal()),
+                    robotState.seekIndefinite(
+                        SpindexerState.INDEXING,
+                        IndexerState.INDEXING,
+                        IntakeRollerState.INWARD,
+                        IntakePivotState.DOWN))))
+        .onFalse(
+            robotState.seek(
+                SpindexerState.IDLE,
+                IndexerState.IDLE,
+                IntakePivotState.DRIVING_POS,
+                FlywheelState.STOPPED));
+
+    /* CONTROLLER 2 FOR TESTING */
+    // intake testing ; should be the same as the other
+    manualController
+        .leftTrigger()
+        .whileTrue(robotState.seekIndefinite(IntakeRollerState.INWARD))
+        .onFalse(robotState.seekIndefinite(IntakeRollerState.STOPPED));
+
+    // change the state of the intake pivot
+    manualController.povDown().whileTrue(robotState.seekIndefinite(IntakePivotState.DOWN));
+    manualController.povUp().whileTrue(robotState.seekIndefinite(IntakePivotState.UP));
+
+    // try this when testing shooting; if it doesn't work go back to jank
+    manualController
+        .rightTrigger()
+        .whileTrue(
+            new ParallelCommandGroup(
+                DriveCommands.joystickDriveAtAngle(
+                    drive,
+                    () -> -manualController.getLeftY() * 0.55,
+                    () -> -manualController.getLeftX() * 0.55,
+                    () -> {
+                      drive.updateAimbotHeading(
+                          FieldConstants.Hub.topCenterPoint.toTranslation2d());
+                      return drive.getCachedAimbotHeading();
+                    }),
+                flywheel.runVelocityCommand(tuneFlywheelRPM::get),
+                hood.moveToAngle(tuneHoodDeg::get),
+                new SequentialCommandGroup(
+                    Commands.waitUntil(
+                        // () -> hood.atGoal() &&
+                        () -> drive.atCachedAimbotHeading() && flywheel.atGoal()),
+                    robotState.seekIndefinite(
+                        SpindexerState.INDEXING,
+                        IndexerState.INDEXING,
+                        IntakeRollerState.INWARD,
+                        IntakePivotState.SHOOTING_POS))))
+        .onFalse(
+            robotState.seekIndefinite(
+                SpindexerState.IDLE,
+                IndexerState.IDLE,
+                IntakePivotState.DOWN,
+                IntakeRollerState.INWARD));
+
+    manualController
+        .b()
+        .whileTrue(
+            new ParallelCommandGroup(
+                flywheel.runVelocityCommandRPM(tuneFlywheelRPM::get),
+                hood.moveToAngle(tuneHoodDeg::get),
+                new SequentialCommandGroup(
+                    Commands.waitUntil(() -> hood.atGoal() && flywheel.atGoal()),
+                    robotState.seekIndefinite(SpindexerState.INDEXING, IndexerState.INDEXING))))
+        .onFalse(robotState.seekIndefinite(SpindexerState.IDLE, IndexerState.IDLE));
+
+    manualController
+        .x()
+        .whileTrue(
+            new ParallelCommandGroup(
+                robotState.seekIndefinite(
+                    HoodState.SEEK_GOAL, FlywheelState.SEEK_GOAL, IntakeRollerState.INWARD),
+                new SequentialCommandGroup(
+                    Commands.waitUntil(() -> hood.atGoal() && flywheel.atGoal()),
+                    robotState.seekIndefinite(SpindexerState.INDEXING, IndexerState.INDEXING))))
+        .onFalse(
+            robotState
+                .seekIndefinite(SpindexerState.IDLE, IndexerState.IDLE, IntakeRollerState.STOPPED)
+                .alongWith(robotState.seek(HoodState.FOLD_BACK, FlywheelState.STOPPED)));
+
+    manualController
+        .y()
+        .whileTrue(
             DriveCommands.joystickDriveAtAngle(
                 drive,
-                () -> -controller.getLeftY() * 0.55,
-                () -> -controller.getLeftX() * 0.55,
+                () -> manualController.getLeftY() * 0.55,
+                () -> manualController.getLeftX() * 0.55,
                 () -> {
                   drive.updateAimbotHeading(FieldConstants.Hub.topCenterPoint.toTranslation2d());
-                  return drive.getCachedAimbotHeading();
-                }),
+                  return (drive
+                      .getCachedAimbotHeading()
+                      .minus(new Rotation2d(DriveConstants.aimbotOffset)));
+                }));
 
-            // seek goal at all times when holding
-            // TODO: Figure out logic to improe shoot  on move at drive goal logic
-            robotState.seekIndefinite(FlywheelState.SEEK_GOAL, HoodState.SEEK_GOAL),
-            // feed when flywheel ready
-            Commands.either(
-                robotState.seekIndefinite(SpindexerState.INDEXING),
-                robotState.seekIndefinite(SpindexerState.IDLE),
-                () -> hood.atGoal() && drive.atCachedAimbotHeading())));
+    // for debugging hood + flywheels
+    manualController
+        .povRight()
+        .whileTrue(flywheel.runVelocityCommandRPM(tuneFlywheelRPM::get))
+        .onFalse(flywheel.stopCommand());
+    manualController.povLeft().onTrue(robotState.seek(IntakePivotState.SHOOTING_POS));
 
+    // zero hood angle please do this before updating code (limit switch doesn't
+    // work)
+    manualController.a().onTrue(hood.moveToAngle(() -> 10));
 
-    // CONTROLLER 2 for MANUAL mode
-
-    // intake down
-    // manualController
-    // .leftBumper()
-    // .whileTrue(robotState.seekIndefinite(IntakePivotState.DOWN));
-
-    // actually intake
-    manualController.leftTrigger().whileTrue(robotState.seekIndefinite(IntakeRollerState.INWARD));
-
-    // intake combined
-    // manualController
-    // .a()
-    // .whileTrue(robotState.seekIndefinite(IntakePivotState.DOWN, IntakeRollerState.INWARD));
-
-    // flywheels
-
-    // manualController.rightBumper().whileTrue(robotState.seekIndefinite(FlywheelState.SEEK_GOAL));
-    manualController.rightBumper().whileTrue(robotState.seekIndefinite(FlywheelState.SEEK_GOAL)).onFalse(robotState.seekIndefinite(FlywheelState.STOPPED));
-
-    // hood
-    // manualController
-    //     .rightTrigger()
-    //     .whileTrue(robotState.seekIndefinite(HoodState.SEEK_GOAL));
-
-    // //indexer
-    //      manualController
-    //     .x()
-    //     .whileTrue(robotState.seekIndefinite(IndexerState.SEEK_GOAL));
-
-    // spindexer
-    manualController.y().whileTrue(robotState.seekIndefinite(SpindexerState.INDEXING, IndexerState.INDEXING));
-    // combined
-
+    // zero the gyro
+    manualController
+        .povLeft()
+        .onTrue(
+            Commands.runOnce(
+                    () ->
+                        drive.setPose(
+                            new Pose2d(drive.getPose().getTranslation(), Rotation2d.kZero)),
+                    drive)
+                .ignoringDisable(true));
   }
-
-  private double getDriveForward() {
-    // If controller is plugged in, use it. Otherwise, use keyboard.
-    if (controller.getHID().isConnected()) {
-      return -controller.getLeftY();
-    }
-    return keyboard.getRawAxis(1); // Usually 'W' and 'S' in Sim
-  }
-
-  private double getDriveLeft() {
-    if (controller.getHID().isConnected()) {
-      return -controller.getLeftX();
-    }
-    return keyboard.getRawAxis(0); // Usually 'A' and 'D' in Sim
-  }
-
-  private double getDriveRotation() {
-    if (controller.getHID().isConnected()) {
-      return -controller.getRightX();
-    }
-    return keyboard.getRawAxis(4); // Usually 'J' and 'L' or Arrow Keys
-  }
-
   /**
    * Use this to pass the autonomous command to the main {@link Robot} class.
    *

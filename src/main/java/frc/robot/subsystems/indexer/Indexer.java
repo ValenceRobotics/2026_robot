@@ -1,5 +1,7 @@
 package frc.robot.subsystems.indexer;
 
+import edu.wpi.first.math.filter.Debouncer;
+import edu.wpi.first.math.filter.Debouncer.DebounceType;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.RobotState.IndexerState;
 import frc.robot.subsystems.indexer.IndexerIO.IndexerIOMode;
@@ -12,6 +14,7 @@ public class Indexer extends FullSubsystem {
   private final IndexerIO io;
   private final IndexerIOInputsAutoLogged inputs = new IndexerIOInputsAutoLogged();
   private final IndexerIOOutputs outputs = new IndexerIOOutputs();
+  private final Debouncer doneShootingDebouncer = new Debouncer(2, DebounceType.kRising);
 
   private double goalVolts = 0.0;
   @AutoLogOutput private IndexerState state = IndexerState.IDLE;
@@ -37,6 +40,7 @@ public class Indexer extends FullSubsystem {
     Logger.recordOutput("Indexer/SupplyCurrentAmps", inputs.supplyCurrentAmps);
     Logger.recordOutput("Indexer/StatorCurrentAmps", inputs.statorCurrentAmps);
     Logger.recordOutput("Indexer/Voltage", inputs.appliedVoltage);
+    Logger.recordOutput("Indexer/hasFuel", inputs.hasFuel);
   }
 
   @Override
@@ -55,14 +59,24 @@ public class Indexer extends FullSubsystem {
     goalVolts = volts;
   }
 
-  @AutoLogOutput(key = "Spindexer/velocityRadsPerSec")
+  @AutoLogOutput(key = "Indexer/velocityRadsPerSec")
   public double getVelocityRadsPerSec() {
     return inputs.velocityRadsPerSec;
   }
 
-  @AutoLogOutput(key = "Spindexer/MeasuredVoltage")
+  @AutoLogOutput(key = "Indexer/MeasuredVoltage")
   public double getAppliedVoltage() {
     return inputs.appliedVoltage;
+  }
+
+  @AutoLogOutput(key = "Indexer/HasFuel")
+  public boolean getFuelState() {
+    return inputs.hasFuel;
+  }
+
+  @AutoLogOutput(key = "Indexer/doneShooting")
+  public boolean doneShooting() {
+    return doneShootingDebouncer.calculate(!inputs.hasFuel);
   }
 
   public Command seekCommand(IndexerState state) {

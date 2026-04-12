@@ -23,8 +23,10 @@ import edu.wpi.first.hal.FRCNetComm.tResourceType;
 import edu.wpi.first.hal.HAL;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.Matrix;
+import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Twist2d;
@@ -46,8 +48,11 @@ import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.Constants;
 import frc.robot.Constants.Mode;
 import frc.robot.FieldConstants;
+import frc.robot.FieldConstants.TrenchAlignConstants;
 import frc.robot.subsystems.shooter.ShotCalculator;
+import frc.robot.subsystems.vision.VisionConstants;
 import frc.robot.util.LocalADStarAK;
+import frc.robot.util.LoggedTunableNumber;
 import frc.robot.util.geometry.AllianceFlipUtil;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
@@ -78,6 +83,21 @@ public class Drive extends SubsystemBase {
   // TODO: Delete this
   private Rotation2d AimbotHeading = Rotation2d.kZero;
   private boolean trenchProtectionEnabled = false;
+
+  // PID controller for trench alignment
+  // In Drive.java or RobotContainer
+  private static final LoggedTunableNumber trenchYKp =
+      new LoggedTunableNumber("TrenchAlign/YKp", 1.5);
+  private static final LoggedTunableNumber trenchYKd =
+      new LoggedTunableNumber("TrenchAlign/YKd", 0.001);
+  private final PIDController trenchYController =
+      new PIDController(trenchYKp.get(), 0.0, trenchYKd.get());
+  private static final LoggedTunableNumber trenchHeadingKp =
+      new LoggedTunableNumber("TrenchAlign/HeadingKp", 2.0);
+  private final PIDController trenchHeadingController =
+      new PIDController(trenchHeadingKp.get(), 0.0, 0.0);
+  private double trenchTargetY = 0.0;
+  private Rotation2d lockedTrenchHeading;
 
   public Drive(
       GyroIO gyroIO,
@@ -199,6 +219,19 @@ public class Drive extends SubsystemBase {
             .getTranslation()
             .getDistance(
                 AllianceFlipUtil.apply(FieldConstants.Hub.topCenterPoint.toTranslation2d())));
+
+    Logger.recordOutput(
+        "Field/HubCenter",
+        new Pose2d(
+            AllianceFlipUtil.apply(FieldConstants.Hub.topCenterPoint.toTranslation2d()),
+            new Rotation2d()));
+
+    Logger.recordOutput(
+        "Vision/camera_f", new Pose3d(getPose()).transformBy(VisionConstants.robotToCameraF));
+    Logger.recordOutput(
+        "Vision/camera_l", new Pose3d(getPose()).transformBy(VisionConstants.robotToCameraL));
+    Logger.recordOutput(
+        "Vision/camera_r", new Pose3d(getPose()).transformBy(VisionConstants.robotToCameraR));
   }
 
   /**
@@ -390,6 +423,7 @@ public class Drive extends SubsystemBase {
   public void updateAimbotHeading(Translation2d target) {
     AimbotHeading = ShotCalculator.calculate(getPose(), getFieldVelocity(), target).robotHeading();
   }
+
   // returns cached aimbot heading
   public Rotation2d getCachedAimbotHeading() {
     return AimbotHeading;
@@ -400,9 +434,26 @@ public class Drive extends SubsystemBase {
     Rotation2d error = AimbotHeading.minus(getRotation());
     double omega = gyroInputs.yawVelocityRadPerSec;
 
-    Logger.recordOutput("Aimbot/HeadingErrorRad", Units.radiansToDegrees(error.getRadians()));
+    Logger.recordOutput(
+        "Aimbot/HeadingErrorRad",
+        Units.radiansToDegrees(error.getRadians() - DriveConstants.aimbotOffset));
     Logger.recordOutput("Aimbot/OmegaRadPerSec", omega);
-    return Math.abs(error.getRadians()) < DriveConstants.kAimbotHeadingToleranceRad
+    return Math.abs(error.getRadians() - DriveConstants.aimbotOffset)
+            < DriveConstants.kAimbotHeadingToleranceRad
+        && Math.abs(omega) < DriveConstants.kAimbotOmegaToleranceRadPerSec;
+  }
+
+  @AutoLogOutput(key = "Aimbot/AtHeadingPass")
+  public boolean atCachedAimbotHeadingForPassing() {
+    Rotation2d error = AimbotHeading.minus(getRotation());
+    double omega = gyroInputs.yawVelocityRadPerSec;
+
+    Logger.recordOutput(
+        "Aimbot/HeadingErrorRadPass",
+        Units.radiansToDegrees(error.getRadians() - DriveConstants.aimbotOffset));
+    Logger.recordOutput("Aimbot/OmegaRadPerSecPass", omega);
+    return Math.abs(error.getRadians() - DriveConstants.aimbotOffset)
+            < DriveConstants.kAimbotHeadingPassingToleranceRad
         && Math.abs(omega) < DriveConstants.kAimbotOmegaToleranceRadPerSec;
   }
 
@@ -413,6 +464,101 @@ public class Drive extends SubsystemBase {
         ShotCalculator.calculate(getPose(), getFieldVelocity(), targetTranslation2d).robotHeading();
 
     return targetRotation;
+  }
+
+  public void updateTrenchAlignment(boolean isLeftTrench) {
+    // Snapshot heading at call time to avoid 0/±180 boundary oscillation
+    lockedTrenchHeading = getRotation();
+
+    // Reset both controllers so there's no leftover state from a previous run
+    trenchYController.reset();
+    trenchHeadingController.reset();
+
+    // Set tolerances
+    trenchYController.setTolerance(TrenchAlignConstants.alignmentYToleranceMeters);
+    trenchHeadingController.setTolerance(
+        Units.degreesToRadians(TrenchAlignConstants.alignmentHeadingToleranceDegrees));
+
+    // Ensure continuous input is set (safe to call every time)
+    trenchHeadingController.enableContinuousInput(-Math.PI, Math.PI);
+
+    // Select target Y based on alliance and side
+    trenchTargetY =
+        AllianceFlipUtil.shouldFlip()
+            ? (isLeftTrench
+                ? TrenchAlignConstants.oppLeftTrenchCenterY
+                : TrenchAlignConstants.oppRightTrenchCenterY)
+            : (isLeftTrench
+                ? TrenchAlignConstants.leftTrenchCenterY
+                : TrenchAlignConstants.rightTrenchCenterY);
+
+    Logger.recordOutput("TrenchAlign/TargetY", trenchTargetY);
+    Logger.recordOutput("TrenchAlign/LockedHeading", lockedTrenchHeading.getDegrees());
+  }
+
+  public double getTrenchHeadingCorrection() {
+    Rotation2d entryHeadingSetpoint =
+        Math.abs(getRotation().getDegrees()) < 90.0
+            ? Rotation2d.fromDegrees(0.0)
+            : Rotation2d.fromDegrees(180.0);
+
+    double omega =
+        MathUtil.clamp(
+            trenchHeadingController.calculate(
+                getRotation().getRadians(), entryHeadingSetpoint.getRadians()),
+            -Units.degreesToRadians(90.0),
+            Units.degreesToRadians(90.0));
+    Logger.recordOutput("TrenchAlign/OmegaRadPerSec", omega);
+    return omega;
+  }
+
+  public Rotation2d getLockedTrenchHeading() {
+    return lockedTrenchHeading;
+  }
+
+  @AutoLogOutput(key = "TrenchAlign/AtY")
+  public boolean atTrenchAlignment() {
+    return trenchYController.atSetpoint();
+  }
+
+  @AutoLogOutput(key = "TrenchAlign/IsCloserToLeft")
+  public boolean isCloserToLeftTrench() {
+    double currentY = getPose().getY();
+    double leftTarget =
+        AllianceFlipUtil.shouldFlip()
+            ? TrenchAlignConstants.oppLeftTrenchCenterY
+            : TrenchAlignConstants.leftTrenchCenterY;
+    double rightTarget =
+        AllianceFlipUtil.shouldFlip()
+            ? TrenchAlignConstants.oppRightTrenchCenterY
+            : TrenchAlignConstants.rightTrenchCenterY;
+    return Math.abs(currentY - leftTarget) < Math.abs(currentY - rightTarget);
+  }
+
+  @AutoLogOutput(key = "TrenchAlign/CorrectionVY")
+  public double getTrenchAlignVY() {
+    double correction =
+        MathUtil.clamp(trenchYController.calculate(getPose().getY(), trenchTargetY), -1.5, 1.5);
+    Logger.recordOutput("TrenchAlign/CurrentY", getPose().getY());
+    Logger.recordOutput("TrenchAlign/YError", trenchTargetY - getPose().getY());
+    return correction;
+  }
+
+  // get the closest target for passing
+  @AutoLogOutput(key = "Drive/bestPassingTarget")
+  public Translation2d getBestPassingTarget() {
+    Pose2d robotPose = getPose();
+    double offset = .75;
+
+    Translation2d cornerA = new Translation2d(offset, offset);
+    Translation2d cornerB = new Translation2d(offset, FieldConstants.fieldWidth - offset);
+
+    double dA = robotPose.getTranslation().getDistance(cornerA);
+    double dB = robotPose.getTranslation().getDistance(cornerB);
+
+    Translation2d desired = dA < dB ? cornerA : cornerB;
+
+    return AllianceFlipUtil.passingTargetFlip(desired);
   }
 
   // enables trench protect mode

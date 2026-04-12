@@ -8,12 +8,17 @@ import com.revrobotics.spark.SparkBase.ControlType;
 import com.revrobotics.spark.SparkClosedLoopController;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.SparkMax;
-import com.revrobotics.spark.config.MAXMotionConfig.MAXMotionPositionMode;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 import com.revrobotics.spark.config.SparkMaxConfig;
+import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.math.util.Units;
+import edu.wpi.first.wpilibj.DigitalInput;
+import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.subsystems.shooter.ShooterConstants;
+import frc.robot.subsystems.shooter.ShooterConstants.HoodConstants;
 import frc.robot.util.SparkUtil;
-import org.littletonrobotics.junction.Logger;
+import org.littletonrobotics.junction.AutoLogOutput;
 
 public class HoodIOReal implements HoodIO {
 
@@ -21,6 +26,10 @@ public class HoodIOReal implements HoodIO {
       new SparkMax(ShooterConstants.HoodConstants.hoodMotorId, MotorType.kBrushless);
   private SparkClosedLoopController hoodController;
   private IdleMode currentIdleMode = IdleMode.kBrake;
+  private final DigitalInput bottomSwitch = new DigitalInput(1); // assuming wired into rio
+  private boolean lastBottomPressed = false;
+  // private final SparkLimitSwitch bottomSwitch = hood.getReverseLimitSwitch(); // this is assuming
+  // is wired in to sparkmax
 
   public HoodIOReal() {
     hoodController = hood.getClosedLoopController();
@@ -31,6 +40,8 @@ public class HoodIOReal implements HoodIO {
         .idleMode(IdleMode.kBrake)
         .smartCurrentLimit(ShooterConstants.HoodConstants.currentLimit)
         .voltageCompensation(12.0);
+
+    hoodConfig.inverted(true);
 
     hoodConfig
         .encoder
@@ -47,20 +58,17 @@ public class HoodIOReal implements HoodIO {
             ShooterConstants.HoodConstants.kDReal.get())
         .outputRange(-1, 1);
 
-    // These should be in rad/s and rad/s² after conversion
-    hoodConfig
-        .closedLoop
-        .maxMotion
-        .cruiseVelocity(ShooterConstants.HoodConstants.cruiseVelocity)
-        .maxAcceleration(ShooterConstants.HoodConstants.maxAcceleration)
-        .positionMode(MAXMotionPositionMode.kMAXMotionTrapezoidal);
-
     SparkUtil.tryUntilOk(
         hood,
         5,
         () ->
             hood.configure(
                 hoodConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters));
+
+    Trigger bottomHoodLimitSwitch = new Trigger(this::isBottomPressed);
+
+    bottomHoodLimitSwitch.onTrue(Commands.runOnce(() -> this.zeroHood()));
+    hood.getEncoder().setPosition(Units.degreesToRadians(10));
   }
 
   @Override
@@ -71,15 +79,19 @@ public class HoodIOReal implements HoodIO {
     inputs.appliedVolts = hood.getAppliedOutput() * hood.getBusVoltage();
     inputs.supplyCurrentAmps = hood.getOutputCurrent();
     inputs.tempCelsius = hood.getMotorTemperature();
+
+    boolean bottomPressed = isBottomPressed();
+    inputs.bottomLimitSwitch = bottomPressed;
+    if (bottomPressed && !lastBottomPressed) {
+      hood.getEncoder().setPosition(Units.degreesToRadians(10));
+    }
   }
 
   @Override
   public void applyOutputs(HoodIOOutputs outputs) {
-
-    // push new config when tunable numbers change
     if (ShooterConstants.HoodConstants.kPReal.hasChanged(hashCode())
         || ShooterConstants.HoodConstants.kDReal.hasChanged(hashCode())) {
-      var updateConfig = new SparkMaxConfig();
+      SparkMaxConfig updateConfig = new SparkMaxConfig();
       updateConfig.closedLoop.pid(
           ShooterConstants.HoodConstants.kPReal.get(),
           0.0,
@@ -98,13 +110,36 @@ public class HoodIOReal implements HoodIO {
         hood.set(0.0);
       }
       case CLOSED_LOOP -> {
+        double setpoint = outputs.positionRad;
+        if (isBottomPressed()) {
+          setpoint = Math.max(setpoint, HoodConstants.MIN_ANGLE);
+        }
+
+        double error = setpoint - hood.getEncoder().getPosition();
+        if (Math.abs(error)
+            < Units.degreesToRadians(ShooterConstants.HoodConstants.motorStopToleranceDeg.get())) {
+          hood.setVoltage(0);
+        } else {
+          double ff = ShooterConstants.HoodConstants.kGReal.get();
+          hoodController.setSetpoint(setpoint, ControlType.kPosition, ClosedLoopSlot.kSlot0, ff);
+        }
+      }
+      case VOLTAGE_CONTROL -> {
         setIdleMode(IdleMode.kBrake);
-        double ff = ShooterConstants.HoodConstants.kGReal.get();
-        hoodController.setSetpoint(
-            outputs.positionRad, ControlType.kMAXMotionPositionControl, ClosedLoopSlot.kSlot0, ff);
-        Logger.recordOutput("Hood/Setpoint", outputs.positionRad);
+        double volts = MathUtil.clamp(outputs.voltage, -12.0, 12.0);
+        hood.setVoltage(volts);
       }
     }
+  }
+
+  @AutoLogOutput(key = "Hood/best limit switch")
+  public boolean isBottomPressed() {
+    // return (!bottomSwitch.get());
+    return false;
+  }
+
+  public void zeroHood() {
+    hood.getEncoder().setPosition(Units.degreesToRadians(10));
   }
 
   private void setIdleMode(IdleMode mode) {

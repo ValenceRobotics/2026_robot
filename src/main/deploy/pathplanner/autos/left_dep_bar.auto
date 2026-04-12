@@ -7,25 +7,50 @@
         {
           "type": "path",
           "data": {
-            "pathName": "left_dep"
+            "pathName": "left_bar_nuetral"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "left_dep_shoot(hub)"
+            "pathName": "nuetral_left"
           }
         },
         {
-          "type": "path",
+          "type": "named",
           "data": {
-            "pathName": "shoot_left_bar_nuetral"
+            "name": "autoAlignPrepareToShoot"
           }
         },
         {
-          "type": "path",
+          "type": "parallel",
           "data": {
-            "pathName": "nuetralintake_shoot"
+            "commands": [
+              {
+                "type": "named",
+                "data": {
+                  "name": "shootWhenReady"
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "intakeShootingPosition"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "stopEverything"
+          }
+        },
+        {
+          "type": "wait",
+          "data": {
+            "waitTime": 4.5
           }
         }
       ]

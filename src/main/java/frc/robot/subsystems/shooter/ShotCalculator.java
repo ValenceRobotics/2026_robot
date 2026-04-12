@@ -2,6 +2,7 @@ package frc.robot.subsystems.shooter;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import frc.robot.FieldConstants;
@@ -27,23 +28,30 @@ public class ShotCalculator {
 
   public static ShotParams calculate(
       Pose2d pose, ChassisSpeeds fieldVelocity, Translation2d target) {
-    target = AllianceFlipUtil.apply(target);
-    Translation2d robotPos = pose.getTranslation();
 
-    double distance = robotPos.getDistance(target);
+    target = AllianceFlipUtil.apply(target);
+
+    Transform2d robotToShooter2d =
+        new Transform2d(
+            ShooterConstants.robotToShooter.getTranslation().toTranslation2d(),
+            ShooterConstants.robotToShooter.getRotation().toRotation2d());
+
+    Pose2d shooterPose = pose.transformBy(robotToShooter2d);
+    Translation2d shooterPos = shooterPose.getTranslation();
+
+    double distance = shooterPos.getDistance(target);
     double tof = ShooterConstants.timeOfFlightMap.get(distance);
 
-    // look ahead position based off vel
-    Translation2d futurePos =
-        robotPos.plus(
+    Translation2d futureShooterPos =
+        shooterPos.plus(
             new Translation2d(
                 fieldVelocity.vxMetersPerSecond * tof, fieldVelocity.vyMetersPerSecond * tof));
 
-    double futureDistance = futurePos.getDistance(target);
+    double futureDistance = futureShooterPos.getDistance(target);
+
     Rotation2d hood = ShooterConstants.hoodAngleMap.get(futureDistance);
     double rpm = ShooterConstants.flywheelMap.get(futureDistance);
 
-    // hood vel feedforwardhood
     double hoodVel = 0.0;
     if (!Double.isNaN(lastDistance)) {
       double nextHood = ShooterConstants.hoodAngleMap.get(futureDistance).getRadians();
@@ -53,7 +61,7 @@ public class ShotCalculator {
     lastHood = hood.getRadians();
     lastDistance = futureDistance;
 
-    Rotation2d robotHeading = target.minus(futurePos).getAngle();
+    Rotation2d robotHeading = target.minus(futureShooterPos).getAngle();
 
     return new ShotParams(hood, hoodVel, rpm, robotHeading, futureDistance);
   }

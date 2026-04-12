@@ -5,33 +5,45 @@
     "data": {
       "commands": [
         {
-          "type": "path",
+          "type": "named",
           "data": {
-            "pathName": "right_trench_hp"
+            "name": "intakedown"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "hp_shootr"
+            "pathName": "shootr_nuetral_2_right"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "shootr_nuetral"
+            "pathName": "nuetral_back"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "nuetral_shootr"
+            "pathName": "nuetral_trench_shoot_right"
           }
         },
         {
-          "type": "path",
+          "type": "named",
           "data": {
-            "pathName": "shootr_climb"
+            "name": "autoAlignPrepareToShoot"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "shootWhenReady"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "stopEverything"
           }
         }
       ]

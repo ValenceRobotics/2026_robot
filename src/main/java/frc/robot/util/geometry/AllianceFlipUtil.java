@@ -53,6 +53,13 @@ public class AllianceFlipUtil {
     return new Pose3d(apply(pose.getTranslation()), apply(pose.getRotation()));
   }
 
+  public static Translation2d passingTargetFlip(Translation2d desiredFieldTarget) {
+    return AllianceFlipUtil.shouldFlip()
+        ? new Translation2d(
+            desiredFieldTarget.getX(), FieldConstants.fieldWidth - desiredFieldTarget.getY())
+        : desiredFieldTarget;
+  }
+
   public static boolean shouldFlip() {
     return !Constants.disableHAL
         && DriverStation.getAlliance().isPresent()

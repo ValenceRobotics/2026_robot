@@ -11,9 +11,52 @@
           }
         },
         {
+          "type": "wait",
+          "data": {
+            "waitTime": 2.0
+          }
+        },
+        {
           "type": "path",
           "data": {
             "pathName": "hp_shootr"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "autoAlignPrepareToShoot"
+          }
+        },
+        {
+          "type": "parallel",
+          "data": {
+            "commands": [
+              {
+                "type": "named",
+                "data": {
+                  "name": "shootWhenReady"
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "intakeShootingPosition"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "type": "wait",
+          "data": {
+            "waitTime": 4.5
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "stopEverything"
           }
         },
         {
@@ -23,9 +66,52 @@
           }
         },
         {
+          "type": "named",
+          "data": {
+            "name": "stopEverything"
+          }
+        },
+        {
           "type": "path",
           "data": {
             "pathName": "nuetral_shootr"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "autoAlignPrepareToShoot"
+          }
+        },
+        {
+          "type": "parallel",
+          "data": {
+            "commands": [
+              {
+                "type": "named",
+                "data": {
+                  "name": "shootWhenReady"
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "intakeShootingPosition"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "type": "wait",
+          "data": {
+            "waitTime": 4.5
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "stopEverything"
           }
         }
       ]

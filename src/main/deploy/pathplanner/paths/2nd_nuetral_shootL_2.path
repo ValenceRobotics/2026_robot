@@ -3,60 +3,66 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 1.05,
-        "y": 5.956
+        "x": 5.952111111111111,
+        "y": 5.0327
       },
       "prevControl": null,
       "nextControl": {
-        "x": 0.6142503460511135,
-        "y": 6.154563282350551
+        "x": 6.466077777777778,
+        "y": 6.221877777777778
       },
       "isLocked": false,
       "linkedName": null
     },
     {
       "anchor": {
-        "x": 2.317287615740741,
-        "y": 5.567333984375
+        "x": 6.3854555555555566,
+        "y": 7.531988888888888
       },
       "prevControl": {
-        "x": 2.5552340859872507,
-        "y": 5.4508241362311525
+        "x": 6.476155555555556,
+        "y": 6.4234333333333336
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": "shoot"
+      "linkedName": null
     }
   ],
   "rotationTargets": [],
   "constraintZones": [],
-  "pointTowardsZones": [
-    {
-      "fieldPosition": {
-        "x": 4.625,
-        "y": 4.03
-      },
-      "rotationOffset": 0.0,
-      "minWaypointRelativePos": 0.3738672933604336,
-      "maxWaypointRelativePos": 0.75,
-      "name": "hub"
-    }
-  ],
+  "pointTowardsZones": [],
   "eventMarkers": [
     {
-      "name": "flywheels+ hood start",
-      "waypointRelativePos": 0.0,
+      "name": "intake",
+      "waypointRelativePos": 0,
       "endWaypointRelativePos": null,
       "command": {
         "type": "named",
         "data": {
-          "name": "flywheelHoodGo"
+          "name": "intake"
         }
       }
+    },
+    {
+      "name": "stopIntake",
+      "waypointRelativePos": 0.9,
+      "endWaypointRelativePos": null,
+      "command": {
+        "type": "named",
+        "data": {
+          "name": "stopIntake"
+        }
+      }
+    },
+    {
+      "name": "flywheelHoodGo",
+      "waypointRelativePos": 1.0,
+      "endWaypointRelativePos": null,
+      "command": null
     }
   ],
   "globalConstraints": {
-    "maxVelocity": 5.0,
+    "maxVelocity": 4.7,
     "maxAcceleration": 5.5,
     "maxAngularVelocity": 540.0,
     "maxAngularAcceleration": 720.0,
@@ -65,13 +71,13 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": -29.999999999999996
+    "rotation": 0.0
   },
   "reversed": false,
   "folder": null,
   "idealStartingState": {
     "velocity": 0,
-    "rotation": 0.0
+    "rotation": 75.0
   },
   "useDefaultConstraints": true
 }

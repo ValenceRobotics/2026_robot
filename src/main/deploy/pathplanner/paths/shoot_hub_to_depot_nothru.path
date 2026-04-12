@@ -42,10 +42,21 @@
           "name": "intake"
         }
       }
+    },
+    {
+      "name": "stopIntake",
+      "waypointRelativePos": 0.9700218023255817,
+      "endWaypointRelativePos": null,
+      "command": {
+        "type": "named",
+        "data": {
+          "name": "stopIntake"
+        }
+      }
     }
   ],
   "globalConstraints": {
-    "maxVelocity": 5.0,
+    "maxVelocity": 4.7,
     "maxAcceleration": 5.5,
     "maxAngularVelocity": 540.0,
     "maxAngularAcceleration": 720.0,
