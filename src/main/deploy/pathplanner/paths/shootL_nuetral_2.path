@@ -20,7 +20,7 @@
         "y": 7.528711488538402
       },
       "prevControl": {
-        "x": 3.7093129285896143,
+        "x": 3.709312928589614,
         "y": 7.633612761754093
       },
       "nextControl": {
@@ -48,12 +48,12 @@
     },
     {
       "anchor": {
-        "x": 8.199,
-        "y": 4.448188888888889
+        "x": 8.189,
+        "y": 4.67
       },
       "prevControl": {
-        "x": 8.070496219753025,
-        "y": 4.233743608077589
+        "x": 8.060496219753025,
+        "y": 4.4555547191887
       },
       "nextControl": null,
       "isLocked": false,
@@ -89,7 +89,7 @@
   "eventMarkers": [
     {
       "name": "intake",
-      "waypointRelativePos": 2.133980481727575,
+      "waypointRelativePos": 1.7547806524184422,
       "endWaypointRelativePos": 3.0,
       "command": {
         "type": "named",
@@ -108,7 +108,7 @@
     "unlimited": true
   },
   "goalEndState": {
-    "velocity": 0.0,
+    "velocity": 1.0,
     "rotation": 75.0
   },
   "reversed": false,

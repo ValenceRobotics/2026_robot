@@ -17,7 +17,7 @@ public final class IntakeConstants {
 
     // TODO: Tune this
     public static final double mmCruiseVelocityRotPerSec = 14.69;
-    public static final double mmAccelRotPerSec2 = 5;
+    public static final double mmAccelRotPerSec2 = 8;
     public static final double mmJerkRotPerSec3 = 0.0;
 
     public static final LoggedTunableNumber kP = new LoggedTunableNumber("IntakePivot/kP", 24);

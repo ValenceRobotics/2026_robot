@@ -208,7 +208,7 @@ public class RobotContainer {
             robotState
                 .seekIndefinite(SpindexerState.INDEXING, IndexerState.INDEXING)
                 .until(indexer::doneShooting)
-                .withTimeout(8)));
+                .withTimeout(8.5)));
     NamedCommands.registerCommand(
         "intake",
         robotState
@@ -225,7 +225,7 @@ public class RobotContainer {
                     .withTimeout(.5))
             .repeatedly()
             .until(indexer::doneShooting)
-            .withTimeout(6.5));
+            .withTimeout(7));
 
     NamedCommands.registerCommand(
         "autoAlignPrepareToShoot",
